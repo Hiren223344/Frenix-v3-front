@@ -340,10 +340,8 @@ export default function Dashboard() {
       {/* Keys Table / Container */}
       <div style={{ border: '1px solid var(--border)', borderRadius: '14px', overflow: 'hidden', backgroundColor: 'var(--card)' }}>
         <div
+          className="frenix-key-header"
           style={{
-            display: 'grid',
-            gridTemplateColumns: '1.2fr 1.6fr 1fr 1fr 0.8fr',
-            gap: '12px',
             padding: '12px 18px',
             fontSize: '12px',
             fontWeight: 500,
@@ -357,7 +355,7 @@ export default function Dashboard() {
           <div>Key</div>
           <div>Created</div>
           <div>Last used</div>
-          <div style={{ textAlign: 'right' }}>Actions</div>
+          <div className="frenix-key-actions">Actions</div>
         </div>
 
         {keys.length === 0 ? (
@@ -370,14 +368,11 @@ export default function Dashboard() {
           keys.map((k) => (
             <div
               key={k.id}
+              className="frenix-key-row"
               style={{
-                display: 'grid',
-                gridTemplateColumns: '1.2fr 1.6fr 1fr 1fr 0.8fr',
-                gap: '12px',
                 padding: '14px 18px',
                 fontSize: '13px',
                 borderBottom: '1px solid var(--border)',
-                alignItems: 'center',
               }}
             >
               <div style={{ fontWeight: 500 }}>{k.name}</div>
@@ -393,9 +388,13 @@ export default function Dashboard() {
                   {copiedKeyId === k.id ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
                 </button>
               </div>
-              <div style={{ color: 'var(--muted)', fontSize: '12px' }}>{k.created}</div>
-              <div style={{ color: 'var(--muted)', fontSize: '12px' }}>{k.lastUsed}</div>
-              <div style={{ textAlign: 'right' }}>
+              <div style={{ color: 'var(--muted)', fontSize: '12px' }}>
+                <span className="frenix-mobile-label">Created: </span>{k.created}
+              </div>
+              <div style={{ color: 'var(--muted)', fontSize: '12px' }}>
+                <span className="frenix-mobile-label">Last used: </span>{k.lastUsed}
+              </div>
+              <div className="frenix-key-actions">
                 <button
                   onClick={() => handleRevokeKey(k.id)}
                   style={{

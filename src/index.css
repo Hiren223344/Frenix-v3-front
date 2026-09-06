@@ -96,6 +96,135 @@ button {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 }
 
+/* ---- Responsive layout ---- */
+
+.frenix-sidebar {
+  flex: 0 0 clamp(70px, 20vw, 240px);
+  width: clamp(70px, 20vw, 240px);
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+}
+
+.frenix-mobile-menu-btn {
+  display: none;
+}
+
+.frenix-mobile-backdrop {
+  display: none;
+}
+
+.frenix-key-header,
+.frenix-key-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.6fr 1fr 1fr 0.8fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.frenix-key-actions {
+  text-align: right;
+}
+
+.frenix-status-header,
+.frenix-status-row {
+  display: grid;
+  grid-template-columns: 2fr 1.4fr 1fr 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.frenix-status-latency {
+  text-align: right;
+}
+
+.frenix-mobile-label {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .frenix-mobile-menu-btn {
+    display: inline-flex !important;
+  }
+
+  .frenix-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 260px;
+    max-width: 82vw;
+    z-index: 200;
+    background-color: var(--bg);
+    box-shadow: 2px 0 24px rgba(0, 0, 0, 0.2);
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+
+  .frenix-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .frenix-mobile-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 199;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .frenix-mobile-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .frenix-header-inner,
+  .frenix-main-outlet,
+  .frenix-footer-inner {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .frenix-key-header {
+    display: none;
+  }
+
+  .frenix-key-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    align-items: flex-start;
+  }
+
+  .frenix-key-actions {
+    text-align: left;
+    margin-top: 4px;
+  }
+
+  .frenix-status-header {
+    display: none;
+  }
+
+  .frenix-status-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    align-items: flex-start;
+  }
+
+  .frenix-status-latency {
+    text-align: left;
+  }
+
+  .frenix-mobile-label {
+    display: inline;
+    font-weight: 500;
+    color: var(--text);
+  }
+}
+
 /* Suppress source dumping via Print / Save to PDF dialog */
 @media print {
   html, body {

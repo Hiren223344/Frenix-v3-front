@@ -36,8 +36,11 @@ if (typeof window !== 'undefined') {
   window.secureRelayRequest = secureRelayRequest;
 }
 
-// DevTools protection temporarily unlocked for debugging
-const DEV_TOOLS_PROTECTION_ENABLED = false;
+// Deterrent only, not a real security boundary — a determined user can
+// still open DevTools (browser menu, detached window, disabling JS
+// briefly). Actual protection is server-side: auth on every request,
+// secrets never sent to the client, no direct DB/Redis access from here.
+const DEV_TOOLS_PROTECTION_ENABLED = true;
 
 if (DEV_TOOLS_PROTECTION_ENABLED && typeof window !== 'undefined') {
   // 1. Prevent right click context menu inspection
