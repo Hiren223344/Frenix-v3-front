@@ -1,6 +1,44 @@
-﻿import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
-import { Search, Zap, Cpu, Sparkles, Filter, Check, Copy } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { Search, Zap, Cpu, Sparkles, Filter, Check, Copy, Wifi } from 'lucide-react';
+
+function formatContextWindow(tokens) {
+  if (!tokens) return '—';
+  if (tokens >= 1_000_000) return `${(tokens / 1_000_000).toFixed(tokens % 1_000_000 === 0 ? 0 : 1)}M tokens`;
+  if (tokens >= 1_000) return `${Math.round(tokens / 1000)}k tokens`;
+  return `${tokens} tokens`;
+}
+
+function describeCapabilities(capabilities) {
+  if (!capabilities) return 'Text';
+  const labels = [];
+  if (capabilities.vision) labels.push('Vision');
+  if (capabilities.tools) labels.push('Tools');
+  if (capabilities.streaming) labels.push('Streaming');
+  if (capabilities.json_mode) labels.push('JSON mode');
+  return labels.length ? labels.join(', ') : 'Text';
+}
+
+// Groups the flat GET /v1/models response into the same
+// { provider, models: [{ id, name, context, type, tier }] } shape the
+// static catalog below uses, so the rest of this page doesn't care whether
+// it's rendering real or placeholder data.
+function groupLiveModels(data) {
+  const byProvider = new Map();
+  for (const m of data) {
+    const provider = m.provider || 'Other';
+    if (!byProvider.has(provider)) byProvider.set(provider, []);
+    byProvider.get(provider).push({
+      id: m.id,
+      name: m.id,
+      context: formatContextWindow(m.context_window),
+      type: describeCapabilities(m.capabilities),
+      tier: m.tier_required ? m.tier_required[0].toUpperCase() + m.tier_required.slice(1) : 'Free',
+    });
+  }
+  return Array.from(byProvider.entries()).map(([provider, models]) => ({ provider, models }));
+}
 
 const MODEL_DATA = [
   {
@@ -56,9 +94,30 @@ const MODEL_DATA = [
 
 export default function Models() {
   const { accentDisplay } = useTheme();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [copiedId, setCopiedId] = useState(null);
   const [selectedProvider, setSelectedProvider] = useState('All');
+  const [liveData, setLiveData] = useState(null);
+
+  useEffect(() => {
+    const sessionToken = user?.sessionToken || localStorage.getItem('frenix_session_token');
+    if (!sessionToken || !window.secureRelayRequest) return;
+
+    let cancelled = false;
+    window.secureRelayRequest('/v1/models', {
+      headers: { Authorization: `Bearer ${sessionToken}` },
+    }).then((res) => {
+      if (cancelled || !res.ok || !res.data?.data?.length) return;
+      setLiveData(groupLiveModels(res.data.data));
+    }).catch(() => {
+      // Fall back to the static catalog below.
+    });
+
+    return () => { cancelled = true; };
+  }, [user]);
+
+  const catalog = liveData || MODEL_DATA;
 
   const copyModelId = (id) => {
     if (navigator.clipboard) {
@@ -68,11 +127,11 @@ export default function Models() {
     setTimeout(() => setCopiedId(null), 1800);
   };
 
-  const providers = ['All', 'OpenAI', 'Anthropic', 'Google DeepMind', 'Meta', 'xAI & Mistral', 'DeepSeek'];
+  const providers = useMemo(() => ['All', ...catalog.map((g) => g.provider)], [catalog]);
 
   const filteredData = useMemo(() => {
     const q = searchTerm.toLowerCase().trim();
-    return MODEL_DATA.map((group) => {
+    return catalog.map((group) => {
       if (selectedProvider !== 'All' && group.provider !== selectedProvider) {
         return null;
       }
@@ -88,16 +147,39 @@ export default function Models() {
         models: matchingModels,
       };
     }).filter(Boolean);
-  }, [searchTerm, selectedProvider]);
+  }, [catalog, searchTerm, selectedProvider]);
 
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
       <div style={{ marginBottom: '36px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 300, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
-          Models Directory
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+          <h1 style={{ fontSize: '32px', fontWeight: 300, margin: 0, letterSpacing: '-0.01em' }}>
+            Models Directory
+          </h1>
+          {liveData && (
+            <span
+              title="Showing models available on your account right now"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                fontSize: '11px',
+                fontWeight: 500,
+                color: '#16a34a',
+                border: '1px solid #16a34a',
+                borderRadius: '10px',
+                padding: '2px 8px',
+              }}
+            >
+              <Wifi size={11} />
+              Live
+            </span>
+          )}
+        </div>
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: '0 0 24px 0', maxWidth: '640px' }}>
-          150+ models across every major provider behind one unified endpoint. Switch any model instantaneously by passing its ID in your existing client.
+          {liveData
+            ? 'Models available on your account right now, fetched live from the gateway. Switch any model instantaneously by passing its ID in your existing client.'
+            : '150+ models across every major provider behind one unified endpoint. Switch any model instantaneously by passing its ID in your existing client.'}
         </p>
 
         {/* Search Bar */}
