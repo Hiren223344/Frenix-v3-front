@@ -9,68 +9,66 @@ export default function Dashboard() {
 
   const [keys, setKeys] = useState([]);
   const [account, setAccount] = useState(null);
-  const [usage, setUsage] = useState({ requests_last_24h: 42, requests_last_30d: 891 });
+  const [usage, setUsage] = useState({ requests_last_24h: 0, requests_last_30d: 0 });
   const [loading, setLoading] = useState(true);
   const [newKeyName, setNewKeyName] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [createdKey, setCreatedKey] = useState(null);
   const [copiedKeyId, setCopiedKeyId] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
+  const [syncError, setSyncError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchDashboardData = async () => {
     setLoading(true);
-    setErrorMsg('');
+    setSyncError('');
     try {
       const sessionToken = user?.sessionToken || localStorage.getItem('frenix_session_token');
+      if (!sessionToken || !window.secureRelayRequest) {
+        throw new Error('No active Telegram session found. Please log in first.');
+      }
 
       // 1. Fetch Account Info (GET /v1/me)
-      if (sessionToken && window.secureRelayRequest) {
-        const meRes = await window.secureRelayRequest('/v1/me', {
-          headers: { Authorization: `Bearer ${sessionToken}` }
-        });
-        if (meRes.ok && meRes.data) {
-          setAccount(meRes.data);
-        }
+      const meRes = await window.secureRelayRequest('/v1/me', {
+        headers: { Authorization: `Bearer ${sessionToken}` }
+      });
+      if (meRes.ok && meRes.data) {
+        setAccount(meRes.data);
       }
 
       // 2. Fetch Live Usage Metrics (GET /v1/usage)
-      if (sessionToken && window.secureRelayRequest) {
-        const usageRes = await window.secureRelayRequest('/v1/usage', {
-          headers: { Authorization: `Bearer ${sessionToken}` }
-        });
-        if (usageRes.ok && usageRes.data) {
-          setUsage(usageRes.data);
-        }
+      const usageRes = await window.secureRelayRequest('/v1/usage', {
+        headers: { Authorization: `Bearer ${sessionToken}` }
+      });
+      if (usageRes.ok && usageRes.data) {
+        setUsage(usageRes.data);
       }
 
       // 3. Fetch Keys (GET /v1/keys)
-      if (sessionToken && window.secureRelayRequest) {
-        const keysRes = await window.secureRelayRequest('/v1/keys', {
-          headers: { Authorization: `Bearer ${sessionToken}` }
-        });
-        if (keysRes.ok && keysRes.data?.keys) {
-          setKeys(
-            keysRes.data.keys.map((k) => ({
-              id: k.id,
-              name: k.name,
-              key: `${k.key_prefix || 'sk-frx-'}************`,
-              created: k.created_at ? new Date(k.created_at).toLocaleDateString() : 'Active',
-              lastUsed: k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : 'Never',
-              raw: null
-            }))
-          );
-          setLoading(false);
-          return;
-        }
+      const keysRes = await window.secureRelayRequest('/v1/keys', {
+        headers: { Authorization: `Bearer ${sessionToken}` }
+      });
+      if (!keysRes.ok || !keysRes.data?.keys) {
+        throw new Error(keysRes?.data?.error?.message || `Failed to load API keys (HTTP ${keysRes.status})`);
       }
-
-      // Fallback initial view if no keys minted yet
-      setKeys([
-        { id: '1', name: 'Production', key: 'sk-frx-98a12b************', raw: null, created: 'Today', lastUsed: 'Active' },
-      ]);
+      // Preserve the raw secret for any key minted earlier this session
+      // (the server never returns it again after creation).
+      const rawById = JSON.parse(localStorage.getItem('frenix_minted_keys') || '{}');
+      setKeys(
+        keysRes.data.keys.map((k) => ({
+          id: k.id,
+          name: k.name,
+          key: `${k.key_prefix || 'sk-frx-'}************`,
+          created: k.created_at ? new Date(k.created_at).toLocaleDateString() : 'Active',
+          lastUsed: k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : 'Never',
+          raw: rawById[k.id] || null
+        }))
+      );
     } catch (err) {
-      console.warn('Backend sync note:', err);
+      // Never fall back to fabricated keys/usage on a failed fetch — that
+      // would show the user keys they never created and can't use, and
+      // silently discard whatever real keys were already loaded.
+      setSyncError(err.message || 'Failed to sync with the Frenix gateway');
     } finally {
       setLoading(false);
     }
@@ -270,6 +268,12 @@ export default function Dashboard() {
         </p>
       </div>
 
+      {syncError && (
+        <div style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid #ef4444', backgroundColor: 'rgba(239, 68, 68, 0.08)', color: '#ef4444', fontSize: '13px', marginBottom: '24px' }}>
+          {syncError}
+        </div>
+      )}
+
       {/* Metrics Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '36px' }}>
         <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
@@ -358,7 +362,9 @@ export default function Dashboard() {
 
         {keys.length === 0 ? (
           <div style={{ padding: '36px', textAlign: 'center', color: 'var(--muted)', fontSize: '14px' }}>
-            No API keys found. Click "Create API key" above to generate your first key.
+            {syncError
+              ? 'Could not load your API keys. Try "Live Sync" above.'
+              : 'No API keys found. Click "Create API key" above to generate your first key.'}
           </div>
         ) : (
           keys.map((k) => (
