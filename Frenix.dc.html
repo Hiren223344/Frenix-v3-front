@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@300,400,500,600&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#ffffff;--text:#111111;--muted:#666666;--border:#e5e5e5;--card:#ffffff;}
+    [data-theme="dark"]{--bg:#0a0a0a;--text:#f2f2f2;--muted:#9a9a9a;--border:#2a2a2a;--card:#111111;}
+    body{margin:0;-webkit-font-smoothing:antialiased;}
+    *{box-sizing:border-box;}
+    a{text-decoration:none;}
+    button{font-family:inherit;}
+    a,button{transition:background-color .15s ease,border-color .15s ease,color .15s ease,opacity .15s ease,transform .15s ease;}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes popIn{from{opacity:0;transform:scale(0.6);}to{opacity:1;transform:scale(1);}}
+  </style>
+</helmet>
+<div data-theme="{{ theme }}" style="background:var(--bg);color:var(--text);min-height:100vh;font-family:'General Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+
+  <div style="display:flex;min-height:100vh;max-width:1600px;margin:0 auto;">
+    <aside style="flex:0 0 clamp(64px,52vw,240px);width:clamp(64px,52vw,240px);border-right:1px solid var(--border);padding:20px 14px;position:sticky;top:0;align-self:flex-start;max-height:100vh;overflow-y:auto;display:flex;flex-direction:column;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;padding:0 4px;flex-shrink:0;">
+        <svg viewBox="0 0 55 40" width="20" height="15" fill="none" style="flex-shrink:0;"><path fill="currentColor" d="M23.6322 0.597911C19.9395 1.76672 16.9327 5.48248 10.9192 12.914C3.501 22.0814 -0.208097 26.665 0.00900851 30.5474C0.155095 33.1598 1.30933 35.6108 3.22485 37.3763C6.07159 40 11.9392 40 23.6745 40H24.3275C27.1975 40 29.9133 38.6992 31.7186 36.4682C37.6627 29.1224 40.6348 25.4496 44.4744 24.8957C45.4078 24.7611 46.3555 24.7611 47.2889 24.8957C49.8634 25.2671 52.048 27.0408 55 30.3839C50.2776 21.5248 41.6084 3.83856 31.37 0.597911C28.8514 -0.199304 26.1508 -0.199304 23.6322 0.597911Z"></path></svg>
+        <span style="font-weight:500;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Frenix</span>
+      </div>
+      <nav style="display:flex;flex-direction:column;gap:2px;margin-bottom:14px;flex-shrink:0;">
+        <a href="#" onClick="{{ goDashboard }}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:18px;font-size:14px;color:var(--text);" style-hover="background:rgba(128,128,128,0.1);">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="8" cy="15" r="4"></circle><path d="M11 12 20 3M17 6l2.5 2.5M14 9l2 2"></path></svg>
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Open dashboard</span>
+        </a>
+        <a href="#" onClick="{{ goModels }}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:18px;font-size:14px;color:var(--text);" style-hover="background:rgba(128,128,128,0.1);">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Models</span>
+        </a>
+        <a href="#" onClick="{{ goHome }}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:18px;font-size:14px;color:var(--text);" style-hover="background:rgba(128,128,128,0.1);">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.6 3.24H4a1 1 0 0 0-1 1v5.6c0 .53.21 1.04.59 1.41l9.59 9.59a2 2 0 0 0 2.82 0l4.59-4.59a2 2 0 0 0 0-2.83z"></path><circle cx="7.5" cy="7.5" r="1.1"></circle></svg>
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Pricing</span>
+        </a>
+        <a href="#" onClick="{{ goDocs }}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:18px;font-size:14px;color:var(--text);" style-hover="background:rgba(128,128,128,0.1);">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M6 4h9a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.8.4L14 18H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"></path><line x1="7" y1="8" x2="14" y2="8"></line><line x1="7" y1="11.5" x2="14" y2="11.5"></line></svg>
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Documentation</span>
+        </a>
+      </nav>
+      <div style="border-top:1px solid var(--border);margin:2px 0 8px;flex-shrink:0;"></div>
+      <nav style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;">
+        <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:18px;font-size:14px;color:var(--text);" style-hover="background:rgba(128,128,128,0.1);">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M3 12h4l2-6 4 12 2-6h6"></path></svg>
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Status</span>
+        </a>
+        <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:18px;font-size:14px;color:var(--text);" style-hover="background:rgba(128,128,128,0.1);">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Support</span>
+        </a>
+      </nav>
+      <div style="flex:1;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 6px;flex-shrink:0;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="3" y1="12" x2="21" y2="12"></line><path d="M12 3a13 13 0 0 1 0 18 13 13 0 0 1 0-18z"></path></svg>
+          EN
+        </div>
+        <button onClick="{{ toggleTheme }}" aria-label="Toggle dark mode" style="border:none;background:none;cursor:pointer;color:var(--text);padding:4px;display:flex;" style-focus="outline:2px solid {{ accentDisplay }};outline-offset:2px;border-radius:4px;">
+          <sc-if value="{{ isDark }}" hint-placeholder-val="{{ false }}">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"></path></svg>
+          </sc-if>
+          <sc-if value="{{ isLight }}" hint-placeholder-val="{{ true }}">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+          </sc-if>
+        </button>
+      </div>
+      <a href="#" style="display:block;text-align:center;padding:10px 0;border-radius:18px;background:var(--text);color:var(--bg);font-size:13px;font-weight:300;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;" style-hover="opacity:0.85;" style-focus="outline:2px solid {{ accentDisplay }};outline-offset:2px;">Sign in</a>
+    </aside>
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+      <header style="position:sticky;top:0;z-index:40;background:var(--bg);border-bottom:1px solid var(--border);">
+        <div style="padding:0 24px;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:baseline;gap:8px;padding:12px 0;">
+            <span style="font-weight:500;font-size:18px;letter-spacing:-0.01em;">Frenix</span>
+            <span style="font-size:12px;color:var(--muted);">{{ sectionLabel }}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:20px;padding:12px 0;">
+            <a href="#" onClick="{{ goDocs }}" style="font-size:14px;color:var(--text);" style-hover="color:{{ accentDisplay }};" style-focus="outline:2px solid {{ accentDisplay }};outline-offset:3px;border-radius:2px;">Read documentation</a>
+            <a href="#" style="font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:18px;color:var(--text);" style-hover="border-color:var(--text);" style-focus="outline:2px solid {{ accentDisplay }};outline-offset:2px;">Sign in</a>
+          </div>
+        </div>
+      </header>
+      <main style="flex:1 1 auto;max-width:896px;margin:0 auto;padding:0 24px;width:100%;">
+
+    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+
+    <section style="padding:96px 0 64px 0;">
+      <h1 style="font-size:40px;line-height:1.15;font-weight:300;max-width:640px;margin:0 0 16px 0;letter-spacing:-0.01em;animation:fadeInUp .5s ease both;">The fastest way to ship with any model.</h1>
+      <p style="font-size:16px;line-height:1.6;color:var(--muted);max-width:560px;margin:0 0 32px 0;animation:fadeInUp .5s ease .08s both;">One key for Claude Code, Codex, Cline, and your own apps. 150+ models behind a single endpoint.</p>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:40px;background:var(--card);animation:fadeInUp .5s ease .16s both;">
+        <code style="font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;font-size:14px;color:var(--text);overflow-x:auto;white-space:nowrap;">export FRENIX_BASE_URL=https://api.frenix.sh/v1</code>
+        <button onClick="{{ copyCommand }}" aria-label="Copy command" style="flex-shrink:0;width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);" style-hover="border-color:var(--text);" style-focus="outline:2px solid {{ accentDisplay }};outline-offset:2px;">
+          <sc-if value="{{ copied }}" hint-placeholder-val="{{ false }}">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:popIn .25s ease both;"><path d="M5 13l4 4L19 7"></path></svg>
+          </sc-if>
+          <sc-if value="{{ notCopied }}" hint-placeholder-val="{{ true }}">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg>
+          </sc-if>
+        </button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;animation:fadeInUp .5s ease .24s both;">
+        <a href="#docs" style="display:block;border:1px solid var(--border);border-radius:12px;padding:16px;color:var(--text);" style-hover="border-color:var(--text);transform:translateY(-2px);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h9a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.8.4L14 18H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"></path><line x1="7" y1="8" x2="14" y2="8"></line><line x1="7" y1="11.5" x2="14" y2="11.5"></line></svg>
+            <span style="font-weight:300;font-size:15px;">Documentation</span>
+          </div>
+          <div style="font-size:13px;color:var(--muted);">OpenAI, Anthropic and Responses API</div>
+        </a>
+        <a href="#models" style="display:block;border:1px solid var(--border);border-radius:12px;padding:16px;color:var(--text);" style-hover="border-color:var(--text);transform:translateY(-2px);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
+            <span style="font-weight:300;font-size:15px;">Models</span>
+          </div>
+          <div style="font-size:13px;color:var(--muted);">Browse the full compatibility catalog</div>
+        </a>
+        <a href="#pricing" style="display:block;border:1px solid var(--border);border-radius:12px;padding:16px;color:var(--text);" style-hover="border-color:var(--text);transform:translateY(-2px);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.6 3.24H4a1 1 0 0 0-1 1v5.6c0 .53.21 1.04.59 1.41l9.59 9.59a2 2 0 0 0 2.82 0l4.59-4.59a2 2 0 0 0 0-2.83z"></path><circle cx="7.5" cy="7.5" r="1.1"></circle></svg>
+            <span style="font-weight:300;font-size:15px;">Pricing</span>
+          </div>
+          <div style="font-size:13px;color:var(--muted);">Compare access and concurrency</div>
+        </a>
+        <a href="#" style="display:block;border:1px solid var(--border);border-radius:12px;padding:16px;color:var(--text);" style-hover="border-color:var(--text);transform:translateY(-2px);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"></circle><path d="M11 12 20 3M17 6l2.5 2.5M14 9l2 2"></path></svg>
+            <span style="font-weight:300;font-size:15px;">Dashboard</span>
+          </div>
+          <div style="font-size:13px;color:var(--muted);">Create and manage API keys</div>
+        </a>
+      </div>
+    </section>
+
+    <section style="padding:64px 0;border-top:1px solid var(--border);">
+      <div style="border:1px solid var(--border);border-radius:18px;padding:32px;display:flex;gap:24px;flex-wrap:wrap;justify-content:space-between;">
+        <div style="flex:1 1 360px;min-width:0;">
+          <div style="font-size:12px;font-weight:300;letter-spacing:0.06em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;">Now routing</div>
+          <h2 style="font-size:22px;font-weight:300;margin:0 0 8px 0;">Claude Opus 4.5 and GPT-5.1 are live.</h2>
+          <p style="font-size:15px;line-height:1.6;color:var(--muted);margin:0;">Every new model ships behind the same endpoint, the same key, and the same rate limits you already have. No SDK changes, no new integration.</p>
+        </div>
+        <div style="flex:0 0 auto;display:flex;align-items:center;">
+          <a href="#pricing" style="font-size:14px;font-weight:500;color:{{ accentDisplay }};" style-hover="text-decoration:underline;">Explore plans →</a>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:64px 0;border-top:1px solid var(--border);">
+      <div style="display:flex;gap:48px;flex-wrap:wrap;">
+        <div style="flex:1 1 320px;min-width:0;">
+          <h2 style="font-size:26px;font-weight:300;margin:0 0 16px 0;">Keep the tools you already use</h2>
+          <p style="font-size:16px;line-height:1.7;color:var(--muted);margin:0 0 16px 0;">Streaming, tool calls, and long-running agent sessions stay compatible. Every request still routes through one endpoint, so nothing in your client code has to change.</p>
+          <a href="#docs" style="font-size:14px;font-weight:500;color:{{ accentDisplay }};" style-hover="text-decoration:underline;">Read the docs →</a>
+        </div>
+        <div style="flex:1 1 320px;min-width:0;">
+          <div style="border:1px solid var(--border);border-radius:18px;overflow:hidden;background:var(--card);">
+            <div style="display:flex;gap:6px;padding:12px 14px;border-bottom:1px solid var(--border);">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--border);"></span>
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--border);"></span>
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--border);"></span>
+            </div>
+            <div style="padding:18px 16px;font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;font-size:13px;line-height:1.9;">
+              <div>$ export FRENIX_BASE_URL=https://api.frenix.sh/v1</div>
+              <div>$ export FRENIX_API_KEY=sk-frx-...</div>
+              <div style="color:var(--muted);"># works with claude, codex, cline, and any OpenAI-compatible client</div>
+              <div>$ claude</div>
+              <div style="color:#16a34a;">✓ Frenix is ready</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing" style="padding:64px 0;border-top:1px solid var(--border);">
+      <h2 style="font-size:26px;font-weight:300;margin:0 0 8px 0;">Simple pricing, no surprises</h2>
+      <p style="font-size:15px;color:var(--muted);margin:0 0 24px 0;">Pay for concurrency and throughput, not per-model markups.</p>
+
+      <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:24px;background:var(--card);">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="16"></line><circle cx="12" cy="8" r="0.9" fill="currentColor" stroke="none"></circle></svg>
+        <span style="font-size:14px;color:var(--text);">The free tier includes [FEATURE] and [FEATURE] — no credit card required.</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+
+        <div style="position:relative;border:1px solid var(--border);border-radius:18px;padding:24px;display:flex;flex-direction:column;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+            <div style="position:relative;width:38px;height:38px;">
+              <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
+              <span style="position:absolute;bottom:-2px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--card);border:1px solid var(--border);font-size:9px;font-weight:300;display:flex;align-items:center;justify-content:center;">1</span>
+            </div>
+            <div style="font-size:11px;font-weight:300;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:3px 10px;white-space:nowrap;">5 requests / min</div>
+          </div>
+          <div style="font-size:17px;font-weight:300;margin-bottom:4px;">Free</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">For trying Frenix out</div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:20px;">
+            <span style="font-size:28px;font-weight:300;">$0</span>
+          </div>
+          <button style="width:100%;padding:10px 0;border:1px solid var(--text);border-radius:22px;background:var(--bg);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;margin-bottom:20px;" style-hover="background:var(--text);color:var(--bg);" style-focus="outline:2px solid {{ accentDisplay }};outline-offset:2px;">Choose</button>
+          <div style="border-top:1px solid var(--border);margin-bottom:16px;"></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-bottom:10px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ accentDisplay }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M5 13l4 4L19 7"></path></svg><span>Access to free models only</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-bottom:10px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ accentDisplay }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M5 13l4 4L19 7"></path></svg><span>5 requests per minute</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-bottom:10px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ accentDisplay }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M5 13l4 4L19 7"></path></svg><span>1 API key</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-bottom:10px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ accentDisplay }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M5 13l4 4L19 7"></path></svg><span>Community support</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ accentDisplay }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M5 13l4 4L19 7"></path></svg><span>Usage dashboard</span></div>
+        </div>
+
+        <div style="position:relative;border:1px solid var(--border);border-radius:18px;padding:24px;display:flex;flex-direction:column;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+            <div style="position:relative;width:38px;height:38px;">
+              <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"></circle><circle cx="16" cy="9" r="2.8"></circle><path d="M2.5 20c0-3.6 3-6.3 7-6.3s7 2.7 7 6.3"></path><path d="M15 14c2.8.4 4.5 2.5 4.5 5.3"></path></svg>
+              <span style="position:absolute;bottom:-2px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--card);border:1px solid var(--border);font-size:9px;font-weight:300;display:flex;align-items:center;justify-content:center;">2</span>
+            </div>
+            <div style="font-size:11px;font-weight:300;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:3px 10px;white-space:nowrap;">Unlimited access</div>
+          </div>
+          <div style="font-size:17px;font-weight:300;margin-bottom:4px;">Pro</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">For production workloads</div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:20px;">
+            <span style="font-size:28px;font-weight:300;">$30</span>
+            <span style="font-size:13px;color:var(--muted);">/ month</span>
+          </div>
+          <button style="width:100%;padding:10px 0;border:1px solid var(--text);border-radius:22px;background:var(--bg);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;margin-bottom:20px;" style-hover="background:var(--text);color:var(--bg);" style-focus="outline:2px solid {{ accentDisplay }};outline-offset:2px;">Choose</button>
+          <div style="border-top:1px solid var(--border);margin-bottom:16px;"></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-bottom:10px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ accentDisplay }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M5 13l4 4L19 7"></path></svg><span>Unlimited access to all 150+ models</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-bottom:10px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ accentDisplay }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M5 13l4 4L19 7"></path></svg><span>Higher rate limits</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-bottom:10px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ accentDisplay }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M5 13l4 4L19 7"></path></svg><span>Claude Code, Codex, Cline support</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-bottom:10px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ accentDisplay }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M5 13l4 4L19 7"></path></svg><span>Automatic failover</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ accentDisplay }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M5 13l4 4L19 7"></path></svg><span>Priority routing</span></div>
+        </div>
+
+        <div style="position:relative;border:1px solid var(--border);border-radius:18px;padding:24px;display:flex;flex-direction:column;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+            <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7l8-4 8 4v14"></path><path d="M9 21v-6h6v6"></path><path d="M9 10h.01M15 10h.01M9 14h.01M15 14h.01"></path></svg>
+            <div style="font-size:11px;font-weight:300;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:3px 10px;white-space:nowrap;">Custom limits</div>
+          </div>
+          <div style="font-size:17px;font-weight:300;margin-bottom:4px;">Enterprise</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:20px;">For teams and products</div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:20px;">
+            <span style="font-size:28px;font-weight:300;">Contact us</span>
+          </div>
+          <a href="mailto:sales@frenix.sh" style="display:block;text-align:center;width:100%;padding:10px 0;border:1px solid var(--text);border-radius:22px;background:var(--bg);color:var(--text);font-size:14px;font-weight:500;margin-bottom:20px;" style-hover="background:var(--text);color:var(--bg);" style-focus="outline:2px solid {{ accentDisplay }};outline-offset:2px;">Email us</a>
+          <div style="border-top:1px solid var(--border);margin-bottom:16px;"></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-bottom:10px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ accentDisplay }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M5 13l4 4L19 7"></path></svg><span>Everything in Pro</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-bottom:10px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ accentDisplay }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M5 13l4 4L19 7"></path></svg><span>Dedicated concurrency and throughput</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-bottom:10px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ accentDisplay }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M5 13l4 4L19 7"></path></svg><span>SSO and team roles</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-bottom:10px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ accentDisplay }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M5 13l4 4L19 7"></path></svg><span>Custom usage limits</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:14px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="{{ accentDisplay }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><path d="M5 13l4 4L19 7"></path></svg><span>Dedicated support</span></div>
+        </div>
+
+      </div>
+    </section>
+
+    <section style="padding:64px 0;border-top:1px solid var(--border);">
+      <div style="display:flex;gap:32px;flex-wrap:wrap;align-items:flex-start;">
+        <div style="display:flex;gap:12px;flex-shrink:0;">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"></path></svg>
+        </div>
+        <div style="flex:1 1 320px;min-width:0;">
+          <h2 style="font-size:24px;font-weight:300;margin:0 0 12px 0;">Your data stays yours</h2>
+          <p style="font-size:15px;line-height:1.7;color:var(--muted);margin:0;">Requests are never logged, stored, or used for training. Keys, limits, and usage stay under your control.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:64px 0;border-top:1px solid var(--border);">
+      <h2 style="font-size:24px;font-weight:300;margin:0 0 8px 0;">Frequently asked questions</h2>
+
+      <div style="padding:20px 0;border-bottom:1px solid var(--border);">
+        <div style="font-size:15px;font-weight:300;margin-bottom:8px;">Does Frenix work with Claude Code and Codex?</div>
+        <div style="font-size:14px;line-height:1.7;color:var(--muted);">Yes. Point Claude Code, Codex, Cline, or any OpenAI- or Anthropic-compatible client at the Frenix endpoint and it works without changes.</div>
+      </div>
+      <div style="padding:20px 0;border-bottom:1px solid var(--border);">
+        <div style="font-size:15px;font-weight:300;margin-bottom:8px;">Do I need to rewrite my project?</div>
+        <div style="font-size:14px;line-height:1.7;color:var(--muted);">No. Frenix speaks the same request and response formats your client already sends. Swap the base URL and key, keep everything else.</div>
+      </div>
+      <div style="padding:20px 0;border-bottom:1px solid var(--border);">
+        <div style="font-size:15px;font-weight:300;margin-bottom:8px;">What happens when a provider is down?</div>
+        <div style="font-size:14px;line-height:1.7;color:var(--muted);">Frenix routes around outages automatically. If a model's upstream provider degrades or fails, requests fail over to a healthy provider serving the same model where available.</div>
+      </div>
+      <div style="padding:20px 0;border-bottom:1px solid var(--border);">
+        <div style="font-size:15px;font-weight:300;margin-bottom:8px;">How much latency does Frenix add?</div>
+        <div style="font-size:14px;line-height:1.7;color:var(--muted);">Under 40ms in the median case. Frenix sits in front of the provider, not behind a queue — it doesn't buffer or batch your requests.</div>
+      </div>
+      <div style="padding:20px 0;border-bottom:1px solid var(--border);">
+        <div style="font-size:15px;font-weight:300;margin-bottom:8px;">Where do I see my keys and usage?</div>
+        <div style="font-size:14px;line-height:1.7;color:var(--muted);">In the dashboard. Create, rotate, and scope API keys, and see usage broken down by model, key, and time window.</div>
+      </div>
+      <div style="padding:20px 0;border-bottom:1px solid var(--border);">
+        <div style="font-size:15px;font-weight:300;margin-bottom:8px;">Can I bring my own provider keys?</div>
+        <div style="font-size:14px;line-height:1.7;color:var(--muted);">Yes. Add your own OpenAI, Anthropic, or other provider keys, and Frenix routes through them where allowed instead of shared capacity.</div>
+      </div>
+    </section>
+
+    <section style="padding:64px 0 96px 0;border-top:1px solid var(--border);">
+      <div style="border:1px solid var(--border);border-radius:18px;padding:40px;">
+        <h2 style="font-size:26px;font-weight:300;margin:0 0 8px 0;">Get your API key</h2>
+        <p style="font-size:15px;color:var(--muted);margin:0 0 24px 0;">Start on the free tier. No credit card required.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="#" style="padding:10px 20px;border-radius:18px;background:var(--text);color:var(--bg);font-size:14px;font-weight:500;" style-hover="opacity:0.85;" style-focus="outline:2px solid {{ accentDisplay }};outline-offset:2px;">Get started</a>
+          <a href="#docs" style="padding:10px 20px;border-radius:18px;border:1px solid var(--border);color:var(--text);font-size:14px;font-weight:500;" style-hover="border-color:var(--text);" style-focus="outline:2px solid {{ accentDisplay }};outline-offset:2px;">Read the docs</a>
+        </div>
+      </div>
+    </section>
+
+    </sc-if>
+
+    <sc-if value="{{ isModels }}" hint-placeholder-val="{{ false }}">
+      <section style="padding:64px 0;">
+        <h1 style="font-size:32px;font-weight:300;margin:0 0 8px 0;letter-spacing:-0.01em;">Models</h1>
+        <p style="font-size:15px;line-height:1.6;color:var(--muted);margin:0 0 24px 0;max-width:560px;">150+ models across every major provider, behind one endpoint. Switch models without changing your integration.</p>
+        <input type="text" placeholder="Search models..." style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;color:var(--text);background:var(--card);margin-bottom:32px;">
+
+        <div style="margin-bottom:28px;">
+          <div style="font-size:13px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;">OpenAI</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:999px;">GPT-5.1</span>
+            <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:999px;">GPT-4o</span>
+            <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:999px;">o3</span>
+          </div>
+        </div>
+        <div style="margin-bottom:28px;">
+          <div style="font-size:13px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;">Anthropic</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:999px;">Claude Opus 4.5</span>
+            <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:999px;">Claude Sonnet 4.5</span>
+            <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:999px;">Claude Haiku 4</span>
+          </div>
+        </div>
+        <div style="margin-bottom:28px;">
+          <div style="font-size:13px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;">Google</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:999px;">Gemini 2.5 Pro</span>
+            <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:999px;">Gemini 2.5 Flash</span>
+          </div>
+        </div>
+        <div style="margin-bottom:28px;">
+          <div style="font-size:13px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;">Meta</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:999px;">Llama 4 Maverick</span>
+            <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:999px;">Llama 4 Scout</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;">xAI &amp; Mistral</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:999px;">Grok 4</span>
+            <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;padding:6px 14px;border:1px solid var(--border);border-radius:999px;">Mistral Large 3</span>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isDocs }}" hint-placeholder-val="{{ false }}">
+      <section style="padding:64px 0;">
+        <h1 style="font-size:32px;font-weight:300;margin:0 0 8px 0;letter-spacing:-0.01em;">Documentation</h1>
+        <p style="font-size:15px;line-height:1.6;color:var(--muted);margin:0 0 32px 0;max-width:560px;">Everything you need to point an existing client at Frenix.</p>
+        <div style="display:flex;gap:40px;flex-wrap:wrap;">
+          <nav style="flex:0 0 180px;display:flex;flex-direction:column;gap:2px;">
+            <span style="padding:6px 10px;border-radius:8px;font-size:14px;background:rgba(128,128,128,0.1);">Quickstart</span>
+            <span style="padding:6px 10px;border-radius:8px;font-size:14px;color:var(--muted);">Authentication</span>
+            <span style="padding:6px 10px;border-radius:8px;font-size:14px;color:var(--muted);">Streaming</span>
+            <span style="padding:6px 10px;border-radius:8px;font-size:14px;color:var(--muted);">Tool calls</span>
+            <span style="padding:6px 10px;border-radius:8px;font-size:14px;color:var(--muted);">Errors &amp; failover</span>
+            <span style="padding:6px 10px;border-radius:8px;font-size:14px;color:var(--muted);">Rate limits</span>
+          </nav>
+          <div style="flex:1 1 400px;min-width:0;">
+            <h2 style="font-size:20px;font-weight:400;margin:0 0 12px 0;">Quickstart</h2>
+            <p style="font-size:15px;line-height:1.7;color:var(--muted);margin:0 0 16px 0;">Point your existing client at Frenix by setting two environment variables. No SDK, no code changes.</p>
+            <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--card);margin-bottom:20px;">
+              <div style="padding:16px;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;line-height:1.9;">
+                <div>$ export FRENIX_BASE_URL=https://api.frenix.sh/v1</div>
+                <div>$ export FRENIX_API_KEY=sk-frx-...</div>
+              </div>
+            </div>
+            <p style="font-size:15px;line-height:1.7;color:var(--muted);margin:0 0 16px 0;">Then call it like you'd call any OpenAI- or Anthropic-compatible endpoint:</p>
+            <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--card);margin-bottom:20px;">
+              <div style="padding:16px;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;line-height:1.9;">
+                <div>$ curl $FRENIX_BASE_URL/chat/completions \</div>
+                <div>&nbsp;&nbsp;-H "Authorization: Bearer $FRENIX_API_KEY" \</div>
+                <div>&nbsp;&nbsp;-d '{model: "claude-opus-4.5", messages: [...]}'</div>
+              </div>
+            </div>
+            <p style="font-size:14px;line-height:1.7;color:var(--muted);margin:0;">Rate limits and quotas are counted per request, not per token — usage stays predictable regardless of prompt or output length.</p>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ false }}">
+      <section style="padding:64px 0;">
+        <h1 style="font-size:32px;font-weight:300;margin:0 0 8px 0;letter-spacing:-0.01em;">Dashboard</h1>
+        <p style="font-size:15px;line-height:1.6;color:var(--muted);margin:0 0 24px 0;max-width:560px;">Manage API keys and monitor request usage.</p>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:32px;">
+          <div style="border:1px solid var(--border);border-radius:14px;padding:18px;">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Requests (24h)</div>
+            <div style="font-size:24px;font-weight:400;">[REQUESTS]</div>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:14px;padding:18px;">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Requests (30d)</div>
+            <div style="font-size:24px;font-weight:400;">[REQUESTS]</div>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:14px;padding:18px;">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Active keys</div>
+            <div style="font-size:24px;font-weight:400;">2</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h2 style="font-size:18px;font-weight:400;margin:0;">API keys</h2>
+          <button style="padding:8px 16px;border-radius:18px;border:1px solid var(--text);background:var(--bg);color:var(--text);font-size:13px;font-weight:400;cursor:pointer;" style-hover="background:var(--text);color:var(--bg);">Create API key</button>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+          <div style="display:grid;grid-template-columns:1.2fr 1.4fr 1fr 1fr 0.6fr;gap:12px;padding:10px 16px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border);background:var(--card);">
+            <div>Name</div><div>Key</div><div>Created</div><div>Last used</div><div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1.2fr 1.4fr 1fr 1fr 0.6fr;gap:12px;padding:12px 16px;font-size:13px;border-bottom:1px solid var(--border);align-items:center;">
+            <div>Production</div>
+            <div style="font-family:'JetBrains Mono',ui-monospace,monospace;color:var(--muted);">sk-frx-••••1a2b</div>
+            <div style="color:var(--muted);">Jan 12, 2026</div>
+            <div style="color:var(--muted);">2 hours ago</div>
+            <div><a href="#" style="font-size:12px;color:var(--muted);" style-hover="color:var(--text);">Revoke</a></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1.2fr 1.4fr 1fr 1fr 0.6fr;gap:12px;padding:12px 16px;font-size:13px;align-items:center;">
+            <div>Local dev</div>
+            <div style="font-family:'JetBrains Mono',ui-monospace,monospace;color:var(--muted);">sk-frx-••••9f3c</div>
+            <div style="color:var(--muted);">Feb 3, 2026</div>
+            <div style="color:var(--muted);">3 days ago</div>
+            <div><a href="#" style="font-size:12px;color:var(--muted);" style-hover="color:var(--text);">Revoke</a></div>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+      </main>
+    </div>
+  </div>
+
+  <footer style="border-top:1px solid var(--border);">
+    <div style="max-width:896px;margin:0 auto;padding:32px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div style="font-weight:500;font-size:15px;">Frenix</div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;">
+        <a href="#docs" style="font-size:13px;color:var(--muted);" style-hover="color:var(--text);">Documentation</a>
+        <a href="#pricing" style="font-size:13px;color:var(--muted);" style-hover="color:var(--text);">Pricing</a>
+        <a href="#models" style="font-size:13px;color:var(--muted);" style-hover="color:var(--text);">Models</a>
+        <a href="#" style="font-size:13px;color:var(--muted);" style-hover="color:var(--text);">Dashboard</a>
+        <a href="#" style="font-size:13px;color:var(--muted);" style-hover="color:var(--text);">Status</a>
+        <a href="#" style="font-size:13px;color:var(--muted);" style-hover="color:var(--text);">Privacy</a>
+      </div>
+      <div style="font-size:13px;color:var(--muted);">© 2026 Frenix. All rights reserved.</div>
+    </div>
+  </footer>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;: 1280, &quot;height&quot;: 900},
+  &quot;accentColor&quot;: {&quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#1d4ed8&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;options&quot;: [&quot;#1d4ed8&quot;, &quot;#7c3aed&quot;, &quot;#0f766e&quot;, &quot;#dc2626&quot;]},
+  &quot;darkMode&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;}
+}">
+class Component extends DCLogic {
+  state = { copied: false, themeOverride: null, page: 'home' };
+
+  goHome = () => this.setState({ page: 'home' });
+  goModels = () => this.setState({ page: 'models' });
+  goDocs = () => this.setState({ page: 'docs' });
+  goDashboard = () => this.setState({ page: 'dashboard' });
+
+  toggleTheme = () => {
+    this.setState(s => {
+      const current = s.themeOverride ?? (this.props.darkMode ? 'dark' : 'light');
+      return { themeOverride: current === 'dark' ? 'light' : 'dark' };
+    });
+  };
+
+  lighten(hex, amt) {
+    const h = hex.replace('#', '');
+    const num = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+    let r = (num >> 16) & 255, g = (num >> 8) & 255, b = num & 255;
+    r = Math.round(r + (255 - r) * amt);
+    g = Math.round(g + (255 - g) * amt);
+    b = Math.round(b + (255 - b) * amt);
+    return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+  }
+
+  copyCommand = () => {
+    const text = 'export FRENIX_BASE_URL=https://api.frenix.sh/v1';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
+    this.setState({ copied: true });
+    if (this._t) clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ copied: false }), 1600);
+  };
+
+  componentWillUnmount() {
+    if (this._t) clearTimeout(this._t);
+  }
+
+  renderVals() {
+    const darkMode = this.state.themeOverride ? this.state.themeOverride === 'dark' : !!this.props.darkMode;
+    const accent = this.props.accentColor ?? '#1d4ed8';
+    return {
+      theme: darkMode ? 'dark' : 'light',
+      accentDisplay: darkMode ? this.lighten(accent, 0.35) : accent,
+      copied: this.state.copied,
+      notCopied: !this.state.copied,
+      copyCommand: this.copyCommand,
+      toggleTheme: this.toggleTheme,
+      isDark: darkMode,
+      isLight: !darkMode,
+      clientPills: ['Claude Code', 'Codex', 'Cline', 'Kilo Code', 'OpenCode', 'Aider', 'Continue', 'Roo'],
+      goHome: this.goHome,
+      goModels: this.goModels,
+      goDocs: this.goDocs,
+      goDashboard: this.goDashboard,
+      isHome: this.state.page === 'home',
+      isModels: this.state.page === 'models',
+      isDocs: this.state.page === 'docs',
+      isDashboard: this.state.page === 'dashboard',
+      sectionLabel: this.state.page === 'home' ? 'AI gateway' : this.state.page === 'models' ? 'Models' : this.state.page === 'docs' ? 'Documentation' : 'Dashboard'
+    };
+  }
+}
+</script>
+</body>
+</html>
