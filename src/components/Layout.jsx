@@ -1,23 +1,25 @@
-﻿import React from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { 
+import {
   Home as HomeIcon,
   Tag,
-  Terminal, 
-  Layers, 
-  BookOpen, 
-  Activity, 
+  Terminal,
+  Layers,
+  BookOpen,
+  Activity,
   GitCommit,
-  MessageCircle, 
-  Sun, 
-  Moon, 
+  MessageCircle,
+  Sun,
+  Moon,
   Globe,
   ExternalLink,
   Send,
   LogOut,
-  UserCheck
+  UserCheck,
+  Menu,
+  X
 } from 'lucide-react';
 import TelegramAuthModal from './TelegramAuthModal';
 
@@ -25,6 +27,12 @@ export default function Layout() {
   const { isDark, toggleTheme, accentDisplay } = useTheme();
   const { user, isAuthenticated, logout, openAuthModal } = useAuth();
   const location = useLocation();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  // Close the mobile drawer on every route change (e.g. after tapping a nav link).
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [location.pathname]);
 
   const getSectionTitle = () => {
     switch (location.pathname) {
@@ -65,34 +73,43 @@ export default function Layout() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <TelegramAuthModal />
+      <div
+        className={`frenix-mobile-backdrop ${mobileNavOpen ? 'open' : ''}`}
+        onClick={() => setMobileNavOpen(false)}
+      />
       <div style={{ display: 'flex', flex: 1, maxWidth: '1600px', width: '100%', margin: '0 auto' }}>
-        
+
         {/* Left Sidebar */}
         <aside
+          className={`frenix-sidebar ${mobileNavOpen ? 'open' : ''}`}
           style={{
-            flex: '0 0 clamp(70px, 20vw, 240px)',
-            width: 'clamp(70px, 20vw, 240px)',
             borderRight: '1px solid var(--border)',
             padding: '20px 14px',
-            position: 'sticky',
-            top: 0,
-            alignSelf: 'flex-start',
-            height: '100vh',
             overflowY: 'auto',
             display: 'flex',
             flexDirection: 'column',
           }}
         >
           {/* Logo */}
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', padding: '0 6px', color: 'inherit' }}>
-            <svg viewBox="0 0 55 40" width="22" height="16" fill="none" style={{ flexShrink: 0 }}>
-              <path
-                fill="currentColor"
-                d="M23.6322 0.597911C19.9395 1.76672 16.9327 5.48248 10.9192 12.914C3.501 22.0814 -0.208097 26.665 0.00900851 30.5474C0.155095 33.1598 1.30933 35.6108 3.22485 37.3763C6.07159 40 11.9392 40 23.6745 40H24.3275C27.1975 40 29.9133 38.6992 31.7186 36.4682C37.6627 29.1224 40.6348 25.4496 44.4744 24.8957C45.4078 24.7611 46.3555 24.7611 47.2889 24.8957C49.8634 25.2671 52.048 27.0408 55 30.3839C50.2776 21.5248 41.6084 3.83856 31.37 0.597911C28.8514 -0.199304 26.1508 -0.199304 23.6322 0.597911Z"
-              />
-            </svg>
-            <span style={{ fontWeight: 600, fontSize: '18px', letterSpacing: '-0.01em' }}>Frenix</span>
-          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 6px', color: 'inherit' }}>
+              <svg viewBox="0 0 55 40" width="22" height="16" fill="none" style={{ flexShrink: 0 }}>
+                <path
+                  fill="currentColor"
+                  d="M23.6322 0.597911C19.9395 1.76672 16.9327 5.48248 10.9192 12.914C3.501 22.0814 -0.208097 26.665 0.00900851 30.5474C0.155095 33.1598 1.30933 35.6108 3.22485 37.3763C6.07159 40 11.9392 40 23.6745 40H24.3275C27.1975 40 29.9133 38.6992 31.7186 36.4682C37.6627 29.1224 40.6348 25.4496 44.4744 24.8957C45.4078 24.7611 46.3555 24.7611 47.2889 24.8957C49.8634 25.2671 52.048 27.0408 55 30.3839C50.2776 21.5248 41.6084 3.83856 31.37 0.597911C28.8514 -0.199304 26.1508 -0.199304 23.6322 0.597911Z"
+                />
+              </svg>
+              <span style={{ fontWeight: 600, fontSize: '18px', letterSpacing: '-0.01em' }}>Frenix</span>
+            </Link>
+            <button
+              onClick={() => setMobileNavOpen(false)}
+              aria-label="Close navigation menu"
+              className="frenix-mobile-menu-btn"
+              style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text)', padding: '4px' }}
+            >
+              <X size={18} />
+            </button>
+          </div>
 
           {/* Primary Navigation */}
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginBottom: '14px', flexShrink: 0 }}>
@@ -246,6 +263,7 @@ export default function Layout() {
             }}
           >
             <div
+              className="frenix-header-inner"
               style={{
                 padding: '0 28px',
                 minHeight: '64px',
@@ -256,7 +274,15 @@ export default function Layout() {
                 flexWrap: 'wrap',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', padding: '12px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 0' }}>
+                <button
+                  onClick={() => setMobileNavOpen(true)}
+                  aria-label="Open navigation menu"
+                  className="frenix-mobile-menu-btn"
+                  style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text)', padding: '4px', alignItems: 'center' }}
+                >
+                  <Menu size={20} />
+                </button>
                 <span style={{ fontWeight: 600, fontSize: '18px', letterSpacing: '-0.01em' }}>Frenix</span>
                 <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{getSectionTitle()}</span>
               </div>
@@ -330,7 +356,7 @@ export default function Layout() {
           </header>
 
           {/* Main Outlet */}
-          <main style={{ flex: '1 1 auto', maxWidth: '1024px', margin: '0 auto', padding: '0 28px', width: '100%' }}>
+          <main className="frenix-main-outlet" style={{ flex: '1 1 auto', maxWidth: '1024px', margin: '0 auto', padding: '0 28px', width: '100%' }}>
             <Outlet />
           </main>
         </div>
@@ -339,6 +365,7 @@ export default function Layout() {
       {/* Footer */}
       <footer style={{ borderTop: '1px solid var(--border)', marginTop: 'auto', background: 'var(--bg)' }}>
         <div
+          className="frenix-footer-inner"
           style={{
             maxWidth: '1024px',
             margin: '0 auto',

@@ -365,8 +365,8 @@ export default function Docs() {
                 Quotas are calculated per request rather than calculating dynamic token surcharges, giving you guaranteed predictability.
               </p>
 
-              <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', backgroundColor: 'var(--card)', marginBottom: '20px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+              <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', backgroundColor: 'var(--card)', marginBottom: '20px', overflowX: 'auto' }}>
+                <table style={{ width: '100%', minWidth: '560px', borderCollapse: 'collapse', fontSize: '13px' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left', color: 'var(--muted)' }}>
                       <th style={{ paddingBottom: '10px' }}>Plan</th>

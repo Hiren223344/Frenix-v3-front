@@ -171,9 +171,8 @@ export default function Status() {
         <h2 style={{ fontSize: '20px', fontWeight: 400, margin: '0 0 16px 0' }}>Component &amp; Cluster Health</h2>
         <div style={{ border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden', backgroundColor: 'var(--card)' }}>
           <div
+            className="frenix-status-header"
             style={{
-              display: 'grid',
-              gridTemplateColumns: '2fr 1.4fr 1fr 1fr 1fr',
               padding: '12px 18px',
               fontSize: '12px',
               fontWeight: 500,
@@ -187,32 +186,36 @@ export default function Status() {
             <div>Region / Infrastructure</div>
             <div>Status</div>
             <div>Uptime (30d)</div>
-            <div style={{ textAlign: 'right' }}>Latency</div>
+            <div className="frenix-status-latency">Latency</div>
           </div>
 
           {services.map((s, idx) => (
             <div
               key={s.id || idx}
+              className="frenix-status-row"
               style={{
-                display: 'grid',
-                gridTemplateColumns: '2fr 1.4fr 1fr 1fr 1fr',
                 padding: '16px 18px',
                 fontSize: '13px',
                 borderBottom: idx === services.length - 1 ? 'none' : '1px solid var(--border)',
-                alignItems: 'center',
                 transition: 'background-color 0.15s ease',
               }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--hover-bg)')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
               <div style={{ fontWeight: 500 }}>{s.name}</div>
-              <div style={{ color: 'var(--muted)', fontSize: '12px' }}>{s.region}</div>
+              <div style={{ color: 'var(--muted)', fontSize: '12px' }}>
+                <span className="frenix-mobile-label">Region: </span>{s.region}
+              </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: s.status === 'Operational' ? '#16a34a' : '#eab308', fontWeight: 500, fontSize: '12px' }}>
                 <CheckCircle2 size={14} />
                 <span>{s.status}</span>
               </div>
-              <div style={{ color: 'var(--muted)', fontSize: '12px' }}>{s.uptime}</div>
-              <div className="code-font" style={{ textAlign: 'right', fontSize: '12px' }}>{s.latency}</div>
+              <div style={{ color: 'var(--muted)', fontSize: '12px' }}>
+                <span className="frenix-mobile-label">Uptime: </span>{s.uptime}
+              </div>
+              <div className="code-font frenix-status-latency" style={{ fontSize: '12px' }}>
+                <span className="frenix-mobile-label">Latency: </span>{s.latency}
+              </div>
             </div>
           ))}
         </div>
