@@ -48,7 +48,7 @@ export default function TelegramAuthModal() {
     cleanupPolling();
 
     try {
-      // 1. Send encrypted envelope to frontend /api/relay
+      // 1. Start the Telegram auth session
       let data;
       if (typeof window !== 'undefined' && window.secureRelayRequest) {
         const relayRes = await window.secureRelayRequest('/v1/auth/telegram/start', {
@@ -75,7 +75,7 @@ export default function TelegramAuthModal() {
       window.open(deepLink, '_blank', 'noopener,noreferrer');
       setStep('waiting');
 
-      // 2. Poll via encrypted /api/relay
+      // 2. Poll for the user completing the /start flow in Telegram
       pollIntervalRef.current = setInterval(async () => {
         try {
           let statusData;
