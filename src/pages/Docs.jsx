@@ -25,6 +25,7 @@ export default function Docs() {
     { id: 'model-routing', label: 'Model Routing & Fallbacks' },
     { id: 'errors', label: 'Error Codes & Failover' },
     { id: 'rate-limits', label: 'Rate Limits & Concurrency' },
+    { id: 'referrals', label: 'Referral Program' },
   ];
 
   return (
@@ -409,6 +410,35 @@ export default function Docs() {
               <p style={{ fontSize: '14px', color: 'var(--muted)', margin: 0 }}>
                 Response headers <code className="code-font">x-ratelimit-remaining-minute</code> and <code className="code-font">x-ratelimit-reset</code> indicate your current per-minute bucket status; a <code className="code-font">Retry-After</code> header is set on a 429.
               </p>
+            </div>
+          )}
+
+          {/* TAB: Referral Program */}
+          {activeTab === 'referrals' && (
+            <div>
+              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>Referral Program</h2>
+              <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 20px 0' }}>
+                Every account gets its own referral link. Share it — each time someone signs up through it, you're credited $100, with no cap on how many times.
+              </p>
+
+              <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', backgroundColor: 'var(--card)', marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 10px 0' }}>How it works</h3>
+                <ol style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', lineHeight: 1.9, color: 'var(--muted)' }}>
+                  <li>Grab your link from the <strong style={{ color: 'var(--text)' }}>Dashboard</strong> — it looks like <code className="code-font">https://frenix.sh/?ref=&lt;your code&gt;</code>.</li>
+                  <li>Anyone who opens it and signs up via Telegram is now attributed to you.</li>
+                  <li>The instant their account is created, you're credited <strong style={{ color: 'var(--text)' }}>$100</strong> — they still get the normal $500 signup bonus too, unaffected.</li>
+                </ol>
+              </div>
+
+              <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '20px 22px', backgroundColor: 'var(--card)' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 8px 0' }}>API details</h3>
+                <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 10px 0' }}>
+                  <code className="code-font">GET /v1/me</code> returns your own <code className="code-font">referral_code</code> and a running <code className="code-font">referral_count</code>. To attribute a signup, pass <code className="code-font">referral_code</code> in the JSON body of <code className="code-font">POST /v1/auth/telegram/start</code> — it's optional, and an invalid or unknown code never blocks the signup, it just means no bonus is granted.
+                </p>
+                <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: 0 }}>
+                  A referral is attributed once, the moment an account is first created — logging in again later never re-triggers it, and you can't refer yourself.
+                </p>
+              </div>
             </div>
           )}
 

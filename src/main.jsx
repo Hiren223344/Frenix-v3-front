@@ -36,6 +36,23 @@ if (typeof window !== 'undefined') {
   window.secureRelayRequest = secureRelayRequest;
 }
 
+// Capture a referral code from a ?ref=<code> link and remember it for the
+// signup flow (TelegramAuthModal reads this when starting a Telegram
+// login) — the modal itself has no reason to know about URL query params,
+// and the code needs to survive from this first page load through to
+// whenever the visitor actually signs up, possibly several clicks later.
+if (typeof window !== 'undefined') {
+  try {
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (ref) {
+      localStorage.setItem('frenix_referral_code', ref);
+    }
+  } catch (_) {
+    // localStorage can throw in a locked-down browser context; a missed
+    // referral code is not worth breaking page load over.
+  }
+}
+
 // Deterrent only, not a real security boundary — a determined user can
 // still open DevTools (browser menu, detached window, disabling JS
 // briefly). Actual protection is server-side: auth on every request,
