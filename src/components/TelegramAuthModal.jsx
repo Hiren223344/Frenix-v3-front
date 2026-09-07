@@ -48,11 +48,20 @@ export default function TelegramAuthModal() {
     cleanupPolling();
 
     try {
+      // A referral code captured from an earlier ?ref=<code> page load
+      // (see main.jsx), if any — passed through so the referrer gets
+      // credited once this signup completes.
+      let referralCode = '';
+      try {
+        referralCode = localStorage.getItem('frenix_referral_code') || '';
+      } catch (_) {}
+
       // 1. Start the Telegram auth session
       let data;
       if (typeof window !== 'undefined' && window.secureRelayRequest) {
         const relayRes = await window.secureRelayRequest('/v1/auth/telegram/start', {
           method: 'POST',
+          body: referralCode ? { referral_code: referralCode } : undefined,
         });
         if (!relayRes.ok) {
           throw new Error(`Failed to initialize session (${relayRes.status})`);
@@ -61,7 +70,8 @@ export default function TelegramAuthModal() {
       } else {
         const res = await fetch(`${API_BASE}/v1/auth/telegram/start`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
+          body: referralCode ? JSON.stringify({ referral_code: referralCode }) : undefined,
         });
         if (!res.ok) throw new Error(`Failed to initialize session (${res.status})`);
         data = await res.json();

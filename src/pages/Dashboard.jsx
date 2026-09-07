@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Key, Plus, Trash2, Copy, Check, BarChart3, Activity, Shield, RefreshCw, Wallet, Hash } from 'lucide-react';
+import { Key, Plus, Trash2, Copy, Check, BarChart3, Activity, Shield, RefreshCw, Wallet, Hash, Gift } from 'lucide-react';
 
 export default function Dashboard() {
   const { accentDisplay } = useTheme();
@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [errorMsg, setErrorMsg] = useState('');
   const [syncError, setSyncError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [referralCopied, setReferralCopied] = useState(false);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -236,6 +237,21 @@ export default function Dashboard() {
     document.body.removeChild(textArea);
   };
 
+  const referralLink = account?.referral_code
+    ? `${window.location.origin}/?ref=${account.referral_code}`
+    : '';
+
+  const handleCopyReferralLink = () => {
+    if (!referralLink) return;
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(referralLink).catch(() => fallbackCopyText(referralLink));
+    } else {
+      fallbackCopyText(referralLink);
+    }
+    setReferralCopied(true);
+    setTimeout(() => setReferralCopied(false), 1800);
+  };
+
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
       <div style={{ marginBottom: '32px' }}>
@@ -344,6 +360,62 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Referrals */}
+      {account?.referral_code && (
+        <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '20px 22px', backgroundColor: 'var(--card)', marginBottom: '36px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+            <Gift size={16} />
+            <h2 style={{ fontSize: '16px', fontWeight: 500, margin: 0 }}>Refer a friend, earn $100</h2>
+          </div>
+          <p style={{ fontSize: '13px', lineHeight: 1.6, color: 'var(--muted)', margin: '0 0 14px 0', maxWidth: '560px' }}>
+            Share your link. The moment someone signs up through it, you get $100 in credits — no limit on how many times.
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 12px',
+                borderRadius: '10px',
+                border: '1px solid var(--border)',
+                backgroundColor: 'var(--bg)',
+                flex: '1 1 280px',
+                minWidth: 0,
+              }}
+            >
+              <span className="code-font" style={{ fontSize: '12px', color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {referralLink}
+              </span>
+            </div>
+            <button
+              onClick={handleCopyReferralLink}
+              className="button-press"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 14px',
+                borderRadius: '10px',
+                border: '1px solid var(--text)',
+                backgroundColor: 'var(--text)',
+                color: 'var(--bg)',
+                fontSize: '13px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                flexShrink: 0,
+              }}
+            >
+              {referralCopied ? <Check size={14} /> : <Copy size={14} />}
+              <span>{referralCopied ? 'Copied' : 'Copy link'}</span>
+            </button>
+            <span style={{ fontSize: '13px', color: 'var(--muted)', flexShrink: 0 }}>
+              <strong style={{ color: 'var(--text)' }}>{account.referral_count ?? 0}</strong> referral{account.referral_count === 1 ? '' : 's'} so far
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* API Keys Header & Creation */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
