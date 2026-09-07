@@ -321,6 +321,16 @@ export default function Docs() {
                   </div>
                 ))}
               </div>
+
+              <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '20px 22px', backgroundColor: 'var(--card)' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 8px 0' }}>Free vs. paid-tier model access</h3>
+                <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 10px 0' }}>
+                  <code className="code-font">GET /v1/models</code> lists every model on the platform, including paid-tier ones — each entry carries an <code className="code-font">accessible</code> field. Only free-tier models (<code className="code-font">accessible: true</code>) are actually callable through <code className="code-font">/v1/chat/completions</code> and <code className="code-font">/v1/embeddings</code>. A request naming a paid-tier model gets <code className="code-font">403 permission_error</code> from these endpoints regardless of your account's own tier — paid-tier models are served through a separate endpoint, not this one.
+                </p>
+                <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: 0 }}>
+                  In short: use the models directory to see what's coming, but build against free-tier models for now.
+                </p>
+              </div>
             </div>
           )}
 
@@ -342,9 +352,16 @@ export default function Docs() {
 
                 <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '14px 18px', backgroundColor: 'var(--card)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                    <span className="code-font" style={{ fontWeight: 600, fontSize: '14px' }}>403 Forbidden</span>
+                  </div>
+                  <div style={{ fontSize: '13px', color: 'var(--muted)' }}>You named a paid-tier model. It's listed in the models directory for visibility, but not callable here — paid-tier access is served through a separate endpoint.</div>
+                </div>
+
+                <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '14px 18px', backgroundColor: 'var(--card)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
                     <span className="code-font" style={{ fontWeight: 600, fontSize: '14px' }}>429 Too Many Requests</span>
                   </div>
-                  <div style={{ fontSize: '13px', color: 'var(--muted)' }}>Daily quota (500 RPD) or rate limit (20 RPM on Pro) exceeded.</div>
+                  <div style={{ fontSize: '13px', color: 'var(--muted)' }}>Rate limit exceeded — 20 requests/minute flat, every tier.</div>
                 </div>
 
                 <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '14px 18px', backgroundColor: 'var(--card)' }}>
@@ -362,48 +379,35 @@ export default function Docs() {
             <div>
               <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>Rate Limits & Concurrency</h2>
               <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 20px 0' }}>
-                Quotas are calculated per request rather than calculating dynamic token surcharges, giving you guaranteed predictability.
+                One flat rate limit applies to every account, regardless of tier — credit balance, not request count, is what actually bounds how much you can use the gateway.
               </p>
 
               <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', backgroundColor: 'var(--card)', marginBottom: '20px', overflowX: 'auto' }}>
-                <table style={{ width: '100%', minWidth: '560px', borderCollapse: 'collapse', fontSize: '13px' }}>
+                <table style={{ width: '100%', minWidth: '420px', borderCollapse: 'collapse', fontSize: '13px' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left', color: 'var(--muted)' }}>
-                      <th style={{ paddingBottom: '10px' }}>Plan</th>
-                      <th style={{ paddingBottom: '10px' }}>Daily Requests (RPD)</th>
-                      <th style={{ paddingBottom: '10px' }}>Minute Limit (RPM)</th>
-                      <th style={{ paddingBottom: '10px' }}>Max Concurrency</th>
-                      <th style={{ paddingBottom: '10px' }}>Model Access</th>
+                      <th style={{ paddingBottom: '10px' }}>Limit</th>
+                      <th style={{ paddingBottom: '10px' }}>Value</th>
+                      <th style={{ paddingBottom: '10px' }}>Applies to</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '12px 0', fontWeight: 500 }}>Free</td>
-                      <td style={{ padding: '12px 0', fontWeight: 600 }}>500 RPD</td>
-                      <td style={{ padding: '12px 0' }}>5 RPM</td>
-                      <td style={{ padding: '12px 0' }}>2 parallel</td>
-                      <td style={{ padding: '12px 0', color: 'var(--muted)' }}>Free Tier models</td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '12px 0', fontWeight: 500 }}>Pro ($30)</td>
-                      <td style={{ padding: '12px 0', fontWeight: 600 }}>Unlimited</td>
+                      <td style={{ padding: '12px 0', fontWeight: 500 }}>Requests per minute</td>
                       <td style={{ padding: '12px 0', fontWeight: 600 }}>20 RPM</td>
-                      <td style={{ padding: '12px 0' }}>15 parallel</td>
-                      <td style={{ padding: '12px 0', color: 'var(--muted)' }}>All 150+ models</td>
+                      <td style={{ padding: '12px 0', color: 'var(--muted)' }}>Every account, every tier</td>
                     </tr>
                     <tr>
-                      <td style={{ padding: '12px 0', fontWeight: 500 }}>Enterprise</td>
-                      <td style={{ padding: '12px 0', fontWeight: 600 }}>Custom / Unlimited</td>
-                      <td style={{ padding: '12px 0' }}>Custom</td>
-                      <td style={{ padding: '12px 0' }}>Dedicated pool</td>
-                      <td style={{ padding: '12px 0', color: 'var(--muted)' }}>Dedicated throughput</td>
+                      <td style={{ padding: '12px 0', fontWeight: 500 }}>Daily request cap</td>
+                      <td style={{ padding: '12px 0', fontWeight: 600 }}>None</td>
+                      <td style={{ padding: '12px 0', color: 'var(--muted)' }}>Your credit balance is the real ceiling</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               <p style={{ fontSize: '14px', color: 'var(--muted)', margin: 0 }}>
-                Response headers <code className="code-font">x-ratelimit-remaining-day</code> and <code className="code-font">x-ratelimit-reset</code> indicate current daily and minute bucket status.
+                Response headers <code className="code-font">x-ratelimit-remaining-minute</code> and <code className="code-font">x-ratelimit-reset</code> indicate your current per-minute bucket status; a <code className="code-font">Retry-After</code> header is set on a 429.
               </p>
             </div>
           )}
