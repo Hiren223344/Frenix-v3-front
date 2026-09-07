@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Key, Plus, Trash2, Copy, Check, BarChart3, Activity, Shield, RefreshCw } from 'lucide-react';
+import { Key, Plus, Trash2, Copy, Check, BarChart3, Activity, Shield, RefreshCw, Wallet, Hash } from 'lucide-react';
 
 export default function Dashboard() {
   const { accentDisplay } = useTheme();
@@ -9,7 +9,7 @@ export default function Dashboard() {
 
   const [keys, setKeys] = useState([]);
   const [account, setAccount] = useState(null);
-  const [usage, setUsage] = useState({ requests_last_24h: 0, requests_last_30d: 0 });
+  const [usage, setUsage] = useState({ requests_last_24h: 0, requests_last_30d: 0, total_tokens: 0 });
   const [loading, setLoading] = useState(true);
   const [newKeyName, setNewKeyName] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -76,7 +76,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchDashboardData();
-    // Live usage polling every 10 seconds to keep counts exact
+    // Live usage + balance polling every 10 seconds, so "Credits left" and
+    // "Total tokens used" stay accurate as the user burns credits elsewhere
+    // (another tab, a script using their API key), not just after a manual
+    // "Live Sync" click.
     const pollInterval = setInterval(() => {
       const sessionToken = user?.sessionToken || localStorage.getItem('frenix_session_token');
       if (sessionToken && window.secureRelayRequest) {
@@ -85,6 +88,14 @@ export default function Dashboard() {
         }).then((usageRes) => {
           if (usageRes.ok && usageRes.data) {
             setUsage(usageRes.data);
+          }
+        }).catch(() => {});
+
+        window.secureRelayRequest('/v1/me', {
+          headers: { Authorization: `Bearer ${sessionToken}` }
+        }).then((meRes) => {
+          if (meRes.ok && meRes.data) {
+            setAccount(meRes.data);
           }
         }).catch(() => {});
       }
@@ -276,6 +287,30 @@ export default function Dashboard() {
 
       {/* Metrics Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '36px' }}>
+        <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
+            <span style={{ fontSize: '13px' }}>Credits left</span>
+            <Wallet size={16} />
+          </div>
+          <div style={{ fontSize: '26px', fontWeight: 500 }}>
+            ${Number(account?.balance_credits ?? 0).toFixed(2)}
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
+            {account?.tier ? `${account.tier.toUpperCase()} tier balance` : 'Available balance'}
+          </div>
+        </div>
+
+        <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
+            <span style={{ fontSize: '13px' }}>Total tokens used</span>
+            <Hash size={16} />
+          </div>
+          <div style={{ fontSize: '26px', fontWeight: 500 }}>
+            {Number(usage?.total_tokens ?? 0).toLocaleString()}
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Lifetime, prompt + completion</div>
+        </div>
+
         <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
             <span style={{ fontSize: '13px' }}>Requests (24h)</span>
