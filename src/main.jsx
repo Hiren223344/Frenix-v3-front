@@ -62,7 +62,17 @@ const DEV_TOOLS_PROTECTION_ENABLED = true;
 if (DEV_TOOLS_PROTECTION_ENABLED && typeof window !== 'undefined') {
   // 1. Prevent right click context menu inspection
   window.addEventListener('contextmenu', (e) => {
-    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+    // Elements holding a copyable secret (API keys, referral links) opt out
+    // via data-copyable: on mobile, "long-press to select/copy" is the
+    // native fallback when the Clipboard API's copy button fails (blocked
+    // permission, no secure context, etc.), and it depends on this same
+    // contextmenu/selection event. Blocking it there left users with no way
+    // to copy their own key at all if the JS copy button didn't work.
+    if (
+      e.target.tagName !== 'INPUT' &&
+      e.target.tagName !== 'TEXTAREA' &&
+      !e.target.closest('[data-copyable]')
+    ) {
       e.preventDefault();
       return false;
     }

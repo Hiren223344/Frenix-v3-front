@@ -56,7 +56,15 @@ export default function Dashboard() {
       // (the server never returns it again after creation).
       const rawById = JSON.parse(localStorage.getItem('frenix_minted_keys') || '{}');
       setKeys(
-        keysRes.data.keys.map((k) => ({
+        keysRes.data.keys
+          // The server returns full key history, revoked keys included
+          // (with revoked_at set), so the admin/audit trail isn't lossy.
+          // The dashboard only ever wants to show currently-active keys —
+          // without this filter, a key you'd already revoked reappeared
+          // looking active again (with a working Revoke button) on every
+          // reload or Live Sync.
+          .filter((k) => !k.revoked_at)
+          .map((k) => ({
           id: k.id,
           name: k.name,
           key: `${k.key_prefix || 'sk-frx-'}************`,
@@ -178,24 +186,46 @@ export default function Dashboard() {
   };
 
   const handleRevokeKey = async (id) => {
+    if (!window.confirm('Revoke this API key? Anything using it will stop working immediately.')) {
+      return;
+    }
+
+    const sessionToken = user?.sessionToken || localStorage.getItem('frenix_session_token');
+    if (!sessionToken || !window.secureRelayRequest) {
+      setSyncError('No active Telegram session found. Please log in again and retry.');
+      return;
+    }
+
+    // Only remove the key from the list once the server confirms it's
+    // actually revoked — previously this always removed it locally even
+    // when the DELETE failed or was silently skipped, so a key could look
+    // revoked in the UI while staying fully active (and usable) server-side.
     try {
-      const sessionToken = user?.sessionToken || localStorage.getItem('frenix_session_token');
-      if (sessionToken && window.secureRelayRequest && typeof id === 'number') {
-        await window.secureRelayRequest(`/v1/keys/${id}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${sessionToken}` }
-        });
+      const relayRes = await window.secureRelayRequest(`/v1/keys/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${sessionToken}` }
+      });
+      if (!relayRes.ok) {
+        throw new Error(relayRes?.data?.error?.message || `Failed to revoke key (HTTP ${relayRes.status})`);
       }
     } catch (err) {
-      console.warn('Revoke error:', err);
+      setSyncError(err.message || 'Failed to revoke key — it is still active. Please try again.');
+      return;
     }
-    setKeys(keys.filter((k) => k.id !== id));
+
+    setKeys((prev) => prev.filter((k) => k.id !== id));
   };
 
-  const handleCopy = (id, text) => {
+  const handleCopy = async (id, text) => {
     let copyTarget = text;
 
-    // If copying from table and raw wasn't directly in row, check stored keys or fallback to key prefix
+    // If copying from table and raw wasn't directly in row, check localStorage
+    // for a secret minted earlier this browser session. Deliberately no
+    // further fallback: the server never returns a key's raw secret again
+    // after creation (zero-retention), so if it isn't in either place there
+    // is no real secret left to copy — copying the masked display string
+    // instead would silently hand the user a useless ****-filled string
+    // while looking like it worked.
     if (!copyTarget && id !== 'modal') {
       try {
         const storedMap = JSON.parse(localStorage.getItem('frenix_minted_keys') || '{}');
@@ -203,24 +233,33 @@ export default function Dashboard() {
           copyTarget = storedMap[id];
         }
       } catch (_) {}
-      
-      if (!copyTarget) {
-        const found = keys.find((k) => k.id === id);
-        copyTarget = found?.raw || found?.key || '';
-      }
     }
 
     if (!copyTarget) return;
 
+    // Only show the "Copied" confirmation once a copy method actually
+    // reports success — previously this fired unconditionally, so if both
+    // the Clipboard API and the execCommand fallback silently failed (as
+    // they can in various mobile browser/permission contexts), the UI
+    // still claimed success while nothing was on the clipboard.
+    let succeeded = false;
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(copyTarget).catch(() => {
-        fallbackCopyText(copyTarget);
-      });
+      try {
+        await navigator.clipboard.writeText(copyTarget);
+        succeeded = true;
+      } catch (_) {
+        succeeded = fallbackCopyText(copyTarget);
+      }
     } else {
-      fallbackCopyText(copyTarget);
+      succeeded = fallbackCopyText(copyTarget);
     }
-    setCopiedKeyId(id);
-    setTimeout(() => setCopiedKeyId(null), 1800);
+
+    if (succeeded) {
+      setCopiedKeyId(id);
+      setTimeout(() => setCopiedKeyId(null), 1800);
+    } else {
+      setSyncError('Could not copy automatically — long-press (or select) the key text to copy it manually.');
+    }
   };
 
   const fallbackCopyText = (text) => {
@@ -231,25 +270,38 @@ export default function Dashboard() {
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
+    let succeeded = false;
     try {
-      document.execCommand('copy');
+      succeeded = document.execCommand('copy');
     } catch (_) {}
     document.body.removeChild(textArea);
+    return succeeded;
   };
 
   const referralLink = account?.referral_code
     ? `${window.location.origin}/?ref=${account.referral_code}`
     : '';
 
-  const handleCopyReferralLink = () => {
+  const handleCopyReferralLink = async () => {
     if (!referralLink) return;
+    let succeeded = false;
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(referralLink).catch(() => fallbackCopyText(referralLink));
+      try {
+        await navigator.clipboard.writeText(referralLink);
+        succeeded = true;
+      } catch (_) {
+        succeeded = fallbackCopyText(referralLink);
+      }
     } else {
-      fallbackCopyText(referralLink);
+      succeeded = fallbackCopyText(referralLink);
     }
-    setReferralCopied(true);
-    setTimeout(() => setReferralCopied(false), 1800);
+
+    if (succeeded) {
+      setReferralCopied(true);
+      setTimeout(() => setReferralCopied(false), 1800);
+    } else {
+      setSyncError('Could not copy automatically — long-press (or select) the link text to copy it manually.');
+    }
   };
 
   return (
@@ -385,7 +437,7 @@ export default function Dashboard() {
                 minWidth: 0,
               }}
             >
-              <span className="code-font" style={{ fontSize: '12px', color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <span data-copyable className="code-font selectable-text" style={{ fontSize: '12px', color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {referralLink}
               </span>
             </div>
@@ -488,9 +540,17 @@ export default function Dashboard() {
                   {k.key}
                 </span>
                 <button
-                  onClick={() => handleCopy(k.id, k.raw)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', padding: '2px', display: 'flex' }}
-                  title="Copy Key"
+                  onClick={() => k.raw && handleCopy(k.id, k.raw)}
+                  disabled={!k.raw}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: k.raw ? 'pointer' : 'not-allowed',
+                    color: k.raw ? 'var(--muted)' : 'var(--border)',
+                    padding: '2px',
+                    display: 'flex',
+                  }}
+                  title={k.raw ? 'Copy key' : "Only shown once at creation — this browser doesn't have the secret for this key. Revoke and create a new one to get a copyable key."}
                 >
                   {copiedKeyId === k.id ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
                 </button>
@@ -560,7 +620,7 @@ export default function Dashboard() {
                     Save this key now. You will not be able to view it in plaintext again:
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                    <code className="code-font" style={{ fontSize: '13px', wordBreak: 'break-all' }}>
+                    <code data-copyable className="code-font" style={{ fontSize: '13px', wordBreak: 'break-all', userSelect: 'text' }}>
                       {createdKey.raw}
                     </code>
                     <button
