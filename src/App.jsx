@@ -10,6 +10,7 @@ import Status from './pages/Status';
 import Changelog from './pages/Changelog';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
+import Cookies from './pages/Cookies';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="changelog" element={<Changelog />} />
         <Route path="terms" element={<Terms />} />
         <Route path="privacy" element={<Privacy />} />
+        <Route path="cookies" element={<Cookies />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

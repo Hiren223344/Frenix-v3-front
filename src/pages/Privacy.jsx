@@ -56,7 +56,7 @@ export default function Privacy() {
         <section>
           <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>3. Cookies &amp; Local Storage</h2>
           <p style={{ margin: 0, color: 'var(--muted)' }}>
-            We do not use tracking or advertising cookies. The dashboard stores a few items in your browser's local storage — your session token, a cache of API key metadata, and (if you arrived via a referral link) the referral code — purely so the site works across page loads. None of this is sent to any third party, and it never leaves your device except in requests you make directly to the Frenix API.
+            We do not use tracking or advertising cookies. The dashboard stores a few items in your browser's local storage — your session token, a cache of API key metadata, and (if you arrived via a referral link) the referral code — purely so the site works across page loads. None of this is sent to any third party, and it never leaves your device except in requests you make directly to the Frenix API. See our <Link to="/cookies" style={{ color: 'var(--text)', textDecoration: 'underline' }}>Cookie Policy</Link> for the full breakdown.
           </p>
         </section>
 

@@ -52,6 +52,8 @@ export default function Layout() {
         return 'Terms of Service';
       case '/privacy':
         return 'Privacy Policy';
+      case '/cookies':
+        return 'Cookie Policy';
       default:
         return 'AI gateway';
     }
@@ -402,6 +404,9 @@ export default function Layout() {
             </Link>
             <Link to="/privacy" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
               Privacy
+            </Link>
+            <Link to="/cookies" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
+              Cookies
             </Link>
             <a href="https://t.me/frenix_bot" target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
               Telegram Support (@frenix_bot)
