@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Key, Plus, Trash2, Copy, Check, BarChart3, Activity, Shield, RefreshCw, Wallet, Hash, Gift } from 'lucide-react';
+import { Key, Plus, Trash2, Copy, Check, BarChart3, Activity, Shield, RefreshCw, Wallet, Hash, Gift, AlertTriangle, Bell, X } from 'lucide-react';
 
 export default function Dashboard() {
   const { accentDisplay } = useTheme();
@@ -12,6 +12,9 @@ export default function Dashboard() {
   const [usage, setUsage] = useState({ requests_last_24h: 0, requests_last_30d: 0, total_tokens: 0 });
   const [loading, setLoading] = useState(true);
   const [newKeyName, setNewKeyName] = useState('');
+  const [newKeySpendLimit, setNewKeySpendLimit] = useState('');
+  const [newKeyRateLimit, setNewKeyRateLimit] = useState('');
+  const [showLimitFields, setShowLimitFields] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [createdKey, setCreatedKey] = useState(null);
   const [copiedKeyId, setCopiedKeyId] = useState(null);
@@ -19,6 +22,11 @@ export default function Dashboard() {
   const [syncError, setSyncError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [referralCopied, setReferralCopied] = useState(false);
+
+  // Low-balance alert threshold (GET/PUT /v1/me, /v1/me/low-balance-threshold)
+  const [showThresholdEditor, setShowThresholdEditor] = useState(false);
+  const [thresholdInput, setThresholdInput] = useState('');
+  const [savingThreshold, setSavingThreshold] = useState(false);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -70,7 +78,10 @@ export default function Dashboard() {
           key: `${k.key_prefix || 'sk-frx-'}************`,
           created: k.created_at ? new Date(k.created_at).toLocaleDateString() : 'Active',
           lastUsed: k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : 'Never',
-          raw: rawById[k.id] || null
+          raw: rawById[k.id] || null,
+          spendLimit: k.spend_limit ?? null,
+          rateLimitRpm: k.rate_limit_rpm ?? null,
+          currentSpend: k.current_spend ?? null,
         }))
       );
     } catch (err) {
@@ -126,6 +137,22 @@ export default function Dashboard() {
         throw new Error('No active Telegram session found. Please log in first.');
       }
       
+      // Both fields are optional: an empty/blank input means no cap, same
+      // as leaving the field out of the request body entirely.
+      const spendLimitDollars = newKeySpendLimit.trim() ? Number(newKeySpendLimit) : null;
+      const rateLimitRpm = newKeyRateLimit.trim() ? Number(newKeyRateLimit) : null;
+      if (spendLimitDollars !== null && (!Number.isFinite(spendLimitDollars) || spendLimitDollars < 0)) {
+        throw new Error('Spend limit must be a non-negative number.');
+      }
+      if (rateLimitRpm !== null && (!Number.isFinite(rateLimitRpm) || rateLimitRpm <= 0)) {
+        throw new Error('Rate limit must be a positive number.');
+      }
+      const body = { name: newKeyName.trim() };
+      // spend_limit is in micro-credits server-side (1,000,000 = $1), same
+      // unit as account.balance elsewhere on this page.
+      if (spendLimitDollars !== null) body.spend_limit = Math.round(spendLimitDollars * 1_000_000);
+      if (rateLimitRpm !== null) body.rate_limit_rpm = Math.round(rateLimitRpm);
+
       // POST /v1/keys via encrypted /api/ relay
       let createRes;
       if (window.secureRelayRequest) {
@@ -134,7 +161,7 @@ export default function Dashboard() {
           headers: {
             Authorization: `Bearer ${sessionToken}`
           },
-          body: { name: newKeyName.trim() }
+          body
         });
       } else {
         const res = await fetch('/v1/keys', {
@@ -143,7 +170,7 @@ export default function Dashboard() {
             Authorization: `Bearer ${sessionToken}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ name: newKeyName.trim() })
+          body: JSON.stringify(body)
         });
         const json = await res.json();
         createRes = { ok: res.ok, status: res.status, data: json };
@@ -159,6 +186,8 @@ export default function Dashboard() {
           raw: rawSecret, // Shown once
           created: 'Just now',
           lastUsed: 'Never',
+          spendLimit: minted.spend_limit ?? null,
+          rateLimitRpm: minted.rate_limit_rpm ?? null,
         };
 
         // Store in local storage mapping for table copy
@@ -173,6 +202,9 @@ export default function Dashboard() {
         setKeys([newKeyObj, ...keys]);
         setCreatedKey(newKeyObj);
         setNewKeyName('');
+        setNewKeySpendLimit('');
+        setNewKeyRateLimit('');
+        setShowLimitFields(false);
         return;
       } else {
         const serverError = createRes?.data?.error?.message || `Gateway returned HTTP ${createRes.status}`;
@@ -278,6 +310,48 @@ export default function Dashboard() {
     return succeeded;
   };
 
+  const handleSaveThreshold = async (clear) => {
+    const sessionToken = user?.sessionToken || localStorage.getItem('frenix_session_token');
+    if (!sessionToken || !window.secureRelayRequest) {
+      setSyncError('No active Telegram session found. Please log in again and retry.');
+      return;
+    }
+    let thresholdMicroCredits = null;
+    if (!clear) {
+      const dollars = Number(thresholdInput);
+      if (!thresholdInput.trim() || !Number.isFinite(dollars) || dollars < 0) {
+        setSyncError('Alert threshold must be a non-negative number.');
+        return;
+      }
+      thresholdMicroCredits = Math.round(dollars * 1_000_000);
+    }
+
+    setSavingThreshold(true);
+    try {
+      const res = await window.secureRelayRequest('/v1/me/low-balance-threshold', {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${sessionToken}` },
+        body: { threshold: thresholdMicroCredits }
+      });
+      if (!res.ok) {
+        throw new Error(res?.data?.error?.message || `Failed to update alert threshold (HTTP ${res.status})`);
+      }
+      // Re-fetch rather than compute low_balance locally — the server is
+      // the source of truth for whether the new threshold is already
+      // crossed by the current balance.
+      const meRes = await window.secureRelayRequest('/v1/me', {
+        headers: { Authorization: `Bearer ${sessionToken}` }
+      });
+      if (meRes.ok && meRes.data) setAccount(meRes.data);
+      setShowThresholdEditor(false);
+      setThresholdInput('');
+    } catch (err) {
+      setSyncError(err.message || 'Failed to update alert threshold');
+    } finally {
+      setSavingThreshold(false);
+    }
+  };
+
   const referralLink = account?.referral_code
     ? `${window.location.origin}/?ref=${account.referral_code}`
     : '';
@@ -353,6 +427,28 @@ export default function Dashboard() {
         </div>
       )}
 
+      {account?.low_balance && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '10px 14px',
+            borderRadius: '10px',
+            border: '1px solid #f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.08)',
+            color: '#f59e0b',
+            fontSize: '13px',
+            marginBottom: '24px',
+          }}
+        >
+          <AlertTriangle size={15} style={{ flexShrink: 0 }} />
+          <span>
+            Your balance (${Number(account.balance_credits || 0).toFixed(2)}) is at or below your alert threshold. Top up to avoid an interruption.
+          </span>
+        </div>
+      )}
+
       {/* Metrics Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '36px' }}>
         <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
@@ -366,6 +462,76 @@ export default function Dashboard() {
           <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
             {account?.tier ? `${account.tier.toUpperCase()} tier balance` : 'Available balance'}
           </div>
+
+          <button
+            onClick={() => {
+              setThresholdInput(
+                account?.low_balance_threshold != null ? String(account.low_balance_threshold / 1_000_000) : ''
+              );
+              setShowThresholdEditor((v) => !v);
+            }}
+            className="button-press"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              marginTop: '10px',
+              padding: 0,
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '11px',
+              color: 'var(--muted)',
+            }}
+          >
+            <Bell size={11} />
+            <span>
+              {account?.low_balance_threshold != null
+                ? `Alert below $${(account.low_balance_threshold / 1_000_000).toFixed(2)}`
+                : 'Set balance alert'}
+            </span>
+          </button>
+
+          {showThresholdEditor && (
+            <div style={{ marginTop: '8px', display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="$ threshold"
+                value={thresholdInput}
+                onChange={(e) => setThresholdInput(e.target.value)}
+                style={{
+                  width: '90px',
+                  padding: '6px 8px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border)',
+                  backgroundColor: 'var(--bg)',
+                  color: 'var(--text)',
+                  fontSize: '12px',
+                  outline: 'none',
+                }}
+              />
+              <button
+                onClick={() => handleSaveThreshold(false)}
+                disabled={savingThreshold}
+                title="Save"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#16a34a', padding: '4px' }}
+              >
+                <Check size={13} />
+              </button>
+              {account?.low_balance_threshold != null && (
+                <button
+                  onClick={() => handleSaveThreshold(true)}
+                  disabled={savingThreshold}
+                  title="Clear alert"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
+                >
+                  <X size={13} />
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
@@ -534,7 +700,20 @@ export default function Dashboard() {
                 borderBottom: '1px solid var(--border)',
               }}
             >
-              <div style={{ fontWeight: 500 }}>{k.name}</div>
+              <div>
+                <div style={{ fontWeight: 500 }}>{k.name}</div>
+                {(k.spendLimit != null || k.rateLimitRpm != null) && (
+                  <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
+                    {k.spendLimit != null && (
+                      <span>
+                        Limit: ${(k.currentSpend != null ? k.currentSpend / 1_000_000 : 0).toFixed(2)} / ${(k.spendLimit / 1_000_000).toFixed(2)}
+                      </span>
+                    )}
+                    {k.spendLimit != null && k.rateLimitRpm != null && <span> &bull; </span>}
+                    {k.rateLimitRpm != null && <span>{k.rateLimitRpm} req/min</span>}
+                  </div>
+                )}
+              </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span className="code-font" style={{ color: 'var(--muted)', fontSize: '12px', letterSpacing: '1px' }}>
                   {k.key}
@@ -668,10 +847,79 @@ export default function Dashboard() {
                     backgroundColor: 'var(--bg)',
                     color: 'var(--text)',
                     fontSize: '14px',
-                    marginBottom: '16px',
+                    marginBottom: '10px',
                     outline: 'none',
                   }}
                 />
+
+                <button
+                  type="button"
+                  onClick={() => setShowLimitFields((v) => !v)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--muted)',
+                    fontSize: '12px',
+                    padding: 0,
+                    marginBottom: showLimitFields ? '10px' : '16px',
+                    textDecoration: 'underline',
+                  }}
+                >
+                  {showLimitFields ? 'Hide limits' : 'Add spend / rate limits (optional)'}
+                </button>
+
+                {showLimitFields && (
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>
+                        Spend limit ($)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="No limit"
+                        value={newKeySpendLimit}
+                        onChange={(e) => setNewKeySpendLimit(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 10px',
+                          borderRadius: '10px',
+                          border: '1px solid var(--border)',
+                          backgroundColor: 'var(--bg)',
+                          color: 'var(--text)',
+                          fontSize: '13px',
+                          outline: 'none',
+                        }}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>
+                        Rate limit (req/min)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        step="1"
+                        placeholder="No limit"
+                        value={newKeyRateLimit}
+                        onChange={(e) => setNewKeyRateLimit(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 10px',
+                          borderRadius: '10px',
+                          border: '1px solid var(--border)',
+                          backgroundColor: 'var(--bg)',
+                          color: 'var(--text)',
+                          fontSize: '13px',
+                          outline: 'none',
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                   <button
                     type="button"
