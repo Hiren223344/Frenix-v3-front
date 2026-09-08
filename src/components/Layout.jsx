@@ -22,6 +22,7 @@ import {
   X
 } from 'lucide-react';
 import TelegramAuthModal from './TelegramAuthModal';
+import CookieNotice from './CookieNotice';
 
 export default function Layout() {
   const { isDark, toggleTheme, accentDisplay } = useTheme();
@@ -75,6 +76,7 @@ export default function Layout() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <TelegramAuthModal />
+      <CookieNotice />
       <div
         className={`frenix-mobile-backdrop ${mobileNavOpen ? 'open' : ''}`}
         onClick={() => setMobileNavOpen(false)}
