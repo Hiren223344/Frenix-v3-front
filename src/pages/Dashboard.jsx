@@ -3,6 +3,58 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { Key, Plus, Trash2, Copy, Check, BarChart3, Activity, Shield, RefreshCw, Wallet, Hash, Gift, AlertTriangle, Bell, X } from 'lucide-react';
 
+// One optional-limit number input, shared by every field in the "Add spend
+// / rate limits" section of the create-key form — each is otherwise
+// identical (same styling, same "blank = no limit" semantics) so this
+// avoids repeating that markup five times over.
+function LimitField({ label, value, onChange, min, step }) {
+  return (
+    <div style={{ flex: 1 }}>
+      <label style={{ display: 'block', fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>{label}</label>
+      <input
+        type="number"
+        min={min}
+        step={step}
+        placeholder="No limit"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          width: '100%',
+          padding: '8px 10px',
+          borderRadius: '10px',
+          border: '1px solid var(--border)',
+          backgroundColor: 'var(--bg)',
+          color: 'var(--text)',
+          fontSize: '13px',
+          outline: 'none',
+        }}
+      />
+    </div>
+  );
+}
+
+// keyLimitSummary joins whichever of a key's limits are actually set into
+// one "Limit: $2.00/$5.00 • 30 req/min • 10,000 tok/min" string, or ''
+// when none are — so the row below its name only renders when there's
+// something to show.
+function keyLimitSummary(k) {
+  const parts = [];
+  if (k.spendLimit != null) {
+    const spent = k.currentSpend != null ? k.currentSpend / 1_000_000 : 0;
+    parts.push(`Limit: $${spent.toFixed(2)}/$${(k.spendLimit / 1_000_000).toFixed(2)}`);
+  }
+  if (k.rateLimitRpm != null) parts.push(`${k.rateLimitRpm} req/min`);
+  if (k.tokenLimitPerMinute != null) parts.push(`${tokenUsageLabel(k.currentTokensPerMinute, k.tokenLimitPerMinute)}/min`);
+  if (k.tokenLimitPerHour != null) parts.push(`${tokenUsageLabel(k.currentTokensPerHour, k.tokenLimitPerHour)}/hr`);
+  if (k.tokenLimitPerDay != null) parts.push(`${tokenUsageLabel(k.currentTokensPerDay, k.tokenLimitPerDay)}/day`);
+  return parts.join(' • ');
+}
+
+function tokenUsageLabel(current, limit) {
+  const used = current != null ? current.toLocaleString() : '0';
+  return `${used}/${limit.toLocaleString()} tok`;
+}
+
 export default function Dashboard() {
   const { accentDisplay } = useTheme();
   const { user } = useAuth();
@@ -14,6 +66,9 @@ export default function Dashboard() {
   const [newKeyName, setNewKeyName] = useState('');
   const [newKeySpendLimit, setNewKeySpendLimit] = useState('');
   const [newKeyRateLimit, setNewKeyRateLimit] = useState('');
+  const [newKeyTokensPerMinute, setNewKeyTokensPerMinute] = useState('');
+  const [newKeyTokensPerHour, setNewKeyTokensPerHour] = useState('');
+  const [newKeyTokensPerDay, setNewKeyTokensPerDay] = useState('');
   const [showLimitFields, setShowLimitFields] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [createdKey, setCreatedKey] = useState(null);
@@ -82,6 +137,12 @@ export default function Dashboard() {
           spendLimit: k.spend_limit ?? null,
           rateLimitRpm: k.rate_limit_rpm ?? null,
           currentSpend: k.current_spend ?? null,
+          tokenLimitPerMinute: k.token_limit_per_minute ?? null,
+          tokenLimitPerHour: k.token_limit_per_hour ?? null,
+          tokenLimitPerDay: k.token_limit_per_day ?? null,
+          currentTokensPerMinute: k.current_tokens_per_minute ?? null,
+          currentTokensPerHour: k.current_tokens_per_hour ?? null,
+          currentTokensPerDay: k.current_tokens_per_day ?? null,
         }))
       );
     } catch (err) {
@@ -137,21 +198,35 @@ export default function Dashboard() {
         throw new Error('No active Telegram session found. Please log in first.');
       }
       
-      // Both fields are optional: an empty/blank input means no cap, same
-      // as leaving the field out of the request body entirely.
+      // Every limit field is optional: an empty/blank input means no cap,
+      // same as leaving the field out of the request body entirely.
       const spendLimitDollars = newKeySpendLimit.trim() ? Number(newKeySpendLimit) : null;
       const rateLimitRpm = newKeyRateLimit.trim() ? Number(newKeyRateLimit) : null;
+      const tokensPerMinute = newKeyTokensPerMinute.trim() ? Number(newKeyTokensPerMinute) : null;
+      const tokensPerHour = newKeyTokensPerHour.trim() ? Number(newKeyTokensPerHour) : null;
+      const tokensPerDay = newKeyTokensPerDay.trim() ? Number(newKeyTokensPerDay) : null;
       if (spendLimitDollars !== null && (!Number.isFinite(spendLimitDollars) || spendLimitDollars < 0)) {
         throw new Error('Spend limit must be a non-negative number.');
       }
-      if (rateLimitRpm !== null && (!Number.isFinite(rateLimitRpm) || rateLimitRpm <= 0)) {
-        throw new Error('Rate limit must be a positive number.');
+      const positiveIntFields = [
+        ['Rate limit', rateLimitRpm],
+        ['Token limit per minute', tokensPerMinute],
+        ['Token limit per hour', tokensPerHour],
+        ['Token limit per day', tokensPerDay],
+      ];
+      for (const [label, value] of positiveIntFields) {
+        if (value !== null && (!Number.isFinite(value) || value <= 0)) {
+          throw new Error(`${label} must be a positive number.`);
+        }
       }
       const body = { name: newKeyName.trim() };
       // spend_limit is in micro-credits server-side (1,000,000 = $1), same
       // unit as account.balance elsewhere on this page.
       if (spendLimitDollars !== null) body.spend_limit = Math.round(spendLimitDollars * 1_000_000);
       if (rateLimitRpm !== null) body.rate_limit_rpm = Math.round(rateLimitRpm);
+      if (tokensPerMinute !== null) body.token_limit_per_minute = Math.round(tokensPerMinute);
+      if (tokensPerHour !== null) body.token_limit_per_hour = Math.round(tokensPerHour);
+      if (tokensPerDay !== null) body.token_limit_per_day = Math.round(tokensPerDay);
 
       // POST /v1/keys via encrypted /api/ relay
       let createRes;
@@ -188,6 +263,9 @@ export default function Dashboard() {
           lastUsed: 'Never',
           spendLimit: minted.spend_limit ?? null,
           rateLimitRpm: minted.rate_limit_rpm ?? null,
+          tokenLimitPerMinute: minted.token_limit_per_minute ?? null,
+          tokenLimitPerHour: minted.token_limit_per_hour ?? null,
+          tokenLimitPerDay: minted.token_limit_per_day ?? null,
         };
 
         // Store in local storage mapping for table copy
@@ -204,6 +282,9 @@ export default function Dashboard() {
         setNewKeyName('');
         setNewKeySpendLimit('');
         setNewKeyRateLimit('');
+        setNewKeyTokensPerMinute('');
+        setNewKeyTokensPerHour('');
+        setNewKeyTokensPerDay('');
         setShowLimitFields(false);
         return;
       } else {
@@ -702,16 +783,8 @@ export default function Dashboard() {
             >
               <div>
                 <div style={{ fontWeight: 500 }}>{k.name}</div>
-                {(k.spendLimit != null || k.rateLimitRpm != null) && (
-                  <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
-                    {k.spendLimit != null && (
-                      <span>
-                        Limit: ${(k.currentSpend != null ? k.currentSpend / 1_000_000 : 0).toFixed(2)} / ${(k.spendLimit / 1_000_000).toFixed(2)}
-                      </span>
-                    )}
-                    {k.spendLimit != null && k.rateLimitRpm != null && <span> &bull; </span>}
-                    {k.rateLimitRpm != null && <span>{k.rateLimitRpm} req/min</span>}
-                  </div>
+                {keyLimitSummary(k) && (
+                  <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>{keyLimitSummary(k)}</div>
                 )}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -870,52 +943,16 @@ export default function Dashboard() {
                 </button>
 
                 {showLimitFields && (
-                  <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>
-                        Spend limit ($)
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder="No limit"
-                        value={newKeySpendLimit}
-                        onChange={(e) => setNewKeySpendLimit(e.target.value)}
-                        style={{
-                          width: '100%',
-                          padding: '8px 10px',
-                          borderRadius: '10px',
-                          border: '1px solid var(--border)',
-                          backgroundColor: 'var(--bg)',
-                          color: 'var(--text)',
-                          fontSize: '13px',
-                          outline: 'none',
-                        }}
-                      />
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                      <LimitField label="Spend limit ($)" min="0" step="0.01" value={newKeySpendLimit} onChange={setNewKeySpendLimit} />
+                      <LimitField label="Rate limit (req/min)" min="1" step="1" value={newKeyRateLimit} onChange={setNewKeyRateLimit} />
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>
-                        Rate limit (req/min)
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        step="1"
-                        placeholder="No limit"
-                        value={newKeyRateLimit}
-                        onChange={(e) => setNewKeyRateLimit(e.target.value)}
-                        style={{
-                          width: '100%',
-                          padding: '8px 10px',
-                          borderRadius: '10px',
-                          border: '1px solid var(--border)',
-                          backgroundColor: 'var(--bg)',
-                          color: 'var(--text)',
-                          fontSize: '13px',
-                          outline: 'none',
-                        }}
-                      />
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '6px' }}>Token throughput caps (optional)</div>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <LimitField label="Per minute" min="1" step="1" value={newKeyTokensPerMinute} onChange={setNewKeyTokensPerMinute} />
+                      <LimitField label="Per hour" min="1" step="1" value={newKeyTokensPerHour} onChange={setNewKeyTokensPerHour} />
+                      <LimitField label="Per day" min="1" step="1" value={newKeyTokensPerDay} onChange={setNewKeyTokensPerDay} />
                     </div>
                   </div>
                 )}
