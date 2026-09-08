@@ -119,36 +119,84 @@ export default function Terms() {
         </section>
 
         <section>
-          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>11. Termination</h2>
+          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>11. Termination &amp; Right to Refuse Service</h2>
           <p style={{ margin: 0, color: 'var(--muted)' }}>
-            We may suspend or terminate your access to the service, revoke API keys, and/or forfeit any remaining credit balance, at our sole discretion, at any time, with or without notice and with or without cause, including for suspected violation of these Terms. You may stop using the service at any time. Sections 5 through 10 and 13 survive termination.
+            We may suspend or terminate your access to the service, revoke API keys, refuse service to anyone, and/or forfeit any remaining credit balance, at our sole discretion, at any time, with or without notice and with or without cause, including for suspected violation of these Terms. You may stop using the service at any time. Sections 5 through 10 and 15 through 20 survive termination.
           </p>
         </section>
 
         <section>
-          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>12. Changes to These Terms</h2>
+          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>12. Compliance With Laws; Export Control</h2>
           <p style={{ margin: 0, color: 'var(--muted)' }}>
-            We may modify these Terms at any time by posting the updated version on this page and updating the "Last updated" date above. Your continued use of the service after a change becomes effective constitutes acceptance of the revised Terms.
+            You represent that you are not located in, and will not use the service from, any country or region subject to comprehensive trade sanctions, and that you are not on any restricted-party list. You are solely responsible for ensuring your use of the service complies with all laws applicable to you, including export control and data protection laws.
           </p>
         </section>
 
         <section>
-          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>13. Governing Law &amp; Dispute Resolution</h2>
+          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>13. Force Majeure</h2>
+          <p style={{ margin: 0, color: 'var(--muted)' }}>
+            We are not liable for any failure or delay in performance resulting from causes beyond our reasonable control, including acts of God, natural disaster, war, terrorism, riot, labor conditions, governmental action, internet or telecommunications failure, denial-of-service or other cyberattack, or any outage, degradation, policy change, or discontinuation by an upstream AI model provider.
+          </p>
+        </section>
+
+        <section>
+          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>14. Changes to These Terms</h2>
+          <p style={{ margin: 0, color: 'var(--muted)' }}>
+            We may modify these Terms at any time by posting the updated version on this page and updating the "Last updated" date above. Your continued use of the service after a change becomes effective constitutes acceptance of the revised Terms. It is your responsibility to review this page periodically.
+          </p>
+        </section>
+
+        <section>
+          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>15. Dispute Resolution: Binding Arbitration &amp; Class Action Waiver</h2>
+          <p style={{ margin: '0 0 10px 0', color: 'var(--muted)' }}>
+            PLEASE READ THIS SECTION CAREFULLY — IT AFFECTS YOUR LEGAL RIGHTS. Except for disputes qualifying for small-claims court or the injunctive relief described in Section 17, you and Frenix agree that any dispute, claim, or controversy arising out of or relating to these Terms or the service will be resolved by final and binding arbitration on an individual basis, rather than in court, before a single arbitrator, under the arbitration rules generally applicable in the jurisdiction named in Section 16. The arbitrator's decision will be final and binding and may be entered as a judgment in any court of competent jurisdiction.
+          </p>
+          <p style={{ margin: 0, color: 'var(--muted)' }}>
+            YOU AND FRENIX EACH WAIVE ANY RIGHT TO A JURY TRIAL AND TO PARTICIPATE IN A CLASS ACTION, CLASS ARBITRATION, OR ANY OTHER REPRESENTATIVE PROCEEDING. Claims must be brought in an individual capacity only. If this class action waiver is found unenforceable as to a particular claim, that claim (and only that claim) will proceed in court rather than arbitration, and every other claim remains subject to this section.
+          </p>
+        </section>
+
+        <section>
+          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>16. Governing Law</h2>
           <p style={{ margin: 0, color: 'var(--muted)' }}>
             {/* TODO: fill in your actual jurisdiction (country/state) here before relying on this document. */}
-            These Terms are governed by the laws of <strong>[YOUR COUNTRY/STATE — FILL THIS IN]</strong>, without regard to conflict-of-laws principles. Any dispute arising from these Terms or the service will be resolved exclusively in the courts located in that jurisdiction, and you consent to their personal jurisdiction.
+            These Terms are governed by the laws of <strong>[YOUR COUNTRY/STATE — FILL THIS IN]</strong>, without regard to conflict-of-laws principles. Subject to Section 15, any dispute not resolved by arbitration will be brought exclusively in the courts located in that jurisdiction, and you consent to their personal jurisdiction.
           </p>
         </section>
 
         <section>
-          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>14. General</h2>
+          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>17. Injunctive Relief</h2>
           <p style={{ margin: 0, color: 'var(--muted)' }}>
-            If any provision of these Terms is found unenforceable, the remaining provisions remain in full effect. These Terms, together with our Privacy Policy, constitute the entire agreement between you and Frenix regarding the service, and supersede any prior agreements.
+            Notwithstanding Section 15, we may seek injunctive or other equitable relief in any court of competent jurisdiction at any time to prevent actual or threatened infringement of our intellectual property, unauthorized access to the service, or violation of Section 3 (Acceptable Use).
           </p>
         </section>
 
         <section>
-          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>15. Contact</h2>
+          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>18. Assignment</h2>
+          <p style={{ margin: 0, color: 'var(--muted)' }}>
+            You may not assign or transfer these Terms or your account without our prior written consent. We may assign or transfer these Terms, in whole or in part, without restriction, including in connection with a merger, acquisition, or sale of assets.
+          </p>
+        </section>
+
+        <section>
+          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>19. Waiver; No Third-Party Beneficiaries; Notices</h2>
+          <p style={{ margin: '0 0 10px 0', color: 'var(--muted)' }}>
+            Our failure to enforce any provision of these Terms is not a waiver of our right to enforce it later. These Terms do not create any rights for any third party.
+          </p>
+          <p style={{ margin: 0, color: 'var(--muted)' }}>
+            We may provide notices to you via the email or Telegram account associated with your account, or by posting on this site; such notice is deemed received when sent. Legal notices to us should be sent via the contact method in Section 21.
+          </p>
+        </section>
+
+        <section>
+          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>20. General</h2>
+          <p style={{ margin: 0, color: 'var(--muted)' }}>
+            If any provision of these Terms is found unenforceable, that provision will be limited or eliminated to the minimum extent necessary, and the remaining provisions remain in full effect. These Terms, together with our Privacy Policy, constitute the entire agreement between you and Frenix regarding the service, and supersede any prior agreements or representations, written or oral.
+          </p>
+        </section>
+
+        <section>
+          <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>21. Contact</h2>
           <p style={{ margin: 0, color: 'var(--muted)' }}>
             {/* TODO: fill in your legal entity name / operator name here. */}
             Frenix is operated by <strong>[YOUR LEGAL NAME / ENTITY NAME — FILL THIS IN]</strong>. For legal inquiries or support, contact us on Telegram at <a href="https://t.me/frenix_bot" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text)', textDecoration: 'underline' }}>@frenix_bot</a>.
