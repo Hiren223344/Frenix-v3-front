@@ -9,6 +9,7 @@ import {
   Layers,
   BookOpen,
   Activity,
+  Plug,
   GitCommit,
   MessageCircle,
   Sun,
@@ -81,6 +82,8 @@ export default function Layout() {
         return 'Models';
       case '/docs':
         return 'Documentation';
+      case '/mcp':
+        return 'MCP Gateway';
       case '/status':
         return 'Status';
       case '/changelog':
@@ -186,6 +189,10 @@ export default function Layout() {
             <NavLink to="/docs" style={navLinkStyle}>
               <BookOpen size={16} style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Documentation</span>
+            </NavLink>
+            <NavLink to="/mcp" style={navLinkStyle}>
+              <Plug size={16} style={{ flexShrink: 0 }} />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>MCP</span>
             </NavLink>
           </nav>
 
@@ -444,6 +451,9 @@ export default function Layout() {
             </Link>
             <Link to="/docs" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
               Documentation
+            </Link>
+            <Link to="/mcp" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
+              MCP
             </Link>
             <Link to="/status" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
               Status

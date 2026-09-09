@@ -6,6 +6,7 @@ import Pricing from './pages/Pricing';
 import Dashboard from './pages/Dashboard';
 import Models from './pages/Models';
 import Docs from './pages/Docs';
+import MCP from './pages/MCP';
 import Status from './pages/Status';
 import Changelog from './pages/Changelog';
 import Terms from './pages/Terms';
@@ -29,6 +30,7 @@ export default function App() {
         />
         <Route path="models" element={<Models />} />
         <Route path="docs" element={<Docs />} />
+        <Route path="mcp" element={<MCP />} />
         <Route path="status" element={<Status />} />
         <Route path="changelog" element={<Changelog />} />
         <Route path="terms" element={<Terms />} />
