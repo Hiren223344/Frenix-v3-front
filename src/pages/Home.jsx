@@ -20,6 +20,12 @@ export default function Home() {
     <div className="animate-fadeInUp">
       {/* Hero Section */}
       <section style={{ padding: '80px 0 54px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--muted)' }}>Welcome to Frenix AI API</span>
+          <span style={{ fontSize: '11px', color: 'var(--muted)', padding: '2px 8px', borderRadius: '8px', border: '1px solid var(--border)' }}>
+            current version shown in the sidebar, next to the logo
+          </span>
+        </div>
         <h1 style={{ fontSize: 'clamp(32px, 5vw, 44px)', lineHeight: 1.15, fontWeight: 300, maxWidth: '680px', margin: '0 0 16px 0', letterSpacing: '-0.02em' }}>
           The fastest way to ship with any model.
         </h1>
