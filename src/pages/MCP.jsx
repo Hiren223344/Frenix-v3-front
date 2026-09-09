@@ -6,9 +6,14 @@ import { Copy, Check, Plug, ArrowRight } from 'lucide-react';
 const TOOLS = [
   { name: 'list_models', mirrors: 'GET /v1/models', notes: 'pricing, capabilities, tier requirement' },
   { name: 'get_account', mirrors: 'GET /v1/me', notes: 'tier, balance, referral code' },
+  { name: 'set_low_balance_threshold', mirrors: 'PUT /v1/me/low-balance-threshold', notes: 'omit threshold to clear it' },
   { name: 'get_usage', mirrors: 'GET /v1/usage', notes: 'request counts, lifetime tokens' },
   { name: 'list_keys', mirrors: 'GET /v1/keys', notes: 'never returns a raw key value' },
+  { name: 'update_key_limits', mirrors: 'PATCH /v1/keys/{id}/limits', notes: 'replaces the full limit set, not a merge' },
+  { name: 'revoke_key', mirrors: 'DELETE /v1/keys/{id}', notes: 'irreversible' },
   { name: 'chat_completion', mirrors: 'POST /v1/chat/completions', notes: 'spends credits, same as the REST call' },
+  { name: 'anthropic_message', mirrors: 'POST /v1/messages', notes: 'native Anthropic shape; paid-tier models' },
+  { name: 'create_embeddings', mirrors: 'POST /v1/embeddings', notes: 'spends credits, same as the REST call' },
 ];
 
 const CONFIG_SNIPPET = (key) => `{
@@ -54,7 +59,8 @@ export default function MCP() {
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '640px' }}>
           Every API key doubles as credentials for a personal MCP (Model Context Protocol) server, so an MCP
-          client — Claude Code, Claude Desktop, or anything else that speaks MCP — can use Frenix directly.
+          client — Claude Code, Claude Desktop, or anything else that speaks MCP — can do almost everything
+          this Dashboard can: route completions, manage key limits, check usage, and more.
         </p>
       </div>
 
@@ -98,6 +104,11 @@ export default function MCP() {
             </div>
           ))}
         </div>
+        <p style={{ fontSize: '12px', color: 'var(--muted)', margin: '10px 0 0 0' }}>
+          Not exposed: minting a new key. That requires a session specifically, not an API key — a leaked key
+          must never be able to mint further standing credentials that outlive it getting revoked. Create keys
+          from this Dashboard.
+        </p>
       </div>
 
       {/* Config snippet */}
