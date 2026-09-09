@@ -24,16 +24,52 @@ import {
 import TelegramAuthModal from './TelegramAuthModal';
 import CookieNotice from './CookieNotice';
 
+// Same fallback pattern as Status.jsx's STATUS_URL: only used if
+// window.secureRelayRequest (set synchronously in main.jsx before React
+// mounts) isn't available for some reason.
+const STATUS_URL = typeof window !== 'undefined' && window.location.hostname === 'frenix.sh'
+  ? 'https://api.frenix.sh/v1/status'
+  : (import.meta.env.DEV ? '/v1/status' : 'https://api.frenix.sh/v1/status');
+
 export default function Layout() {
   const { isDark, toggleTheme, accentDisplay } = useTheme();
   const { user, isAuthenticated, logout, openAuthModal } = useAuth();
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  // The version shown next to the logo comes from the gateway itself
+  // (GET /v1/status), not a hardcoded frontend constant, so the sidebar
+  // can never drift out of sync with what's actually deployed. Stays null
+  // (badge hidden) until the fetch resolves.
+  const [appVersion, setAppVersion] = useState(null);
 
   // Close the mobile drawer on every route change (e.g. after tapping a nav link).
   useEffect(() => {
     setMobileNavOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        let payload;
+        if (typeof window !== 'undefined' && window.secureRelayRequest) {
+          const res = await window.secureRelayRequest('/v1/status', { method: 'GET' });
+          if (res.ok) payload = res.data;
+        } else {
+          const res = await fetch(STATUS_URL, { method: 'GET', cache: 'no-store' });
+          if (res.ok) payload = await res.json();
+        }
+        if (!cancelled && payload?.version) {
+          setAppVersion(payload.version);
+        }
+      } catch (err) {
+        console.warn('Failed to fetch gateway version:', err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const getSectionTitle = () => {
     switch (location.pathname) {
@@ -104,6 +140,20 @@ export default function Layout() {
                 />
               </svg>
               <span style={{ fontWeight: 600, fontSize: '18px', letterSpacing: '-0.01em' }}>Frenix</span>
+              {appVersion && (
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 500,
+                    color: 'var(--muted)',
+                    padding: '1px 6px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                  }}
+                >
+                  v{appVersion}
+                </span>
+              )}
             </Link>
             <button
               onClick={() => setMobileNavOpen(false)}
