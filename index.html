@@ -17,6 +17,16 @@
     <link href="https://api.fontshare.com/v2/css?f[]=general-sans@300,400,500,600&display=swap" rel="stylesheet">
   </head>
   <body>
+    <!-- Sets data-theme before first paint, matching ThemeContext's own
+         default (dark) and localStorage key — without this, the page
+         would flash the light-theme CSS defaults until React's
+         useEffect runs. -->
+    <script>
+      (function () {
+        var theme = localStorage.getItem('frenix-theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

@@ -27,7 +27,7 @@ export default function Terms() {
         <h1 style={{ fontSize: '32px', fontWeight: 300, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
           Terms of Service
         </h1>
-        <div style={{ fontSize: '13px', color: 'var(--muted)' }}>Last updated: September 8, 2026</div>
+        <div style={{ fontSize: '13px', color: 'var(--muted)' }}>Last updated: September 9, 2026</div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', lineHeight: 1.7, fontSize: '14px', color: 'var(--text)' }}>
@@ -73,7 +73,10 @@ export default function Terms() {
         <section>
           <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>5. Fees, Credits &amp; Referrals</h2>
           <p style={{ margin: '0 0 10px 0', color: 'var(--muted)' }}>
-            Frenix operates on a prepaid credit system. Credits (including any signup bonus or referral bonus) are non-transferable, have no cash value except as expressly stated, and are non-refundable except where required by applicable law. We reserve the right to adjust pricing for any model or service at any time; changes apply prospectively to future usage, not to credits already spent.
+            Frenix operates on a prepaid credit system. Credits (including any signup bonus or referral bonus) are non-transferable, have no cash value except as expressly stated, and are non-refundable except where required by applicable law or expressly stated below. We reserve the right to adjust pricing for any model or service at any time; changes apply prospectively to future usage, not to credits already spent.
+          </p>
+          <p style={{ margin: '0 0 10px 0', color: 'var(--muted)' }}>
+            <strong style={{ color: 'var(--text)' }}>Yearly plans:</strong> if you purchase a yearly (annual) plan, you may appeal for a refund within 2 months (60 days) of the purchase date. Refund appeals must be submitted through Telegram support (@frenix_bot) within that window; appeals submitted after 2 months will not be considered. This exception applies only to yearly plan purchases — it does not extend to pay-as-you-go credit purchases, monthly plans, signup bonuses, or referral bonuses, which remain governed by the non-refundable policy above.
           </p>
           <p style={{ margin: 0, color: 'var(--muted)' }}>
             Referral bonuses are granted at our discretion for good-faith referrals. We reserve the right to withhold, reverse, or claw back any credit balance — including signup bonuses and referral bonuses — obtained through fraud, abuse, self-referral, fake accounts, or any violation of Section 3, without notice.
