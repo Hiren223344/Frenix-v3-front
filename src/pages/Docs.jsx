@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { Copy, Check, Terminal, ShieldCheck, Zap, Repeat, HelpCircle, Code, Cpu, ExternalLink } from 'lucide-react';
 
@@ -212,7 +213,7 @@ export default function Docs() {
 
               <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 8px 0' }}>MCP Server (Claude Code, Claude Desktop)</h3>
               <p style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6, margin: '0 0 10px 0' }}>
-                Every API key also works as an MCP server at <code className="code-font">POST /v1/mcp</code>, exposing <code className="code-font">list_models</code>, <code className="code-font">get_account</code>, <code className="code-font">get_usage</code>, <code className="code-font">list_keys</code>, and <code className="code-font">chat_completion</code> tools scoped to that key's own account.
+                Every API key also works as an MCP server at <code className="code-font">POST /v1/mcp</code>, exposing ten tools scoped to that key's own account — almost everything the Dashboard can do: model listing, account/usage/key management, and chat completions, embeddings, and Anthropic-native messages. See the <Link to="/mcp" style={{ color: 'inherit', textDecoration: 'underline' }}>MCP page</Link> for the full tool list.
               </p>
               <div style={{ border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--card)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', borderBottom: '1px solid var(--border)', fontSize: '12px', color: 'var(--muted)' }}>
