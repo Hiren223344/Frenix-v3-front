@@ -352,12 +352,9 @@ export default function Docs() {
               </div>
 
               <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '20px 22px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 8px 0' }}>Free vs. paid-tier model access</h3>
-                <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 10px 0' }}>
-                  <code className="code-font">GET /v1/models</code> lists every model on the platform, including paid-tier ones — each entry carries an <code className="code-font">accessible</code> field. Only free-tier models (<code className="code-font">accessible: true</code>) are actually callable through <code className="code-font">/v1/chat/completions</code> and <code className="code-font">/v1/embeddings</code>. A request naming a paid-tier model gets <code className="code-font">403 permission_error</code> from these endpoints regardless of your account's own tier — paid-tier models are served through a separate endpoint, not this one.
-                </p>
+                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 8px 0' }}>Model access</h3>
                 <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: 0 }}>
-                  In short: use the models directory to see what's coming, but build against free-tier models for now.
+                  <code className="code-font">GET /v1/models</code> lists every model on the platform, each with a <code className="code-font">tier_required</code> field for display purposes. Every model, free- or paid-tier, is callable through <code className="code-font">/v1/chat/completions</code>, <code className="code-font">/v1/embeddings</code>, and <code className="code-font">/v1/messages</code> alike — access is governed entirely by your credit balance, not which endpoint you call or your account's tier.
                 </p>
               </div>
             </div>
@@ -383,7 +380,7 @@ export default function Docs() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
                     <span className="code-font" style={{ fontWeight: 600, fontSize: '14px' }}>403 Forbidden</span>
                   </div>
-                  <div style={{ fontSize: '13px', color: 'var(--muted)' }}>You named a paid-tier model. It's listed in the models directory for visibility, but not callable here — paid-tier access is served through a separate endpoint.</div>
+                  <div style={{ fontSize: '13px', color: 'var(--muted)' }}>Minting a new API key (<code className="code-font">POST /v1/keys</code>) requires a session specifically, not an existing API key. Log in again to mint one.</div>
                 </div>
 
                 <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '14px 18px', backgroundColor: 'var(--card)' }}>

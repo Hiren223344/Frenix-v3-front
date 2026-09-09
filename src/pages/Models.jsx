@@ -1,7 +1,7 @@
 ﻿import React, { useState, useMemo, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Search, Zap, Cpu, Sparkles, Filter, Check, Copy, Wifi, Lock } from 'lucide-react';
+import { Search, Zap, Cpu, Sparkles, Filter, Check, Copy, Wifi } from 'lucide-react';
 
 function formatContextWindow(tokens) {
   if (!tokens) return '—';
@@ -35,11 +35,6 @@ function groupLiveModels(data) {
       context: formatContextWindow(m.context_window),
       type: describeCapabilities(m.capabilities),
       tier: m.tier_required ? m.tier_required[0].toUpperCase() + m.tier_required.slice(1) : 'Free',
-      // Paid-tier models are listed for visibility but aren't callable via
-      // /v1/chat/completions or /v1/embeddings — they're served through a
-      // separate endpoint. The static catalog below has no such
-      // restriction (it's placeholder data, not live), so it defaults true.
-      accessible: m.accessible !== false,
     });
   }
   return Array.from(byProvider.entries()).map(([provider, models]) => ({ provider, models }));
@@ -265,7 +260,6 @@ export default function Models() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
               {group.models.map((m) => {
                 const isCopied = copiedId === m.id;
-                const isAccessible = m.accessible !== false;
                 return (
                   <div
                     key={m.id}
@@ -278,31 +272,12 @@ export default function Models() {
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between',
-                      opacity: isAccessible ? 1 : 0.75,
                     }}
                   >
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', gap: '8px' }}>
                         <span style={{ fontWeight: 500, fontSize: '15px' }}>{m.name}</span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                          {!isAccessible && (
-                            <span
-                              title="Listed for visibility only — paid-tier models are served through a separate endpoint, not /v1/chat/completions or /v1/embeddings"
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                fontSize: '11px',
-                                padding: '2px 8px',
-                                borderRadius: '10px',
-                                border: '1px solid var(--border)',
-                                color: 'var(--muted)',
-                              }}
-                            >
-                              <Lock size={10} />
-                              Separate endpoint
-                            </span>
-                          )}
                           <span
                             style={{
                               fontSize: '11px',
