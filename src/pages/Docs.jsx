@@ -202,11 +202,38 @@ export default function Docs() {
               </div>
 
               <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 8px 0' }}>Aider & OpenCode</h3>
-              <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', backgroundColor: 'var(--card)' }}>
+              <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', backgroundColor: 'var(--card)', marginBottom: '20px' }}>
                 <div className="code-font" style={{ fontSize: '13px', lineHeight: 1.8 }}>
                   <div>export OPENAI_API_BASE=https://api.frenix.sh/v1</div>
                   <div>export OPENAI_API_KEY=sk-frx-your-key</div>
                   <div>aider --model openai/claude-opus-4.5</div>
+                </div>
+              </div>
+
+              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 8px 0' }}>MCP Server (Claude Code, Claude Desktop)</h3>
+              <p style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6, margin: '0 0 10px 0' }}>
+                Every API key also works as an MCP server at <code className="code-font">POST /v1/mcp</code>, exposing <code className="code-font">list_models</code>, <code className="code-font">get_account</code>, <code className="code-font">get_usage</code>, <code className="code-font">list_keys</code>, and <code className="code-font">chat_completion</code> tools scoped to that key's own account.
+              </p>
+              <div style={{ border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--card)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', borderBottom: '1px solid var(--border)', fontSize: '12px', color: 'var(--muted)' }}>
+                  <span>claude_desktop_config.json</span>
+                  <button
+                    onClick={() => copyCode('mcp-config', '{\n  "mcpServers": {\n    "frenix": {\n      "url": "https://api.frenix.sh/v1/mcp",\n      "headers": { "Authorization": "Bearer sk-frx-your-api-key" }\n    }\n  }\n}')}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    {copiedKey === 'mcp-config' ? <Check size={13} color="#16a34a" /> : <Copy size={13} />}
+                    <span>{copiedKey === 'mcp-config' ? 'Copied' : 'Copy'}</span>
+                  </button>
+                </div>
+                <div className="code-font" style={{ padding: '16px', fontSize: '13px', lineHeight: 1.8 }}>
+                  <div>&#123;</div>
+                  <div>&nbsp;&nbsp;"mcpServers": &#123;</div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;"frenix": &#123;</div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"url": <span style={{ color: '#16a34a' }}>"https://api.frenix.sh/v1/mcp"</span>,</div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"headers": &#123; "Authorization": <span style={{ color: '#16a34a' }}>"Bearer sk-frx-your-api-key"</span> &#125;</div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;&#125;</div>
+                  <div>&nbsp;&nbsp;&#125;</div>
+                  <div>&#125;</div>
                 </div>
               </div>
             </div>

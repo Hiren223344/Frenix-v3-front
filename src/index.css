@@ -130,7 +130,7 @@ button {
 .frenix-status-header,
 .frenix-status-row {
   display: grid;
-  grid-template-columns: 2fr 1.4fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
   gap: 12px;
   align-items: center;
 }

@@ -883,6 +883,24 @@ export default function Dashboard() {
                     </button>
                   </div>
                 </div>
+
+                <div style={{ padding: '12px', backgroundColor: 'var(--hover-bg)', borderRadius: '10px', border: '1px solid var(--border)', marginBottom: '16px' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '6px' }}>
+                    This key also works as an MCP server for Claude Code / Claude Desktop:
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                    <code data-copyable className="code-font" style={{ fontSize: '11px', wordBreak: 'break-all', userSelect: 'text', color: 'var(--muted)' }}>
+                      {`{"mcpServers":{"frenix":{"url":"https://api.frenix.sh/v1/mcp","headers":{"Authorization":"Bearer ${createdKey.raw}"}}}}`}
+                    </code>
+                    <button
+                      onClick={() => handleCopy('mcp-config', `{\n  "mcpServers": {\n    "frenix": {\n      "url": "https://api.frenix.sh/v1/mcp",\n      "headers": { "Authorization": "Bearer ${createdKey.raw}" }\n    }\n  }\n}`)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text)', flexShrink: 0 }}
+                    >
+                      {copiedKeyId === 'mcp-config' ? <Check size={16} color="#16a34a" /> : <Copy size={16} />}
+                    </button>
+                  </div>
+                </div>
+
                 <button
                   onClick={() => setShowModal(false)}
                   style={{
