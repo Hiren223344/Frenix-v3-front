@@ -27,7 +27,7 @@ export default function Terms() {
         <h1 style={{ fontSize: '32px', fontWeight: 300, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
           Terms of Service
         </h1>
-        <div style={{ fontSize: '13px', color: 'var(--muted)' }}>Last updated: September 9, 2026</div>
+        <div style={{ fontSize: '13px', color: 'var(--muted)' }}>Last updated: September 10, 2026</div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', lineHeight: 1.7, fontSize: '14px', color: 'var(--text)' }}>
@@ -40,8 +40,11 @@ export default function Terms() {
 
         <section>
           <h2 style={{ fontSize: '18px', fontWeight: 500, margin: '0 0 8px 0' }}>2. Service Description &amp; Gateway Operation</h2>
-          <p style={{ margin: 0, color: 'var(--muted)' }}>
+          <p style={{ margin: '0 0 10px 0', color: 'var(--muted)' }}>
             Frenix ("we", "us", "our") provides unified API gateway routing, proxying, load-balancing, and caching services connecting client applications with artificial intelligence foundation models operated by independent third parties (including OpenAI, Anthropic, Google, Meta, and others). We do not develop, train, host, or control these models. Frenix acts solely as an intermediary; we have no ability to alter, and no responsibility for, the content, accuracy, or behavior of any third-party model's output.
+          </p>
+          <p style={{ margin: 0, color: 'var(--muted)' }}>
+            <strong style={{ color: 'var(--text)' }}>Automatic failover:</strong> where a model is configured with more than one upstream backend, we automatically route around a backend that is unhealthy or returning errors and retry your request against the next available one serving that same model, up to a bounded number of attempts — this happens transparently within the lifecycle of a single request, with no separate action or charge on your part. Failover applies only across backends we've configured for the requested model; it does not substitute a different model, and it does not guarantee availability if every configured backend for a model is unavailable at the same time, in which case the request fails and is not billed.
           </p>
         </section>
 
