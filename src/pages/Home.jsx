@@ -169,7 +169,7 @@ export default function Home() {
             <div style={{ fontSize: '12px', fontWeight: 500, letterSpacing: '0.06em', color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '10px' }}>
               Now Routing
             </div>
-            <h2 style={{ fontSize: '22px', fontWeight: 400, margin: '0 0 8px 0' }}>Claude Opus 4.5 & GPT-5.1 are live.</h2>
+            <h2 style={{ fontSize: '22px', fontWeight: 400, margin: '0 0 8px 0' }}>Claude Fable 5.1 & GPT-6 Astra are live.</h2>
             <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0 }}>
               Every new model ships behind the same endpoint, the same key, and the same rate limits you already have. No SDK changes, zero migration cost.
             </p>
