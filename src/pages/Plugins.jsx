@@ -99,8 +99,9 @@ export default function Plugins() {
           Plugins
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '640px' }}>
-          Add your own key for a third-party tool, then name it in a chat completion's{' '}
-          <code className="code-font">plugins</code> field to make it available to the model for that request.
+          Some plugins are built into Frenix and always available; others are third-party tools you add your own
+          key for. Either way, name one in a chat completion's <code className="code-font">plugins</code> field to
+          make it available to the model for that request.
         </p>
       </div>
 
@@ -149,42 +150,49 @@ export default function Plugins() {
                 </div>
               )}
 
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <input
-                  type="password"
-                  placeholder={p.enabled ? 'Replace stored key…' : `Your ${p.name} API key`}
-                  value={keyInputs[p.id] || ''}
-                  onChange={(e) => setKeyInputs((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                  style={{
-                    flex: '1 1 220px', padding: '9px 14px', borderRadius: '10px', border: '1px solid var(--border)',
-                    backgroundColor: 'var(--bg)', color: 'var(--text)', fontSize: '13px', outline: 'none',
-                  }}
-                />
-                <button
-                  onClick={() => handleEnable(p.id)}
-                  disabled={busyId === p.id || !(keyInputs[p.id] || '').trim()}
-                  style={{
-                    padding: '9px 18px', borderRadius: '10px', border: 'none',
-                    backgroundColor: 'var(--text)', color: 'var(--bg)', fontSize: '13px', fontWeight: 500,
-                    cursor: busyId === p.id ? 'default' : 'pointer',
-                    opacity: !(keyInputs[p.id] || '').trim() ? 0.5 : 1,
-                  }}
-                >
-                  {p.enabled ? 'Update key' : 'Enable'}
-                </button>
-                {p.enabled && (
-                  <button
-                    onClick={() => handleDisable(p.id)}
-                    disabled={busyId === p.id}
+              {p.requires_api_key === false ? (
+                <p style={{ fontSize: '12px', color: 'var(--muted)', margin: 0 }}>
+                  Built into Frenix — always available, nothing to configure. Just name{' '}
+                  <code className="code-font">{p.id}</code> in a request's <code className="code-font">plugins</code> field.
+                </p>
+              ) : (
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <input
+                    type="password"
+                    placeholder={p.enabled ? 'Replace stored key…' : `Your ${p.name} API key`}
+                    value={keyInputs[p.id] || ''}
+                    onChange={(e) => setKeyInputs((prev) => ({ ...prev, [p.id]: e.target.value }))}
                     style={{
-                      padding: '9px 18px', borderRadius: '10px', border: '1px solid var(--border)',
-                      backgroundColor: 'transparent', color: 'var(--muted)', fontSize: '13px', cursor: 'pointer',
+                      flex: '1 1 220px', padding: '9px 14px', borderRadius: '10px', border: '1px solid var(--border)',
+                      backgroundColor: 'var(--bg)', color: 'var(--text)', fontSize: '13px', outline: 'none',
+                    }}
+                  />
+                  <button
+                    onClick={() => handleEnable(p.id)}
+                    disabled={busyId === p.id || !(keyInputs[p.id] || '').trim()}
+                    style={{
+                      padding: '9px 18px', borderRadius: '10px', border: 'none',
+                      backgroundColor: 'var(--text)', color: 'var(--bg)', fontSize: '13px', fontWeight: 500,
+                      cursor: busyId === p.id ? 'default' : 'pointer',
+                      opacity: !(keyInputs[p.id] || '').trim() ? 0.5 : 1,
                     }}
                   >
-                    Disable
+                    {p.enabled ? 'Update key' : 'Enable'}
                   </button>
-                )}
-              </div>
+                  {p.enabled && (
+                    <button
+                      onClick={() => handleDisable(p.id)}
+                      disabled={busyId === p.id}
+                      style={{
+                        padding: '9px 18px', borderRadius: '10px', border: '1px solid var(--border)',
+                        backgroundColor: 'transparent', color: 'var(--muted)', fontSize: '13px', cursor: 'pointer',
+                      }}
+                    >
+                      Disable
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>
