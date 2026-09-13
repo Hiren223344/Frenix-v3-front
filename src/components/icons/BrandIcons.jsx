@@ -26,7 +26,12 @@ const DEEPSEEK_INNER = `<title>DeepSeek</title><path d="M23.748 4.482c-.254-.124
 
 const EXA_INNER = `<title>Exa</title><path clip-rule="evenodd" d="M3 0h19v1.791L13.892 12 22 22.209V24H3V0zm9.62 10.348l6.589-8.557H6.03l6.59 8.557zM5.138 3.935v7.17h5.52l-5.52-7.17zm5.52 8.96h-5.52v7.17l5.52-7.17zM6.03 22.21l6.59-8.557 6.589 8.557H6.03z" fill="#1F40ED" fill-rule="evenodd"></path>`;
 
-function BrandIcon({ inner, size = 16, style, ...rest }) {
+// Frenix's own cloud mark — same path as the sidebar logo in Layout.jsx.
+// Kept in sync manually since it's copied, not shared, code; if the logo
+// ever changes there, update this too.
+const FRENIX_INNER = `<title>Frenix</title><path fill="currentColor" d="M23.6322 0.597911C19.9395 1.76672 16.9327 5.48248 10.9192 12.914C3.501 22.0814 -0.208097 26.665 0.00900851 30.5474C0.155095 33.1598 1.30933 35.6108 3.22485 37.3763C6.07159 40 11.9392 40 23.6745 40H24.3275C27.1975 40 29.9133 38.6992 31.7186 36.4682C37.6627 29.1224 40.6348 25.4496 44.4744 24.8957C45.4078 24.7611 46.3555 24.7611 47.2889 24.8957C49.8634 25.2671 52.048 27.0408 55 30.3839C50.2776 21.5248 41.6084 3.83856 31.37 0.597911C28.8514 -0.199304 26.1508 -0.199304 23.6322 0.597911Z"></path>`;
+
+function BrandIcon({ inner, size = 16, viewBox = '0 0 24 24', style, ...rest }) {
   const rawId = React.useId();
   const uid = rawId.replace(/[:]/g, '');
   const html = inner.indexOf('__UID__') === -1 ? inner : inner.split('__UID__').join(uid);
@@ -34,7 +39,7 @@ function BrandIcon({ inner, size = 16, style, ...rest }) {
     <svg
       width={size}
       height={size}
-      viewBox="0 0 24 24"
+      viewBox={viewBox}
       fill="currentColor"
       style={{ flexShrink: 0, lineHeight: 1, display: 'inline-block', verticalAlign: 'middle', ...style }}
       dangerouslySetInnerHTML={{ __html: html }}
@@ -51,6 +56,7 @@ export function MistralIcon(props) { return <BrandIcon inner={MISTRAL_INNER} {..
 export function GrokIcon(props) { return <BrandIcon inner={GROK_INNER} {...props} />; }
 export function DeepSeekIcon(props) { return <BrandIcon inner={DEEPSEEK_INNER} {...props} />; }
 export function ExaIcon(props) { return <BrandIcon inner={EXA_INNER} {...props} />; }
+export function FrenixIcon(props) { return <BrandIcon inner={FRENIX_INNER} viewBox="0 0 55 40" {...props} />; }
 
 // Maps a provider label (as shown in the app, e.g. "OpenAI", "Google
 // DeepMind", or a combined static-catalog label like "xAI & Mistral") to
@@ -76,9 +82,8 @@ export function resolveProviderIcons(providerLabel) {
 }
 
 // Real logos for known plugins (see internal/plugin on the backend) — keyed
-// by plugin id. A plugin with no real brand logo (e.g. frenix_search, which
-// isn't a third-party service) is simply absent here; callers fall back to
-// a generic icon.
+// by plugin id. A plugin with no icon here falls back to a generic one.
 export const PLUGIN_ICONS = {
   exa_search: ExaIcon,
+  frenix_search: FrenixIcon,
 };
