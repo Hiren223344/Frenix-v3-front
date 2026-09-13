@@ -25,10 +25,22 @@ function describeCapabilities(capabilities) {
 // { provider, models: [{ id, name, context, type, tier }] } shape the
 // static catalog below uses, so the rest of this page doesn't care whether
 // it's rendering real or placeholder data.
+// The backend's provider field is the real upstream wire format (what
+// Frenix actually speaks to the backend's endpoint) — a Claude-family
+// model can still be configured with provider: "openai" if that's the
+// format its actual endpoint expects. This only decides which section a
+// model is *displayed* under; it never touches the backend's real
+// provider/wire format.
+function displayProviderFor(m) {
+  const id = (m.id || '').toLowerCase();
+  if (id.startsWith('claude')) return 'Anthropic';
+  return m.provider || 'Other';
+}
+
 function groupLiveModels(data) {
   const byProvider = new Map();
   for (const m of data) {
-    const provider = m.provider || 'Other';
+    const provider = displayProviderFor(m);
     if (!byProvider.has(provider)) byProvider.set(provider, []);
     byProvider.get(provider).push({
       id: m.id,
