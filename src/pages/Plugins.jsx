@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Puzzle, Check, X } from 'lucide-react';
+import { PLUGIN_ICONS } from '../components/icons/BrandIcons';
 
 export default function Plugins() {
   const { user } = useAuth();
@@ -119,7 +120,9 @@ export default function Plugins() {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {plugins.map((p) => (
+          {plugins.map((p) => {
+            const PluginIcon = PLUGIN_ICONS[p.id] || Puzzle;
+            return (
             <div
               key={p.id}
               className="hover-lift"
@@ -127,7 +130,7 @@ export default function Plugins() {
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '6px', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <Puzzle size={16} />
+                  <PluginIcon size={16} />
                   <span style={{ fontSize: '15px', fontWeight: 500 }}>{p.name}</span>
                   <code className="code-font" style={{ fontSize: '11px', color: 'var(--muted)' }}>{p.id}</code>
                 </div>
@@ -194,7 +197,8 @@ export default function Plugins() {
                 </div>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

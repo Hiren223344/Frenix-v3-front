@@ -2,6 +2,7 @@
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { Search, Cpu, Filter, Check, Copy, Wifi, Lock } from 'lucide-react';
+import { resolveProviderIcons } from '../components/icons/BrandIcons';
 
 function formatContextWindow(tokens) {
   if (!tokens) return '—';
@@ -242,7 +243,9 @@ export default function Models() {
           No models found matching "{searchTerm}". Try a different search term.
         </div>
       ) : (
-        filteredData.map((group) => (
+        filteredData.map((group) => {
+          const providerIcons = resolveProviderIcons(group.provider);
+          return (
           <div key={group.provider} style={{ marginBottom: '36px' }}>
             <div
               style={{
@@ -257,7 +260,13 @@ export default function Models() {
                 gap: '8px',
               }}
             >
-              <Cpu size={14} />
+              {providerIcons.length > 0 ? (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  {providerIcons.map((Icon, i) => <Icon key={i} size={14} />)}
+                </span>
+              ) : (
+                <Cpu size={14} />
+              )}
               <span>{group.provider}</span>
               <span style={{ fontSize: '11px', opacity: 0.7 }}>({group.models.length})</span>
             </div>
@@ -350,7 +359,8 @@ export default function Models() {
               })}
             </div>
           </div>
-        ))
+          );
+        })
       )}
     </div>
   );
