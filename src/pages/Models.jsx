@@ -61,7 +61,7 @@ const MODEL_DATA = [
   {
     provider: 'Anthropic',
     models: [
-      { id: 'claude-fable-5-1', name: 'Claude Fable 5.1', context: '200k tokens', type: 'Latest flagship model', tier: 'Pro' },
+      { id: 'claude-fable-5.1', name: 'Claude Fable 5.1', context: '200k tokens', type: 'Latest flagship model', tier: 'Pro' },
       { id: 'claude-opus-4.5', name: 'Claude Opus 4.5', context: '200k tokens', type: 'Top agentic coding & complex synthesis', tier: 'Pro' },
       { id: 'claude-sonnet-4.5', name: 'Claude Sonnet 4.5', context: '200k tokens', type: 'Balanced speed, intelligence & refactoring', tier: 'Free & Pro' },
       { id: 'claude-haiku-4', name: 'Claude Haiku 4', context: '200k tokens', type: 'Ultra-fast sub-second responses', tier: 'Free & Pro' },
