@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import { Check, User, Layers, Shield, ArrowRight, ExternalLink } from 'lucide-react';
+import { Check, User, Layers, Shield, ExternalLink } from 'lucide-react';
 
 export default function Pricing() {
   const { accentDisplay } = useTheme();

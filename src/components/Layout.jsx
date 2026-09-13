@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, Suspense } from 'react';
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -425,7 +425,9 @@ export default function Layout() {
 
           {/* Main Outlet */}
           <main className="frenix-main-outlet" style={{ flex: '1 1 auto', maxWidth: '1024px', margin: '0 auto', padding: '0 28px', width: '100%' }}>
-            <Outlet />
+            <Suspense fallback={null}>
+              <Outlet />
+            </Suspense>
           </main>
         </div>
       </div>

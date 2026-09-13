@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { Lock, Send, ShieldAlert, ArrowRight } from 'lucide-react';
+import { Lock, Send, ShieldAlert } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function ProtectedRoute({ children }) {

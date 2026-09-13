@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import { Copy, Check, Terminal, ShieldCheck, Zap, Repeat, HelpCircle, Code, Cpu, ExternalLink } from 'lucide-react';
+import { Copy, Check, Code, ExternalLink } from 'lucide-react';
 
 export default function Docs() {
   const { accentDisplay } = useTheme();

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 
 const AuthContext = createContext();
 
@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
-  const loginWithSession = (sessionData) => {
+  const loginWithSession = useCallback((sessionData) => {
     const userData = {
       id: sessionData?.telegram_id || sessionData?.id || `tg_${Math.floor(100000 + Math.random() * 900000)}`,
       username: sessionData?.username || 'telegram_user',
@@ -34,33 +34,33 @@ export function AuthProvider({ children }) {
     setUser(userData);
     setIsAuthModalOpen(false);
     return userData;
-  };
+  }, []);
 
-  const loginWithBot = () => {
+  const loginWithBot = useCallback(() => {
     return loginWithSession({});
-  };
+  }, [loginWithSession]);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null);
     localStorage.removeItem('frenix_user');
-  };
+  }, []);
 
-  const openAuthModal = () => setIsAuthModalOpen(true);
-  const closeAuthModal = () => setIsAuthModalOpen(false);
+  const openAuthModal = useCallback(() => setIsAuthModalOpen(true), []);
+  const closeAuthModal = useCallback(() => setIsAuthModalOpen(false), []);
+
+  const value = useMemo(() => ({
+    user,
+    isAuthenticated: !!user,
+    loginWithSession,
+    loginWithBot,
+    logout,
+    isAuthModalOpen,
+    openAuthModal,
+    closeAuthModal
+  }), [user, isAuthModalOpen, loginWithSession, loginWithBot, logout, openAuthModal, closeAuthModal]);
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        loginWithSession,
-        loginWithBot,
-        logout,
-        isAuthModalOpen,
-        openAuthModal,
-        closeAuthModal
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

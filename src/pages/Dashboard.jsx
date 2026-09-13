@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Key, Plus, Trash2, Copy, Check, BarChart3, Activity, Shield, RefreshCw, Wallet, Hash, Gift, AlertTriangle, Bell, X } from 'lucide-react';
+import { Key, Plus, Copy, Check, BarChart3, Activity, RefreshCw, Wallet, Hash, Gift, AlertTriangle, Bell, X } from 'lucide-react';
 
 // One optional-limit number input, shared by every field in the "Add spend
 // / rate limits" section of the create-key form — each is otherwise
@@ -162,6 +162,7 @@ export default function Dashboard() {
     // (another tab, a script using their API key), not just after a manual
     // "Live Sync" click.
     const pollInterval = setInterval(() => {
+      if (document.hidden) return; // skip while the tab is backgrounded
       const sessionToken = user?.sessionToken || localStorage.getItem('frenix_session_token');
       if (sessionToken && window.secureRelayRequest) {
         window.secureRelayRequest('/v1/usage', {

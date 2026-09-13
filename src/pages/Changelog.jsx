@@ -1,7 +1,5 @@
 ﻿import React from 'react';
-import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import { Sparkles, GitCommit, Zap, Shield, ArrowRight } from 'lucide-react';
 
 const RELEASES = [
   {

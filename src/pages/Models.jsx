@@ -1,7 +1,7 @@
 ﻿import React, { useState, useMemo, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Search, Zap, Cpu, Sparkles, Filter, Check, Copy, Wifi, Lock } from 'lucide-react';
+import { Search, Cpu, Filter, Check, Copy, Wifi, Lock } from 'lucide-react';
 
 function formatContextWindow(tokens) {
   if (!tokens) return '—';

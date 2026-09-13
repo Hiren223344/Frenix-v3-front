@@ -16,6 +16,16 @@ export default defineConfig({
         entryFileNames: 'assets/[hash].js',
         chunkFileNames: 'assets/[hash].js',
         assetFileNames: 'assets/[hash].[ext]',
+        // Keep rarely-changing vendor code in its own chunk, separate
+        // from per-route lazy chunks, so a returning visitor's cached
+        // vendor chunk survives an app-code deploy. Function form (not
+        // the object form) because this project's Vite build is backed
+        // by rolldown, which only accepts a function here.
+        manualChunks(id) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router-dom')) {
+            return 'vendor';
+          }
+        },
       },
     },
   },

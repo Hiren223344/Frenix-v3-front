@@ -1,19 +1,20 @@
-﻿import React from 'react';
+import React, { lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
-import Home from './pages/Home';
-import Pricing from './pages/Pricing';
-import Dashboard from './pages/Dashboard';
-import Models from './pages/Models';
-import Docs from './pages/Docs';
-import MCP from './pages/MCP';
-import Plugins from './pages/Plugins';
-import Status from './pages/Status';
-import Changelog from './pages/Changelog';
-import Terms from './pages/Terms';
-import Privacy from './pages/Privacy';
-import Cookies from './pages/Cookies';
 import ProtectedRoute from './components/ProtectedRoute';
+
+const Home = lazy(() => import('./pages/Home'));
+const Pricing = lazy(() => import('./pages/Pricing'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Models = lazy(() => import('./pages/Models'));
+const Docs = lazy(() => import('./pages/Docs'));
+const MCP = lazy(() => import('./pages/MCP'));
+const Plugins = lazy(() => import('./pages/Plugins'));
+const Status = lazy(() => import('./pages/Status'));
+const Changelog = lazy(() => import('./pages/Changelog'));
+const Terms = lazy(() => import('./pages/Terms'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Cookies = lazy(() => import('./pages/Cookies'));
 
 export default function App() {
   return (
