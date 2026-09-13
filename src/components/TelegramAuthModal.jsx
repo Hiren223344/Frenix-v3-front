@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Send, X, Shield, ExternalLink, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import { Send, X, Shield, ExternalLink, RefreshCw } from 'lucide-react';
 
 // Use local proxy or direct API endpoint
 const API_BASE = typeof window !== 'undefined' && window.location.hostname === 'frenix.sh'

@@ -1,13 +1,44 @@
 ﻿import React from 'react';
-import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import { Sparkles, GitCommit, Zap, Shield, ArrowRight } from 'lucide-react';
 
 const RELEASES = [
   {
+    version: 'v1.5.0',
+    date: 'September 13, 2026',
+    tag: 'Latest Release',
+    title: 'Claude Fable 5.1 & GPT-6 Astra, Built-In Search, Real Provider Logos',
+    changes: [
+      {
+        type: 'New Models',
+        items: [
+          'Added Claude Fable 5.1 and GPT-6 Astra to the routing catalog.',
+        ],
+      },
+      {
+        type: 'Plugins',
+        items: [
+          "Launched frenix_search: Frenix's own built-in web search plugin — no separate account or API key required, available to every caller.",
+          'Every plugin card and provider group now shows the real brand logo (OpenAI, Anthropic, Google, Meta, Mistral, xAI, DeepSeek, Exa) instead of a generic icon.',
+        ],
+      },
+      {
+        type: 'Billing',
+        items: [
+          'Active paid-tier subscribers are no longer blocked by a low or zero credit balance — usage is still tracked, it just never interrupts the request while subscribed.',
+        ],
+      },
+      {
+        type: 'Performance & Reliability',
+        items: [
+          'Cut Redis round trips on the hot request path and route-level bundle sizes for faster first paint.',
+          'Fixed a database migration gap that could leave the gateway serving stale schema after a deploy.',
+        ],
+      },
+    ],
+  },
+  {
     version: 'v1.4.0',
     date: 'March 6, 2026',
-    tag: 'Latest Release',
     title: 'Claude Opus 4.5 & GPT-5.1 Support, Bot-Only Auth & Status Dashboard',
     changes: [
       {

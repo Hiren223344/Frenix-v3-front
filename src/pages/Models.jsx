@@ -1,7 +1,8 @@
 ﻿import React, { useState, useMemo, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Search, Zap, Cpu, Sparkles, Filter, Check, Copy, Wifi, Lock } from 'lucide-react';
+import { Search, Cpu, Filter, Check, Copy, Wifi, Lock } from 'lucide-react';
+import { resolveProviderIcons } from '../components/icons/BrandIcons';
 
 function formatContextWindow(tokens) {
   if (!tokens) return '—';
@@ -49,6 +50,7 @@ const MODEL_DATA = [
   {
     provider: 'OpenAI',
     models: [
+      { id: 'gpt-6-astra', name: 'GPT-6 Astra', context: '1M tokens', type: 'Latest flagship reasoning & general', tier: 'Pro' },
       { id: 'gpt-5.1', name: 'GPT-5.1', context: '1M tokens', type: 'Flagship reasoning & general', tier: 'Pro' },
       { id: 'gpt-4o', name: 'GPT-4o', context: '128k tokens', type: 'Fast multimodal powerhouse', tier: 'Free & Pro' },
       { id: 'gpt-4o-mini', name: 'GPT-4o Mini', context: '128k tokens', type: 'Affordable low latency', tier: 'Free & Pro' },
@@ -59,6 +61,7 @@ const MODEL_DATA = [
   {
     provider: 'Anthropic',
     models: [
+      { id: 'claude-fable-5-1', name: 'Claude Fable 5.1', context: '200k tokens', type: 'Latest flagship model', tier: 'Pro' },
       { id: 'claude-opus-4.5', name: 'Claude Opus 4.5', context: '200k tokens', type: 'Top agentic coding & complex synthesis', tier: 'Pro' },
       { id: 'claude-sonnet-4.5', name: 'Claude Sonnet 4.5', context: '200k tokens', type: 'Balanced speed, intelligence & refactoring', tier: 'Free & Pro' },
       { id: 'claude-haiku-4', name: 'Claude Haiku 4', context: '200k tokens', type: 'Ultra-fast sub-second responses', tier: 'Free & Pro' },
@@ -242,7 +245,9 @@ export default function Models() {
           No models found matching "{searchTerm}". Try a different search term.
         </div>
       ) : (
-        filteredData.map((group) => (
+        filteredData.map((group) => {
+          const providerIcons = resolveProviderIcons(group.provider);
+          return (
           <div key={group.provider} style={{ marginBottom: '36px' }}>
             <div
               style={{
@@ -257,7 +262,13 @@ export default function Models() {
                 gap: '8px',
               }}
             >
-              <Cpu size={14} />
+              {providerIcons.length > 0 ? (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  {providerIcons.map((Icon, i) => <Icon key={i} size={14} />)}
+                </span>
+              ) : (
+                <Cpu size={14} />
+              )}
               <span>{group.provider}</span>
               <span style={{ fontSize: '11px', opacity: 0.7 }}>({group.models.length})</span>
             </div>
@@ -350,7 +361,8 @@ export default function Models() {
               })}
             </div>
           </div>
-        ))
+          );
+        })
       )}
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import { Copy, Check, Terminal, ShieldCheck, Zap, Repeat, HelpCircle, Code, Cpu, ExternalLink } from 'lucide-react';
+import { Copy, Check, Code, ExternalLink } from 'lucide-react';
 
 export default function Docs() {
   const { accentDisplay } = useTheme();
@@ -26,6 +26,7 @@ export default function Docs() {
     { id: 'model-routing', label: 'Model Routing & Fallbacks' },
     { id: 'errors', label: 'Error Codes & Failover' },
     { id: 'rate-limits', label: 'Rate Limits & Concurrency' },
+    { id: 'plugins', label: 'Plugins' },
     { id: 'referrals', label: 'Referral Program' },
   ];
 
@@ -442,6 +443,57 @@ export default function Docs() {
           )}
 
           {/* TAB: Referral Program */}
+          {activeTab === 'plugins' && (
+            <div>
+              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>Plugins</h2>
+              <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 20px 0' }}>
+                A plugin gives the model a tool it can call during a chat completion — opt-in per request, not automatic. Name it in the <code className="code-font">plugins</code> array and, if the model calls it, Frenix executes it server-side and feeds the result back — you get the model's final answer, not a tool call for you to resolve yourself.
+              </p>
+
+              <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', backgroundColor: 'var(--card)', marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 10px 0' }}>Available plugins</h3>
+                <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', lineHeight: 1.9, color: 'var(--muted)' }}>
+                  <li><code className="code-font">frenix_search</code> — Frenix's own built-in web search. No account or API key needed; always available to every caller.</li>
+                  <li><code className="code-font">exa_search</code> — web search via Exa (exa.ai), using your own Exa API key. Configure it first at <Link to="/plugins" style={{ color: accentDisplay }}>Plugins</Link>.</li>
+                </ul>
+              </div>
+
+              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '0 0 10px 0' }}>Using a plugin</h3>
+              <div style={{ border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--card)', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', borderBottom: '1px solid var(--border)', fontSize: '12px', color: 'var(--muted)' }}>
+                  <span>cURL Command</span>
+                  <button
+                    onClick={() => copyCode('plugins-curl', 'curl https://api.frenix.sh/v1/chat/completions \\\n  -H "Authorization: Bearer $FRENIX_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d \'{\n    "model": "frx-gpt-4o",\n    "messages": [{"role": "user", "content": "What\'s the latest on the Raft consensus paper?"}],\n    "plugins": ["frenix_search"]\n  }\'')}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    {copiedKey === 'plugins-curl' ? <Check size={13} color="#16a34a" /> : <Copy size={13} />}
+                    <span>{copiedKey === 'plugins-curl' ? 'Copied' : 'Copy'}</span>
+                  </button>
+                </div>
+                <div className="code-font" style={{ padding: '16px', fontSize: '13px', lineHeight: 1.9, overflowX: 'auto' }}>
+                  <div>curl https://api.frenix.sh/v1/chat/completions \</div>
+                  <div>&nbsp;&nbsp;-H "Authorization: Bearer $FRENIX_API_KEY" \</div>
+                  <div>&nbsp;&nbsp;-H "Content-Type: application/json" \</div>
+                  <div>&nbsp;&nbsp;-d '&#123;</div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;"model": "frx-gpt-4o",</div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;"messages": [&#123;"role": "user", "content": "What's the latest on the Raft consensus paper?"&#125;],</div>
+                  <div>&nbsp;&nbsp;&nbsp;&nbsp;"plugins": ["frenix_search"]</div>
+                  <div>&nbsp;&nbsp;&#125;'</div>
+                </div>
+              </div>
+
+              <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '20px 22px', backgroundColor: 'var(--card)' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 8px 0' }}>Managing your plugins</h3>
+                <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 10px 0' }}>
+                  <code className="code-font">GET /v1/plugins</code> lists every plugin Frenix knows, whether it's enabled on your account, and <code className="code-font">requires_api_key</code> — <code className="code-font">false</code> means it's always on with nothing to configure. For a third-party plugin like <code className="code-font">exa_search</code>, <code className="code-font">PUT /v1/plugins/&#123;id&#125;</code> stores (encrypted) your own API key and enables it; <code className="code-font">DELETE /v1/plugins/&#123;id&#125;</code> removes it.
+                </p>
+                <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: 0 }}>
+                  Not yet supported: <code className="code-font">stream: true</code> together with <code className="code-font">plugins</code> — you'll get a 400 if both are set.
+                </p>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'referrals' && (
             <div>
               <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>Referral Program</h2>
