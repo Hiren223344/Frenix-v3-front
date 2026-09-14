@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Send, Plus, Loader2, AlertTriangle, SlidersHorizontal, X, Copy, Check } from 'lucide-react';
+import { Send, Plus, Loader2, AlertTriangle, SlidersHorizontal, X, Copy, Check, ChevronDown, ChevronUp, BrainCircuit, Globe } from 'lucide-react';
 import { resolveProviderIcons, displayProviderFor, FrenixIcon } from '../components/icons/BrandIcons';
 
 // Same fallback pattern main.jsx uses for GATEWAY_BASE_URL: relative paths
@@ -184,6 +184,42 @@ function MessageContent({ content }) {
   ));
 }
 
+// A model's reasoning_content (its chain-of-thought before the final
+// answer) shown as a collapsible aside, the same shape Claude.ai and
+// similar chat UIs use for extended-thinking output. Starts open while the
+// answer is still being generated, then auto-collapses exactly once real
+// content starts arriving — the user's own toggle takes over after that.
+function ThinkingBlock({ text, startOpen, autoCollapseWhen }) {
+  const [open, setOpen] = useState(startOpen);
+  const collapsedOnceRef = useRef(false);
+
+  useEffect(() => {
+    if (autoCollapseWhen && !collapsedOnceRef.current) {
+      collapsedOnceRef.current = true;
+      setOpen(false);
+    }
+  }, [autoCollapseWhen]);
+
+  return (
+    <div style={{ margin: '0 0 8px 0' }}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="button-press"
+        style={{ display: 'flex', alignItems: 'center', gap: '5px', border: 'none', background: 'none', color: 'var(--muted)', fontSize: '12px', cursor: 'pointer', padding: '2px 0' }}
+      >
+        <BrainCircuit size={13} />
+        Thinking
+        {open ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+      </button>
+      {open && (
+        <div style={{ borderLeft: '2px solid var(--border)', paddingLeft: '12px', margin: '6px 0', color: 'var(--muted)', fontSize: '13px' }}>
+          <MessageContent content={text} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Playground() {
   const { user } = useAuth();
 
@@ -194,6 +230,7 @@ export default function Playground() {
 
   const [systemPrompt, setSystemPrompt] = useState('');
   const [showSystemPrompt, setShowSystemPrompt] = useState(false);
+  const [searchEnabled, setSearchEnabled] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -245,11 +282,11 @@ export default function Playground() {
     el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
   }, [input]);
 
-  const appendToLastAssistant = (deltaText) => {
+  const appendToLastAssistant = (field, deltaText) => {
     setMessages((prev) => {
       const updated = [...prev];
       const last = updated[updated.length - 1];
-      updated[updated.length - 1] = { ...last, content: last.content + deltaText };
+      updated[updated.length - 1] = { ...last, [field]: (last[field] || '') + deltaText };
       return updated;
     });
   };
@@ -279,6 +316,33 @@ export default function Playground() {
         ? [{ role: 'system', content: systemPrompt.trim() }, ...nextMessages]
         : nextMessages;
 
+      // The gateway rejects stream + plugins together (a plugin call needs
+      // to run and feed its result back before there's any answer to
+      // stream), so a web-search turn falls back to one buffered request.
+      if (searchEnabled) {
+        const res = await fetch(`${GATEWAY_BASE_URL}/v1/chat/completions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ model: selectedModel, messages: apiMessages, plugins: ['frenix_search'] }),
+        });
+
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+          throw new Error(data?.error?.message || `Request failed (HTTP ${res.status})`);
+        }
+
+        const message = data?.choices?.[0]?.message;
+        const responseText = typeof message?.content === 'string' ? message.content : (message?.content?.text ?? '');
+        setMessages((prev) => [...prev, {
+          role: 'assistant',
+          content: responseText || '(empty response)',
+          reasoning: message?.reasoning_content || '',
+        }]);
+        assistantStarted = true;
+        if (data?.usage) setLastUsage(data.usage);
+        return;
+      }
+
       const res = await fetch(`${GATEWAY_BASE_URL}/v1/chat/completions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -296,7 +360,7 @@ export default function Playground() {
         throw new Error(message);
       }
 
-      setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
+      setMessages((prev) => [...prev, { role: 'assistant', content: '', reasoning: '' }]);
       assistantStarted = true;
 
       const reader = res.body.getReader();
@@ -327,9 +391,12 @@ export default function Playground() {
               continue;
             }
 
-            const deltaText = parsed?.choices?.[0]?.delta?.content;
-            if (typeof deltaText === 'string' && deltaText) {
-              appendToLastAssistant(deltaText);
+            const delta = parsed?.choices?.[0]?.delta;
+            if (typeof delta?.content === 'string' && delta.content) {
+              appendToLastAssistant('content', delta.content);
+            }
+            if (typeof delta?.reasoning_content === 'string' && delta.reasoning_content) {
+              appendToLastAssistant('reasoning', delta.reasoning_content);
             }
             if (parsed?.usage) usage = parsed.usage;
           }
@@ -366,6 +433,12 @@ export default function Playground() {
 
   const selectedModelInfo = models.find((m) => m.id === selectedModel);
   const providerIcons = selectedModelInfo ? resolveProviderIcons(displayProviderFor(selectedModelInfo)) : [];
+  const supportsSearch = !!selectedModelInfo?.capabilities?.tools;
+
+  useEffect(() => {
+    if (!supportsSearch) setSearchEnabled(false);
+  }, [supportsSearch]);
+
   const hasMessages = messages.length > 0;
   const lastMessage = messages[messages.length - 1];
   const awaitingFirstToken = sending && (!lastMessage || lastMessage.role !== 'assistant');
@@ -412,6 +485,9 @@ export default function Playground() {
                   backgroundColor: m.role === 'user' ? 'var(--hover-bg)' : 'transparent',
                 }}
               >
+                {m.reasoning && (
+                  <ThinkingBlock text={m.reasoning} startOpen={!m.content} autoCollapseWhen={!!m.content} />
+                )}
                 <MessageContent content={m.content} />
                 {isLast && isStreamingReply && (
                   <span className="animate-pulse-cursor" style={{ display: 'inline-block', width: '7px', height: '15px', marginLeft: '2px', verticalAlign: '-2px', backgroundColor: 'var(--muted)' }} />
@@ -541,6 +617,24 @@ export default function Playground() {
               >
                 <SlidersHorizontal size={13} />
               </button>
+
+              <button
+                onClick={() => setSearchEnabled((v) => !v)}
+                disabled={!supportsSearch}
+                aria-label="Web search"
+                title={supportsSearch ? 'Web search (frenix_search, built in)' : "This model doesn't support tool calling, so it can't use web search"}
+                className="button-press"
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', width: '30px', height: '30px',
+                  borderRadius: '50%', border: '1px solid var(--border)',
+                  backgroundColor: searchEnabled ? 'var(--hover-bg)' : 'transparent',
+                  color: searchEnabled ? 'var(--accent-display)' : 'var(--muted)',
+                  cursor: supportsSearch ? 'pointer' : 'default',
+                  opacity: supportsSearch ? 1 : 0.4, flexShrink: 0,
+                }}
+              >
+                <Globe size={13} />
+              </button>
             </div>
 
             <button
@@ -560,6 +654,13 @@ export default function Playground() {
             </button>
           </div>
         </div>
+
+        {searchEnabled && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', marginTop: '10px', fontSize: '11px', color: 'var(--muted)' }}>
+            <Globe size={11} />
+            Web search on — this turn won't stream, and the model decides whether it actually searches.
+          </div>
+        )}
 
         {lastUsage && (
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px', fontSize: '11px', color: 'var(--muted)' }}>
