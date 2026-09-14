@@ -68,12 +68,119 @@ function CodeBlock({ lang, value }) {
   );
 }
 
+// Inline markdown: code spans, bold, italic, and links. Deliberately just
+// these four (in this precedence order, code first so `**not bold**` inside
+// a code span is left alone) rather than pulling in a markdown library —
+// this app has exactly three runtime deps and model replies only ever use
+// this subset in practice.
+const INLINE_PATTERN = /(`[^`]+`)|(\*\*[^*]+\*\*)|(__[^_]+__)|(\[[^\]]+\]\([^)\s]+\))|(\*[^*\n]+\*)|(_[^_\n]+_)/g;
+
+function renderInline(text, keyPrefix) {
+  const nodes = [];
+  let lastIndex = 0;
+  let match;
+  let i = 0;
+  INLINE_PATTERN.lastIndex = 0;
+  while ((match = INLINE_PATTERN.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      nodes.push(text.slice(lastIndex, match.index));
+    }
+    const token = match[0];
+    const key = `${keyPrefix}-${i++}`;
+    if (token.startsWith('`')) {
+      nodes.push(
+        <code key={key} className="code-font selectable-text" style={{ backgroundColor: 'var(--hover-bg)', padding: '2px 5px', borderRadius: '5px', fontSize: '0.9em' }}>
+          {token.slice(1, -1)}
+        </code>
+      );
+    } else if (token.startsWith('**') || token.startsWith('__')) {
+      nodes.push(<strong key={key}>{token.slice(2, -2)}</strong>);
+    } else if (token.startsWith('[')) {
+      const linkMatch = token.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/);
+      nodes.push(
+        <a key={key} href={linkMatch[2]} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-display)', textDecoration: 'underline' }}>
+          {linkMatch[1]}
+        </a>
+      );
+    } else {
+      nodes.push(<em key={key}>{token.slice(1, -1)}</em>);
+    }
+    lastIndex = match.index + token.length;
+  }
+  if (lastIndex < text.length) nodes.push(text.slice(lastIndex));
+  return nodes;
+}
+
+// Block markdown over a fence-free text chunk: headings, blockquotes,
+// unordered/ordered lists, and paragraphs (blank-line separated), each run
+// through renderInline for the four inline forms above.
+function renderMarkdownBlock(text, keyPrefix) {
+  const chunks = text.split(/\n{2,}/);
+
+  return chunks.map((chunk, ci) => {
+    const lines = chunk.split('\n');
+    const nonEmpty = lines.filter((l) => l.trim() !== '');
+    if (nonEmpty.length === 0) return null;
+    const blockKey = `${keyPrefix}-b${ci}`;
+
+    const headingMatch = nonEmpty.length === 1 && nonEmpty[0].match(/^(#{1,6})\s+(.*)$/);
+    if (headingMatch) {
+      const size = { 1: '19px', 2: '18px', 3: '16px', 4: '15px', 5: '15px', 6: '15px' }[headingMatch[1].length];
+      return (
+        <div key={blockKey} style={{ fontWeight: 600, fontSize: size, margin: '10px 0 6px' }}>
+          {renderInline(headingMatch[2], blockKey)}
+        </div>
+      );
+    }
+
+    if (nonEmpty.every((l) => /^\s*>\s?/.test(l))) {
+      const quoted = nonEmpty.map((l) => l.replace(/^\s*>\s?/, '')).join(' ');
+      return (
+        <div key={blockKey} style={{ borderLeft: '3px solid var(--border)', paddingLeft: '12px', color: 'var(--muted)', margin: '8px 0' }}>
+          {renderInline(quoted, blockKey)}
+        </div>
+      );
+    }
+
+    if (nonEmpty.every((l) => /^\s*[-*]\s+/.test(l))) {
+      return (
+        <ul key={blockKey} style={{ margin: '6px 0', paddingLeft: '22px' }}>
+          {nonEmpty.map((l, li) => (
+            <li key={li} style={{ marginBottom: '3px' }}>{renderInline(l.replace(/^\s*[-*]\s+/, ''), `${blockKey}-${li}`)}</li>
+          ))}
+        </ul>
+      );
+    }
+
+    if (nonEmpty.every((l) => /^\s*\d+\.\s+/.test(l))) {
+      return (
+        <ol key={blockKey} style={{ margin: '6px 0', paddingLeft: '22px' }}>
+          {nonEmpty.map((l, li) => (
+            <li key={li} style={{ marginBottom: '3px' }}>{renderInline(l.replace(/^\s*\d+\.\s+/, ''), `${blockKey}-${li}`)}</li>
+          ))}
+        </ol>
+      );
+    }
+
+    return (
+      <p key={blockKey} style={{ margin: '0 0 8px 0' }}>
+        {nonEmpty.map((l, li) => (
+          <React.Fragment key={li}>
+            {li > 0 && <br />}
+            {renderInline(l, `${blockKey}-${li}`)}
+          </React.Fragment>
+        ))}
+      </p>
+    );
+  });
+}
+
 function MessageContent({ content }) {
   const blocks = parseContentBlocks(content);
   return blocks.map((b, i) => (
     b.type === 'code'
       ? <CodeBlock key={i} lang={b.lang} value={b.value} />
-      : <span key={i} style={{ whiteSpace: 'pre-wrap' }}>{b.value}</span>
+      : <React.Fragment key={i}>{renderMarkdownBlock(b.value, `t${i}`)}</React.Fragment>
   ));
 }
 
