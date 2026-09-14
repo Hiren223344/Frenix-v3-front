@@ -2,7 +2,7 @@
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { Search, Cpu, Filter, Check, Copy, Wifi, Lock } from 'lucide-react';
-import { resolveProviderIcons } from '../components/icons/BrandIcons';
+import { resolveProviderIcons, displayProviderFor } from '../components/icons/BrandIcons';
 
 function formatContextWindow(tokens) {
   if (!tokens) return '—';
@@ -24,11 +24,13 @@ function describeCapabilities(capabilities) {
 // Groups the flat GET /v1/models response into the same
 // { provider, models: [{ id, name, context, type, tier }] } shape the
 // static catalog below uses, so the rest of this page doesn't care whether
-// it's rendering real or placeholder data.
+// it's rendering real or placeholder data. displayProviderFor (see
+// BrandIcons.jsx) decides the section by model id, not the backend's raw
+// wire-format provider field.
 function groupLiveModels(data) {
   const byProvider = new Map();
   for (const m of data) {
-    const provider = m.provider || 'Other';
+    const provider = displayProviderFor(m);
     if (!byProvider.has(provider)) byProvider.set(provider, []);
     byProvider.get(provider).push({
       id: m.id,
@@ -61,7 +63,7 @@ const MODEL_DATA = [
   {
     provider: 'Anthropic',
     models: [
-      { id: 'claude-fable-5-1', name: 'Claude Fable 5.1', context: '200k tokens', type: 'Latest flagship model', tier: 'Pro' },
+      { id: 'claude-fable-5.1', name: 'Claude Fable 5.1', context: '200k tokens', type: 'Latest flagship model', tier: 'Pro' },
       { id: 'claude-opus-4.5', name: 'Claude Opus 4.5', context: '200k tokens', type: 'Top agentic coding & complex synthesis', tier: 'Pro' },
       { id: 'claude-sonnet-4.5', name: 'Claude Sonnet 4.5', context: '200k tokens', type: 'Balanced speed, intelligence & refactoring', tier: 'Free & Pro' },
       { id: 'claude-haiku-4', name: 'Claude Haiku 4', context: '200k tokens', type: 'Ultra-fast sub-second responses', tier: 'Free & Pro' },

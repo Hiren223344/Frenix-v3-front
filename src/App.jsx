@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 const Home = lazy(() => import('./pages/Home'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Playground = lazy(() => import('./pages/Playground'));
 const Models = lazy(() => import('./pages/Models'));
 const Docs = lazy(() => import('./pages/Docs'));
 const MCP = lazy(() => import('./pages/MCP'));
@@ -27,6 +28,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="playground"
+          element={
+            <ProtectedRoute>
+              <Playground />
             </ProtectedRoute>
           }
         />

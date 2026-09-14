@@ -6,6 +6,7 @@ import {
   Home as HomeIcon,
   Tag,
   Terminal,
+  MessageSquare,
   Layers,
   BookOpen,
   Activity,
@@ -79,6 +80,8 @@ export default function Layout() {
         return 'Pricing';
       case '/dashboard':
         return 'Dashboard';
+      case '/playground':
+        return 'Playground';
       case '/models':
         return 'Models';
       case '/docs':
@@ -184,6 +187,10 @@ export default function Layout() {
             <NavLink to="/dashboard" style={navLinkStyle}>
               <Terminal size={16} style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Dashboard</span>
+            </NavLink>
+            <NavLink to="/playground" style={navLinkStyle}>
+              <MessageSquare size={16} style={{ flexShrink: 0 }} />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Playground</span>
             </NavLink>
             <NavLink to="/models" style={navLinkStyle}>
               <Layers size={16} style={{ flexShrink: 0 }} />

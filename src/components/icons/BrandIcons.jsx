@@ -81,6 +81,20 @@ export function resolveProviderIcons(providerLabel) {
   return icons;
 }
 
+// A model's backend `provider` field is the real upstream wire format —
+// what Frenix actually speaks to that model's endpoint. A Claude-family
+// model can legitimately be configured with provider: "openai" if that's
+// the format its actual endpoint expects (e.g. a model proxied through a
+// gateway that only accepts OpenAI-shaped requests). This only decides
+// which brand a model is *displayed* under (Models Directory grouping,
+// Status page's per-row provider label); it never touches the backend's
+// real provider/wire format, so it's always safe to call for display.
+export function displayProviderFor(model) {
+  const id = (model?.id || '').toLowerCase();
+  if (id.startsWith('claude')) return 'Anthropic';
+  return model?.provider || 'Other';
+}
+
 // Real logos for known plugins (see internal/plugin on the backend) — keyed
 // by plugin id. A plugin with no icon here falls back to a generic one.
 export const PLUGIN_ICONS = {

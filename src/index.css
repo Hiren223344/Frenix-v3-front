@@ -72,6 +72,19 @@ button {
   animation: fadeInUp 0.4s ease both;
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
 .hover-lift {
   transition: border-color 0.18s ease;
 }
