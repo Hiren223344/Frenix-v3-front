@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Send, Plus, Loader2, AlertTriangle, SlidersHorizontal, X } from 'lucide-react';
+import { Send, Plus, Loader2, AlertTriangle, SlidersHorizontal, X, Copy, Check } from 'lucide-react';
 import { resolveProviderIcons, displayProviderFor, FrenixIcon } from '../components/icons/BrandIcons';
+
+// Same fallback pattern main.jsx uses for GATEWAY_BASE_URL: relative paths
+// reach the gateway via the Vite dev proxy, production talks to it directly
+// since it lives on a different domain. Duplicated here (rather than
+// exported from main.jsx) because this page needs a raw, unwrapped fetch —
+// window.secureRelayRequest buffers the whole response with res.json() and
+// has no way to hand back a readable stream.
+const GATEWAY_BASE_URL = import.meta.env.DEV ? '' : 'https://api.frenix.sh';
 
 function greetingWord() {
   const h = new Date().getHours();
@@ -9,6 +17,64 @@ function greetingWord() {
   if (h < 12) return 'morning';
   if (h < 18) return 'afternoon';
   return 'evening';
+}
+
+// Splits a message's raw text on ```lang\n...\n``` fences so code can be
+// rendered in its own block instead of as plain wrapped text.
+function parseContentBlocks(content) {
+  const blocks = [];
+  const fence = /```(\S*)\n?([\s\S]*?)```/g;
+  let lastIndex = 0;
+  let match;
+  while ((match = fence.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      blocks.push({ type: 'text', value: content.slice(lastIndex, match.index) });
+    }
+    blocks.push({ type: 'code', lang: match[1], value: match[2].replace(/\n$/, '') });
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < content.length) {
+    blocks.push({ type: 'text', value: content.slice(lastIndex) });
+  }
+  return blocks;
+}
+
+function CodeBlock({ lang, value }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (navigator.clipboard) navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  return (
+    <div style={{ border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--card)', margin: '6px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', borderBottom: '1px solid var(--border)' }}>
+        <span className="code-font" style={{ fontSize: '11px', color: 'var(--muted)' }}>{lang || 'text'}</span>
+        <button
+          onClick={handleCopy}
+          className="button-press"
+          style={{ display: 'flex', alignItems: 'center', gap: '4px', border: 'none', background: 'none', color: 'var(--muted)', fontSize: '11px', cursor: 'pointer', padding: '2px' }}
+        >
+          {copied ? <Check size={12} /> : <Copy size={12} />}
+          {copied ? 'Copied' : 'Copy'}
+        </button>
+      </div>
+      <pre className="code-font selectable-text" style={{ margin: 0, padding: '13px', fontSize: '13px', lineHeight: 1.6, overflowX: 'auto', whiteSpace: 'pre' }}>
+        {value}
+      </pre>
+    </div>
+  );
+}
+
+function MessageContent({ content }) {
+  const blocks = parseContentBlocks(content);
+  return blocks.map((b, i) => (
+    b.type === 'code'
+      ? <CodeBlock key={i} lang={b.lang} value={b.value} />
+      : <span key={i} style={{ whiteSpace: 'pre-wrap' }}>{b.value}</span>
+  ));
 }
 
 export default function Playground() {
@@ -72,6 +138,15 @@ export default function Playground() {
     el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
   }, [input]);
 
+  const appendToLastAssistant = (deltaText) => {
+    setMessages((prev) => {
+      const updated = [...prev];
+      const last = updated[updated.length - 1];
+      updated[updated.length - 1] = { ...last, content: last.content + deltaText };
+      return updated;
+    });
+  };
+
   const handleSend = async () => {
     const text = input.trim();
     if (!text || sending || !selectedModel) return;
@@ -87,33 +162,83 @@ export default function Playground() {
     setMessages(nextMessages);
     setInput('');
     setSendError('');
+    setLastUsage(null);
     setSending(true);
+
+    let assistantStarted = false;
 
     try {
       const apiMessages = systemPrompt.trim()
         ? [{ role: 'system', content: systemPrompt.trim() }, ...nextMessages]
         : nextMessages;
 
-      const res = await window.secureRelayRequest('/v1/chat/completions', {
+      const res = await fetch(`${GATEWAY_BASE_URL}/v1/chat/completions`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: { model: selectedModel, messages: apiMessages },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ model: selectedModel, messages: apiMessages, stream: true }),
       });
 
       if (!res.ok) {
-        throw new Error(res?.data?.error?.message || `Request failed (HTTP ${res.status})`);
+        let message = `Request failed (HTTP ${res.status})`;
+        try {
+          const errBody = await res.json();
+          message = errBody?.error?.message || message;
+        } catch (_) {
+          // Non-JSON error body — fall back to the generic HTTP status message.
+        }
+        throw new Error(message);
       }
 
-      const content = res.data?.choices?.[0]?.message?.content;
-      const responseText = typeof content === 'string' ? content : (content?.text ?? '');
-      setMessages((prev) => [...prev, { role: 'assistant', content: responseText || '(empty response)' }]);
-      setLastUsage(res.data?.usage || null);
+      setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
+      assistantStarted = true;
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let usage = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        let idx;
+        while ((idx = buffer.indexOf('\n\n')) >= 0) {
+          const rawEvent = buffer.slice(0, idx);
+          buffer = buffer.slice(idx + 2);
+
+          for (const line of rawEvent.split('\n')) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith('data:')) continue;
+            const payload = trimmed.slice(5).trim();
+            if (!payload || payload === '[DONE]') continue;
+
+            let parsed;
+            try {
+              parsed = JSON.parse(payload);
+            } catch (_) {
+              continue;
+            }
+
+            const deltaText = parsed?.choices?.[0]?.delta?.content;
+            if (typeof deltaText === 'string' && deltaText) {
+              appendToLastAssistant(deltaText);
+            }
+            if (parsed?.usage) usage = parsed.usage;
+          }
+        }
+      }
+
+      if (usage) setLastUsage(usage);
     } catch (err) {
       setSendError(err.message || 'Request failed');
-      // Roll back the optimistic user message so a failed send doesn't
-      // leave a one-sided message the model never actually saw.
-      setMessages((prev) => prev.filter((m) => m !== userMessage));
-      setInput(text);
+      if (!assistantStarted) {
+        // Nothing ever streamed back — roll back the optimistic user
+        // message so a failed send doesn't leave a one-sided message the
+        // model never actually saw.
+        setMessages((prev) => prev.filter((m) => m !== userMessage));
+        setInput(text);
+      }
     } finally {
       setSending(false);
     }
@@ -135,6 +260,9 @@ export default function Playground() {
   const selectedModelInfo = models.find((m) => m.id === selectedModel);
   const providerIcons = selectedModelInfo ? resolveProviderIcons(displayProviderFor(selectedModelInfo)) : [];
   const hasMessages = messages.length > 0;
+  const lastMessage = messages[messages.length - 1];
+  const awaitingFirstToken = sending && (!lastMessage || lastMessage.role !== 'assistant');
+  const isStreamingReply = sending && lastMessage?.role === 'assistant';
 
   return (
     <div
@@ -162,24 +290,29 @@ export default function Playground() {
         </div>
       ) : (
         <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '18px', padding: '4px 4px 24px 4px' }}>
-          {messages.map((m, i) => (
-            <div
-              key={i}
-              style={{
-                maxWidth: '78%',
-                alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
-                padding: '11px 16px',
-                borderRadius: '18px',
-                fontSize: '15px',
-                lineHeight: 1.6,
-                whiteSpace: 'pre-wrap',
-                backgroundColor: m.role === 'user' ? 'var(--hover-bg)' : 'transparent',
-              }}
-            >
-              {m.content}
-            </div>
-          ))}
-          {sending && (
+          {messages.map((m, i) => {
+            const isLast = i === messages.length - 1;
+            return (
+              <div
+                key={i}
+                style={{
+                  maxWidth: '78%',
+                  alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+                  padding: '11px 16px',
+                  borderRadius: '18px',
+                  fontSize: '15px',
+                  lineHeight: 1.6,
+                  backgroundColor: m.role === 'user' ? 'var(--hover-bg)' : 'transparent',
+                }}
+              >
+                <MessageContent content={m.content} />
+                {isLast && isStreamingReply && (
+                  <span className="animate-pulse-cursor" style={{ display: 'inline-block', width: '7px', height: '15px', marginLeft: '2px', verticalAlign: '-2px', backgroundColor: 'var(--muted)' }} />
+                )}
+              </div>
+            );
+          })}
+          {awaitingFirstToken && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--muted)', fontSize: '13px', alignSelf: 'flex-start', padding: '11px 16px' }}>
               <Loader2 size={14} className="animate-spin" />
               Thinking…

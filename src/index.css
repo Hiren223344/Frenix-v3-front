@@ -85,6 +85,15 @@ button {
   animation: spin 1s linear infinite;
 }
 
+@keyframes pulseCursor {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+.animate-pulse-cursor {
+  animation: pulseCursor 1s step-end infinite;
+}
+
 .hover-lift {
   transition: border-color 0.18s ease;
 }
