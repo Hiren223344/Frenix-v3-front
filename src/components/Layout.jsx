@@ -439,7 +439,10 @@ export default function Layout() {
         </div>
       </div>
 
-      {/* Footer */}
+      {/* Footer — only shown on the Home page; every other page keeps its
+          content flush against the viewport bottom instead of repeating
+          the full sitemap-style link list on every navigation. */}
+      {location.pathname === '/' && (
       <footer style={{ borderTop: '1px solid var(--border)', marginTop: 'auto', background: 'var(--bg)' }}>
         <div
           className="frenix-footer-inner"
@@ -496,6 +499,7 @@ export default function Layout() {
           <div style={{ fontSize: '13px', color: 'var(--muted)' }}>&copy; 2026 Frenix. All rights reserved.</div>
         </div>
       </footer>
+      )}
     </div>
   );
 }
