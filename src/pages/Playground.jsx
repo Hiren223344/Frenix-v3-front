@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Send, Plus, Loader2, AlertTriangle, SlidersHorizontal, X, Copy, Check } from 'lucide-react';
+import { Send, Plus, Loader2, AlertTriangle, SlidersHorizontal, X, Copy, Check, ChevronDown, ChevronUp, BrainCircuit, Globe } from 'lucide-react';
 import { resolveProviderIcons, displayProviderFor, FrenixIcon } from '../components/icons/BrandIcons';
 
 // Same fallback pattern main.jsx uses for GATEWAY_BASE_URL: relative paths
@@ -68,13 +68,156 @@ function CodeBlock({ lang, value }) {
   );
 }
 
+// Inline markdown: code spans, bold, italic, and links. Deliberately just
+// these four (in this precedence order, code first so `**not bold**` inside
+// a code span is left alone) rather than pulling in a markdown library —
+// this app has exactly three runtime deps and model replies only ever use
+// this subset in practice.
+const INLINE_PATTERN = /(`[^`]+`)|(\*\*[^*]+\*\*)|(__[^_]+__)|(\[[^\]]+\]\([^)\s]+\))|(\*[^*\n]+\*)|(_[^_\n]+_)/g;
+
+function renderInline(text, keyPrefix) {
+  const nodes = [];
+  let lastIndex = 0;
+  let match;
+  let i = 0;
+  INLINE_PATTERN.lastIndex = 0;
+  while ((match = INLINE_PATTERN.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      nodes.push(text.slice(lastIndex, match.index));
+    }
+    const token = match[0];
+    const key = `${keyPrefix}-${i++}`;
+    if (token.startsWith('`')) {
+      nodes.push(
+        <code key={key} className="code-font selectable-text" style={{ backgroundColor: 'var(--hover-bg)', padding: '2px 5px', borderRadius: '5px', fontSize: '0.9em' }}>
+          {token.slice(1, -1)}
+        </code>
+      );
+    } else if (token.startsWith('**') || token.startsWith('__')) {
+      nodes.push(<strong key={key}>{token.slice(2, -2)}</strong>);
+    } else if (token.startsWith('[')) {
+      const linkMatch = token.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/);
+      nodes.push(
+        <a key={key} href={linkMatch[2]} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-display)', textDecoration: 'underline' }}>
+          {linkMatch[1]}
+        </a>
+      );
+    } else {
+      nodes.push(<em key={key}>{token.slice(1, -1)}</em>);
+    }
+    lastIndex = match.index + token.length;
+  }
+  if (lastIndex < text.length) nodes.push(text.slice(lastIndex));
+  return nodes;
+}
+
+// Block markdown over a fence-free text chunk: headings, blockquotes,
+// unordered/ordered lists, and paragraphs (blank-line separated), each run
+// through renderInline for the four inline forms above.
+function renderMarkdownBlock(text, keyPrefix) {
+  const chunks = text.split(/\n{2,}/);
+
+  return chunks.map((chunk, ci) => {
+    const lines = chunk.split('\n');
+    const nonEmpty = lines.filter((l) => l.trim() !== '');
+    if (nonEmpty.length === 0) return null;
+    const blockKey = `${keyPrefix}-b${ci}`;
+
+    const headingMatch = nonEmpty.length === 1 && nonEmpty[0].match(/^(#{1,6})\s+(.*)$/);
+    if (headingMatch) {
+      const size = { 1: '19px', 2: '18px', 3: '16px', 4: '15px', 5: '15px', 6: '15px' }[headingMatch[1].length];
+      return (
+        <div key={blockKey} style={{ fontWeight: 600, fontSize: size, margin: '10px 0 6px' }}>
+          {renderInline(headingMatch[2], blockKey)}
+        </div>
+      );
+    }
+
+    if (nonEmpty.every((l) => /^\s*>\s?/.test(l))) {
+      const quoted = nonEmpty.map((l) => l.replace(/^\s*>\s?/, '')).join(' ');
+      return (
+        <div key={blockKey} style={{ borderLeft: '3px solid var(--border)', paddingLeft: '12px', color: 'var(--muted)', margin: '8px 0' }}>
+          {renderInline(quoted, blockKey)}
+        </div>
+      );
+    }
+
+    if (nonEmpty.every((l) => /^\s*[-*]\s+/.test(l))) {
+      return (
+        <ul key={blockKey} style={{ margin: '6px 0', paddingLeft: '22px' }}>
+          {nonEmpty.map((l, li) => (
+            <li key={li} style={{ marginBottom: '3px' }}>{renderInline(l.replace(/^\s*[-*]\s+/, ''), `${blockKey}-${li}`)}</li>
+          ))}
+        </ul>
+      );
+    }
+
+    if (nonEmpty.every((l) => /^\s*\d+\.\s+/.test(l))) {
+      return (
+        <ol key={blockKey} style={{ margin: '6px 0', paddingLeft: '22px' }}>
+          {nonEmpty.map((l, li) => (
+            <li key={li} style={{ marginBottom: '3px' }}>{renderInline(l.replace(/^\s*\d+\.\s+/, ''), `${blockKey}-${li}`)}</li>
+          ))}
+        </ol>
+      );
+    }
+
+    return (
+      <p key={blockKey} style={{ margin: '0 0 8px 0' }}>
+        {nonEmpty.map((l, li) => (
+          <React.Fragment key={li}>
+            {li > 0 && <br />}
+            {renderInline(l, `${blockKey}-${li}`)}
+          </React.Fragment>
+        ))}
+      </p>
+    );
+  });
+}
+
 function MessageContent({ content }) {
   const blocks = parseContentBlocks(content);
   return blocks.map((b, i) => (
     b.type === 'code'
       ? <CodeBlock key={i} lang={b.lang} value={b.value} />
-      : <span key={i} style={{ whiteSpace: 'pre-wrap' }}>{b.value}</span>
+      : <React.Fragment key={i}>{renderMarkdownBlock(b.value, `t${i}`)}</React.Fragment>
   ));
+}
+
+// A model's reasoning_content (its chain-of-thought before the final
+// answer) shown as a collapsible aside, the same shape Claude.ai and
+// similar chat UIs use for extended-thinking output. Starts open while the
+// answer is still being generated, then auto-collapses exactly once real
+// content starts arriving — the user's own toggle takes over after that.
+function ThinkingBlock({ text, startOpen, autoCollapseWhen }) {
+  const [open, setOpen] = useState(startOpen);
+  const collapsedOnceRef = useRef(false);
+
+  useEffect(() => {
+    if (autoCollapseWhen && !collapsedOnceRef.current) {
+      collapsedOnceRef.current = true;
+      setOpen(false);
+    }
+  }, [autoCollapseWhen]);
+
+  return (
+    <div style={{ margin: '0 0 8px 0' }}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="button-press"
+        style={{ display: 'flex', alignItems: 'center', gap: '5px', border: 'none', background: 'none', color: 'var(--muted)', fontSize: '12px', cursor: 'pointer', padding: '2px 0' }}
+      >
+        <BrainCircuit size={13} />
+        Thinking
+        {open ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+      </button>
+      {open && (
+        <div style={{ borderLeft: '2px solid var(--border)', paddingLeft: '12px', margin: '6px 0', color: 'var(--muted)', fontSize: '13px' }}>
+          <MessageContent content={text} />
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function Playground() {
@@ -87,6 +230,7 @@ export default function Playground() {
 
   const [systemPrompt, setSystemPrompt] = useState('');
   const [showSystemPrompt, setShowSystemPrompt] = useState(false);
+  const [searchEnabled, setSearchEnabled] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -138,11 +282,11 @@ export default function Playground() {
     el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
   }, [input]);
 
-  const appendToLastAssistant = (deltaText) => {
+  const appendToLastAssistant = (field, deltaText) => {
     setMessages((prev) => {
       const updated = [...prev];
       const last = updated[updated.length - 1];
-      updated[updated.length - 1] = { ...last, content: last.content + deltaText };
+      updated[updated.length - 1] = { ...last, [field]: (last[field] || '') + deltaText };
       return updated;
     });
   };
@@ -172,6 +316,33 @@ export default function Playground() {
         ? [{ role: 'system', content: systemPrompt.trim() }, ...nextMessages]
         : nextMessages;
 
+      // The gateway rejects stream + plugins together (a plugin call needs
+      // to run and feed its result back before there's any answer to
+      // stream), so a web-search turn falls back to one buffered request.
+      if (searchEnabled) {
+        const res = await fetch(`${GATEWAY_BASE_URL}/v1/chat/completions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ model: selectedModel, messages: apiMessages, plugins: ['frenix_search'] }),
+        });
+
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+          throw new Error(data?.error?.message || `Request failed (HTTP ${res.status})`);
+        }
+
+        const message = data?.choices?.[0]?.message;
+        const responseText = typeof message?.content === 'string' ? message.content : (message?.content?.text ?? '');
+        setMessages((prev) => [...prev, {
+          role: 'assistant',
+          content: responseText || '(empty response)',
+          reasoning: message?.reasoning_content || '',
+        }]);
+        assistantStarted = true;
+        if (data?.usage) setLastUsage(data.usage);
+        return;
+      }
+
       const res = await fetch(`${GATEWAY_BASE_URL}/v1/chat/completions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -189,7 +360,7 @@ export default function Playground() {
         throw new Error(message);
       }
 
-      setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
+      setMessages((prev) => [...prev, { role: 'assistant', content: '', reasoning: '' }]);
       assistantStarted = true;
 
       const reader = res.body.getReader();
@@ -220,9 +391,12 @@ export default function Playground() {
               continue;
             }
 
-            const deltaText = parsed?.choices?.[0]?.delta?.content;
-            if (typeof deltaText === 'string' && deltaText) {
-              appendToLastAssistant(deltaText);
+            const delta = parsed?.choices?.[0]?.delta;
+            if (typeof delta?.content === 'string' && delta.content) {
+              appendToLastAssistant('content', delta.content);
+            }
+            if (typeof delta?.reasoning_content === 'string' && delta.reasoning_content) {
+              appendToLastAssistant('reasoning', delta.reasoning_content);
             }
             if (parsed?.usage) usage = parsed.usage;
           }
@@ -259,6 +433,12 @@ export default function Playground() {
 
   const selectedModelInfo = models.find((m) => m.id === selectedModel);
   const providerIcons = selectedModelInfo ? resolveProviderIcons(displayProviderFor(selectedModelInfo)) : [];
+  const supportsSearch = !!selectedModelInfo?.capabilities?.tools;
+
+  useEffect(() => {
+    if (!supportsSearch) setSearchEnabled(false);
+  }, [supportsSearch]);
+
   const hasMessages = messages.length > 0;
   const lastMessage = messages[messages.length - 1];
   const awaitingFirstToken = sending && (!lastMessage || lastMessage.role !== 'assistant');
@@ -305,6 +485,9 @@ export default function Playground() {
                   backgroundColor: m.role === 'user' ? 'var(--hover-bg)' : 'transparent',
                 }}
               >
+                {m.reasoning && (
+                  <ThinkingBlock text={m.reasoning} startOpen={!m.content} autoCollapseWhen={!!m.content} />
+                )}
                 <MessageContent content={m.content} />
                 {isLast && isStreamingReply && (
                   <span className="animate-pulse-cursor" style={{ display: 'inline-block', width: '7px', height: '15px', marginLeft: '2px', verticalAlign: '-2px', backgroundColor: 'var(--muted)' }} />
@@ -434,6 +617,24 @@ export default function Playground() {
               >
                 <SlidersHorizontal size={13} />
               </button>
+
+              <button
+                onClick={() => setSearchEnabled((v) => !v)}
+                disabled={!supportsSearch}
+                aria-label="Web search"
+                title={supportsSearch ? 'Web search (frenix_search, built in)' : "This model doesn't support tool calling, so it can't use web search"}
+                className="button-press"
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', width: '30px', height: '30px',
+                  borderRadius: '50%', border: '1px solid var(--border)',
+                  backgroundColor: searchEnabled ? 'var(--hover-bg)' : 'transparent',
+                  color: searchEnabled ? 'var(--accent-display)' : 'var(--muted)',
+                  cursor: supportsSearch ? 'pointer' : 'default',
+                  opacity: supportsSearch ? 1 : 0.4, flexShrink: 0,
+                }}
+              >
+                <Globe size={13} />
+              </button>
             </div>
 
             <button
@@ -453,6 +654,13 @@ export default function Playground() {
             </button>
           </div>
         </div>
+
+        {searchEnabled && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', marginTop: '10px', fontSize: '11px', color: 'var(--muted)' }}>
+            <Globe size={11} />
+            Web search on — this turn won't stream, and the model decides whether it actually searches.
+          </div>
+        )}
 
         {lastUsage && (
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px', fontSize: '11px', color: 'var(--muted)' }}>
