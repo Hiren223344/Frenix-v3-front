@@ -488,7 +488,7 @@ export default function Docs() {
                   <code className="code-font">GET /v1/plugins</code> lists every plugin Frenix knows, whether it's enabled on your account, and <code className="code-font">requires_api_key</code> — <code className="code-font">false</code> means it's always on with nothing to configure. For a third-party plugin like <code className="code-font">exa_search</code>, <code className="code-font">PUT /v1/plugins/&#123;id&#125;</code> stores (encrypted) your own API key and enables it; <code className="code-font">DELETE /v1/plugins/&#123;id&#125;</code> removes it.
                 </p>
                 <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: 0 }}>
-                  Not yet supported: <code className="code-font">stream: true</code> together with <code className="code-font">plugins</code> — you'll get a 400 if both are set.
+                  <code className="code-font">stream: true</code> works together with <code className="code-font">plugins</code> too — the tool-call loop always runs internally as buffered requests, but once it resolves you get the final answer back as a real SSE stream in the same shape as any other streamed completion.
                 </p>
               </div>
             </div>

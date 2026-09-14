@@ -316,37 +316,19 @@ export default function Playground() {
         ? [{ role: 'system', content: systemPrompt.trim() }, ...nextMessages]
         : nextMessages;
 
-      // The gateway rejects stream + plugins together (a plugin call needs
-      // to run and feed its result back before there's any answer to
-      // stream), so a web-search turn falls back to one buffered request.
-      if (searchEnabled) {
-        const res = await fetch(`${GATEWAY_BASE_URL}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ model: selectedModel, messages: apiMessages, plugins: ['frenix_search'] }),
-        });
-
-        const data = await res.json().catch(() => null);
-        if (!res.ok) {
-          throw new Error(data?.error?.message || `Request failed (HTTP ${res.status})`);
-        }
-
-        const message = data?.choices?.[0]?.message;
-        const responseText = typeof message?.content === 'string' ? message.content : (message?.content?.text ?? '');
-        setMessages((prev) => [...prev, {
-          role: 'assistant',
-          content: responseText || '(empty response)',
-          reasoning: message?.reasoning_content || '',
-        }]);
-        assistantStarted = true;
-        if (data?.usage) setLastUsage(data.usage);
-        return;
-      }
+      // The gateway's tool-call loop (when plugins is set) always runs
+      // internally as buffered requests — a model deciding whether to call
+      // a tool isn't something you can stream — but once it resolves to a
+      // final answer, that answer still comes back as a real SSE stream in
+      // the same shape as any other streamed completion, so this is the
+      // same request/parsing path either way.
+      const body = { model: selectedModel, messages: apiMessages, stream: true };
+      if (searchEnabled) body.plugins = ['frenix_search'];
 
       const res = await fetch(`${GATEWAY_BASE_URL}/v1/chat/completions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ model: selectedModel, messages: apiMessages, stream: true }),
+        body: JSON.stringify(body),
       });
 
       if (!res.ok) {
@@ -658,7 +640,7 @@ export default function Playground() {
         {searchEnabled && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', marginTop: '10px', fontSize: '11px', color: 'var(--muted)' }}>
             <Globe size={11} />
-            Web search on — this turn won't stream, and the model decides whether it actually searches.
+            Web search on — the model decides whether it actually searches.
           </div>
         )}
 
