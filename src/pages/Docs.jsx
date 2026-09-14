@@ -453,8 +453,11 @@ export default function Docs() {
               <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', backgroundColor: 'var(--card)', marginBottom: '20px' }}>
                 <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 10px 0' }}>Available plugins</h3>
                 <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', lineHeight: 1.9, color: 'var(--muted)' }}>
-                  <li><code className="code-font">frenix_search</code> — Frenix's own built-in web search. No account or API key needed; always available to every caller.</li>
+                  <li><code className="code-font">frenix_search</code> — Frenix's own built-in web search. No account or API key needed; shares at most the top 7 results with the model.</li>
                   <li><code className="code-font">exa_search</code> — web search via Exa (exa.ai), using your own Exa API key. Configure it first at <Link to="/plugins" style={{ color: accentDisplay }}>Plugins</Link>.</li>
+                  <li><code className="code-font">weather</code> — current conditions for a named place, via Open-Meteo. No account or API key needed.</li>
+                  <li><code className="code-font">calculator</code> — evaluates an arithmetic expression locally. No account, API key, or network call.</li>
+                  <li><code className="code-font">code_interpreter</code> — runs a short code snippet on Piston, a free public sandboxed execution service — the code runs on Piston's own infrastructure, not Frenix's. No account or API key needed.</li>
                 </ul>
               </div>
 
@@ -487,8 +490,11 @@ export default function Docs() {
                 <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 10px 0' }}>
                   <code className="code-font">GET /v1/plugins</code> lists every plugin Frenix knows, whether it's enabled on your account, and <code className="code-font">requires_api_key</code> — <code className="code-font">false</code> means it's always on with nothing to configure. For a third-party plugin like <code className="code-font">exa_search</code>, <code className="code-font">PUT /v1/plugins/&#123;id&#125;</code> stores (encrypted) your own API key and enables it; <code className="code-font">DELETE /v1/plugins/&#123;id&#125;</code> removes it.
                 </p>
-                <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: 0 }}>
+                <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 10px 0' }}>
                   <code className="code-font">stream: true</code> works together with <code className="code-font">plugins</code> too — the tool-call loop always runs internally as buffered requests, but once it resolves you get the final answer back as a real SSE stream in the same shape as any other streamed completion.
+                </p>
+                <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: 0 }}>
+                  Whenever <code className="code-font">plugins</code> is set, Frenix prepends its own system message giving the model the current date/time and, when it can resolve one from the caller's IP, their approximate location and local time — useful for "today", "the weather right now", or "near me" without you supplying any of it yourself. A failed lookup just omits location; it's never invented, and never touches a system message you supply yourself.
                 </p>
               </div>
             </div>

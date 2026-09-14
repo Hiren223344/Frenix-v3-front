@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Puzzle, Check, X } from 'lucide-react';
+import { Puzzle, Check, X, Cloud, Calculator, Terminal } from 'lucide-react';
 import { PLUGIN_ICONS } from '../components/icons/BrandIcons';
+
+// weather/calculator/code_interpreter are generic built-in tools, not
+// third-party brands — a plain lucide icon fits better here than a "real
+// logo" (which PLUGIN_ICONS is reserved for; see its own comment).
+const GENERIC_PLUGIN_ICONS = {
+  weather: Cloud,
+  calculator: Calculator,
+  code_interpreter: Terminal,
+};
 
 export default function Plugins() {
   const { user } = useAuth();
@@ -121,7 +130,7 @@ export default function Plugins() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {plugins.map((p) => {
-            const PluginIcon = PLUGIN_ICONS[p.id] || Puzzle;
+            const PluginIcon = PLUGIN_ICONS[p.id] || GENERIC_PLUGIN_ICONS[p.id] || Puzzle;
             return (
             <div
               key={p.id}
