@@ -2,7 +2,7 @@
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { Search, Cpu, Filter, Check, Copy, Wifi, Lock } from 'lucide-react';
-import { resolveProviderIcons } from '../components/icons/BrandIcons';
+import { resolveProviderIcons, displayProviderFor } from '../components/icons/BrandIcons';
 
 function formatContextWindow(tokens) {
   if (!tokens) return '—';
@@ -24,19 +24,9 @@ function describeCapabilities(capabilities) {
 // Groups the flat GET /v1/models response into the same
 // { provider, models: [{ id, name, context, type, tier }] } shape the
 // static catalog below uses, so the rest of this page doesn't care whether
-// it's rendering real or placeholder data.
-// The backend's provider field is the real upstream wire format (what
-// Frenix actually speaks to the backend's endpoint) — a Claude-family
-// model can still be configured with provider: "openai" if that's the
-// format its actual endpoint expects. This only decides which section a
-// model is *displayed* under; it never touches the backend's real
-// provider/wire format.
-function displayProviderFor(m) {
-  const id = (m.id || '').toLowerCase();
-  if (id.startsWith('claude')) return 'Anthropic';
-  return m.provider || 'Other';
-}
-
+// it's rendering real or placeholder data. displayProviderFor (see
+// BrandIcons.jsx) decides the section by model id, not the backend's raw
+// wire-format provider field.
 function groupLiveModels(data) {
   const byProvider = new Map();
   for (const m of data) {

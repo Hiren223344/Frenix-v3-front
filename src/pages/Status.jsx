@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { CheckCircle2, AlertCircle, XCircle, HelpCircle, RefreshCw } from 'lucide-react';
-import { resolveProviderIcons } from '../components/icons/BrandIcons';
+import { resolveProviderIcons, displayProviderFor } from '../components/icons/BrandIcons';
 
 const STATUS_URL = typeof window !== 'undefined' && window.location.hostname === 'frenix.sh'
   ? 'https://api.frenix.sh/v1/status'
@@ -181,7 +181,8 @@ export default function Status() {
               models.map((m, idx) => {
                 const meta = STATUS_META[m.status] || STATUS_META.unknown;
                 const Icon = meta.Icon;
-                const providerIcons = resolveProviderIcons(m.provider);
+                const displayProvider = displayProviderFor(m);
+                const providerIcons = resolveProviderIcons(displayProvider);
                 return (
                   <div
                     key={m.id}
@@ -199,7 +200,7 @@ export default function Status() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--muted)', fontSize: '12px', textTransform: 'capitalize' }}>
                       <span className="frenix-mobile-label">Provider: </span>
                       {providerIcons.map((ProviderIcon, i) => <ProviderIcon key={i} size={13} />)}
-                      {m.provider}
+                      {displayProvider}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: meta.color, fontWeight: 500, fontSize: '12px' }}>
                       <Icon size={14} />
