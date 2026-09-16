@@ -12,7 +12,11 @@ function formatLimit(n) {
   return `${n}`;
 }
 
-function PlanCard({ icon: Icon, badge, name, blurb, priceNode, ctaTo, ctaLabel, external, onAction, actionPending, actionMessage, actionOk, features, highlighted }) {
+function PlanCard({
+  icon: Icon, badge, name, blurb, priceNode, ctaTo, ctaLabel, external,
+  onAction, actionPending, actionMessage, actionOk, features, highlighted,
+  rpmBoost,
+}) {
   const { accentDisplay } = useTheme();
   const ctaStyle = {
     width: '100%', padding: '11px 0',
@@ -93,6 +97,42 @@ function PlanCard({ icon: Icon, badge, name, blurb, priceNode, ctaTo, ctaLabel, 
           </div>
         ))}
       </div>
+
+      {rpmBoost && (
+        <div style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px dashed var(--border)' }}>
+          <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '8px' }}>
+            Need more throughput? +{rpmBoost.unitSize}rpm for ${rpmBoost.unitPrice.toFixed(2)} each.
+            {rpmBoost.state && (
+              <>
+                {' '}Currently <strong>{rpmBoost.state.effectiveRPM}rpm</strong> ({rpmBoost.state.units} bought).
+              </>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={rpmBoost.onAdd}
+              disabled={rpmBoost.pending}
+              className="button-press"
+              style={{ padding: '7px 14px', borderRadius: '18px', border: 'none', backgroundColor: 'var(--text)', color: 'var(--bg)', fontSize: '12px', fontWeight: 500, cursor: rpmBoost.pending ? 'default' : 'pointer', opacity: rpmBoost.pending ? 0.6 : 1 }}
+            >
+              +5 rpm ($7)
+            </button>
+            <button
+              onClick={rpmBoost.onRemove}
+              disabled={rpmBoost.pending || !rpmBoost.state?.units}
+              className="button-press"
+              style={{ padding: '7px 14px', borderRadius: '18px', border: '1px solid var(--border)', backgroundColor: 'transparent', color: 'var(--text)', fontSize: '12px', fontWeight: 500, cursor: rpmBoost.pending || !rpmBoost.state?.units ? 'default' : 'pointer', opacity: rpmBoost.pending || !rpmBoost.state?.units ? 0.5 : 1 }}
+            >
+              Remove one
+            </button>
+          </div>
+          {rpmBoost.message && (
+            <div style={{ fontSize: '11px', color: rpmBoost.message.ok ? '#16a34a' : '#ef4444', marginTop: '8px' }}>
+              {rpmBoost.message.text}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -104,6 +144,9 @@ export default function Pricing() {
   const [error, setError] = useState('');
   const [pendingId, setPendingId] = useState(null);
   const [results, setResults] = useState({});
+  const [rpmBoostState, setRpmBoostState] = useState(null);
+  const [rpmBoostPending, setRpmBoostPending] = useState(false);
+  const [rpmBoostMessage, setRpmBoostMessage] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -124,6 +167,59 @@ export default function Pricing() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setRpmBoostState(null);
+      return;
+    }
+    const token = sessionToken(user);
+    if (!token) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await authedRequest('/reselling/me', token, { method: 'GET' });
+        if (!cancelled && res.ok) {
+          setRpmBoostState({ units: res.data.rpm_boost_units, effectiveRPM: res.data.effective_rpm });
+        }
+      } catch (_) {
+        // Best-effort: no rpm-boost state shown just means the widget
+        // starts without a "currently Nrpm" line, not an error banner.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, user]);
+
+  const adjustRPMBoost = useCallback(
+    async (action) => {
+      if (!isAuthenticated) {
+        openAuthModal();
+        return;
+      }
+      const token = sessionToken(user);
+      if (!token) {
+        setRpmBoostMessage({ ok: false, text: 'No active session found — please sign in again.' });
+        return;
+      }
+      setRpmBoostPending(true);
+      try {
+        const res = await authedRequest(`/reselling/rpm-boost/${action}`, token, { method: 'POST' });
+        if (!res.ok) {
+          setRpmBoostMessage({ ok: false, text: res.data?.error?.message || `Failed (HTTP ${res.status})` });
+          return;
+        }
+        setRpmBoostState({ units: res.data.rpm_boost_units, effectiveRPM: res.data.effective_rpm });
+        setRpmBoostMessage({ ok: true, text: res.data.message || 'Updated.' });
+      } catch (err) {
+        setRpmBoostMessage({ ok: false, text: err.message || 'Request failed' });
+      } finally {
+        setRpmBoostPending(false);
+      }
+    },
+    [isAuthenticated, user, openAuthModal]
+  );
 
   const selectPlan = useCallback(
     async (tier) => {
@@ -197,14 +293,20 @@ export default function Pricing() {
 
         {tiers && tiers.map((tier, i) => {
           const isTokenMode = tier.billing_mode === 'token';
-          const features = isTokenMode
-            ? [`${formatLimit(tier.monthly_token_limit)} tokens included / month`, 'Unlimited access to all 150+ models', 'Automatic provider failover']
-            : [`${formatLimit(tier.daily_request_limit)} requests / day`, `${formatLimit(tier.tpm_limit)} tokens / minute`, 'Unlimited access to all 150+ models', 'Automatic provider failover'];
+          const isFairUseOnly = !isTokenMode && tier.daily_request_limit == null && tier.tpm_limit == null && tier.rpm_limit != null;
+          let features;
+          if (isTokenMode) {
+            features = [`${formatLimit(tier.monthly_token_limit)} tokens included / month`, 'Unlimited access to all 150+ models', 'Automatic provider failover'];
+          } else if (isFairUseOnly) {
+            features = [`${tier.rpm_limit} requests / minute (fair use)`, 'No daily cap, no token budget', 'Unlimited access to all 150+ models', 'Automatic provider failover'];
+          } else {
+            features = [`${formatLimit(tier.daily_request_limit)} requests / day`, `${formatLimit(tier.tpm_limit)} tokens / minute`, 'Unlimited access to all 150+ models', 'Automatic provider failover'];
+          }
           return (
             <PlanCard
               key={tier.id}
               icon={isTokenMode ? Layers : Zap}
-              badge={isTokenMode ? 'Token metered' : 'Request metered'}
+              badge={isFairUseOnly ? 'Fair use only' : isTokenMode ? 'Token metered' : 'Request metered'}
               name={tier.name}
               blurb={tier.description || (isTokenMode ? 'Token-metered plan' : 'Request-metered plan')}
               priceNode={
@@ -220,6 +322,19 @@ export default function Pricing() {
               actionOk={results[tier.id]?.ok}
               highlighted={i === 0}
               features={features}
+              rpmBoost={
+                tier.rpm_limit != null
+                  ? {
+                      unitSize: tier.rpm_boost_unit_size || 5,
+                      unitPrice: tier.rpm_boost_unit_price || 7,
+                      state: rpmBoostState,
+                      pending: rpmBoostPending,
+                      message: rpmBoostMessage,
+                      onAdd: () => adjustRPMBoost('add'),
+                      onRemove: () => adjustRPMBoost('remove'),
+                    }
+                  : null
+              }
             />
           );
         })}
@@ -252,8 +367,8 @@ export default function Pricing() {
             <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>Yes — plan changes take effect immediately right from this page.</div>
           </div>
           <div>
-            <div style={{ fontWeight: 500, fontSize: '15px', marginBottom: '4px' }}>What's the difference between token-metered and request-metered plans?</div>
-            <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>Token-metered plans (Pro/Max) cap total tokens used per month. Request-metered plans (Pro+/Max+) instead cap requests per day and tokens per minute, independently — useful if your traffic is bursty rather than steady.</div>
+            <div style={{ fontWeight: 500, fontSize: '15px', marginBottom: '4px' }}>What's the difference between token-metered, request-metered, and fair-use plans?</div>
+            <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>Max is token-metered: a total tokens/month budget. Pro+/Max+ are request-metered: a daily request cap plus a tokens/minute rate, both independent. Pro is fair-use only: no daily cap, no token budget — just a requests/minute throttle you can raise by buying more headroom.</div>
           </div>
           <div>
             <div style={{ fontWeight: 500, fontSize: '15px', marginBottom: '4px' }}>Need help picking a tier?</div>
