@@ -107,7 +107,7 @@ export default function ResellerDashboard() {
 
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
         <Link
-          to="/reseller/plan"
+          to="/pricing"
           style={{ padding: '9px 18px', borderRadius: '18px', border: '1px solid var(--border)', color: 'var(--text)', fontSize: '13px', fontWeight: 500 }}
         >
           Change plan

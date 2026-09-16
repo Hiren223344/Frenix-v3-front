@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import { Check, User, Layers, Zap, ExternalLink } from 'lucide-react';
+import { sessionToken, authedRequest } from './reseller/shared';
 
 function formatLimit(n) {
   if (n == null) return null;
@@ -10,8 +12,16 @@ function formatLimit(n) {
   return `${n}`;
 }
 
-function PlanCard({ icon: Icon, badge, name, blurb, priceNode, ctaTo, ctaLabel, external, features, highlighted }) {
+function PlanCard({ icon: Icon, badge, name, blurb, priceNode, ctaTo, ctaLabel, external, onAction, actionPending, actionMessage, actionOk, features, highlighted }) {
   const { accentDisplay } = useTheme();
+  const ctaStyle = {
+    width: '100%', padding: '11px 0',
+    border: highlighted ? 'none' : '1px solid var(--text)',
+    borderRadius: '22px', textAlign: 'center',
+    backgroundColor: highlighted ? 'var(--text)' : 'transparent',
+    color: highlighted ? 'var(--bg)' : 'var(--text)',
+    fontSize: '14px', fontWeight: 500,
+  };
   return (
     <div
       className="hover-lift"
@@ -52,29 +62,30 @@ function PlanCard({ icon: Icon, badge, name, blurb, priceNode, ctaTo, ctaLabel, 
           style={{
             width: '100%', padding: '11px 0', border: '1px solid var(--text)', borderRadius: '22px',
             textAlign: 'center', backgroundColor: 'transparent', color: 'var(--text)', fontSize: '14px',
-            fontWeight: 500, marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+            fontWeight: 500, marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
           }}
         >
           <span>{ctaLabel}</span>
           <ExternalLink size={14} />
         </a>
-      ) : (
-        <Link
-          to={ctaTo}
+      ) : onAction ? (
+        <button
+          onClick={onAction}
+          disabled={actionPending}
           className="button-press"
-          style={{
-            width: '100%', padding: '11px 0',
-            border: highlighted ? 'none' : '1px solid var(--text)',
-            borderRadius: '22px', textAlign: 'center',
-            backgroundColor: highlighted ? 'var(--text)' : 'transparent',
-            color: highlighted ? 'var(--bg)' : 'var(--text)',
-            fontSize: '14px', fontWeight: 500, marginBottom: '24px',
-          }}
+          style={{ ...ctaStyle, marginBottom: '10px', cursor: actionPending ? 'default' : 'pointer', opacity: actionPending ? 0.6 : 1 }}
         >
+          {actionPending ? 'Switching…' : ctaLabel}
+        </button>
+      ) : (
+        <Link to={ctaTo} className="button-press" style={{ ...ctaStyle, marginBottom: '10px' }}>
           {ctaLabel}
         </Link>
       )}
-      <div style={{ borderTop: '1px solid var(--border)', marginBottom: '18px' }} />
+      {actionMessage && (
+        <div style={{ fontSize: '11px', color: actionOk ? '#16a34a' : '#ef4444', marginBottom: '14px' }}>{actionMessage}</div>
+      )}
+      <div style={{ borderTop: '1px solid var(--border)', marginBottom: '18px', marginTop: actionMessage ? 0 : '14px' }} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px' }}>
         {features.map((f, i) => (
           <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -88,8 +99,11 @@ function PlanCard({ icon: Icon, badge, name, blurb, priceNode, ctaTo, ctaLabel, 
 
 export default function Pricing() {
   const { accentDisplay } = useTheme();
+  const { isAuthenticated, user, openAuthModal } = useAuth();
   const [tiers, setTiers] = useState(null);
   const [error, setError] = useState('');
+  const [pendingId, setPendingId] = useState(null);
+  const [results, setResults] = useState({});
 
   useEffect(() => {
     let cancelled = false;
@@ -110,6 +124,37 @@ export default function Pricing() {
       cancelled = true;
     };
   }, []);
+
+  const selectPlan = useCallback(
+    async (tier) => {
+      if (!isAuthenticated) {
+        openAuthModal();
+        return;
+      }
+      const token = sessionToken(user);
+      if (!token) {
+        setResults((r) => ({ ...r, [tier.id]: { ok: false, message: 'No active session found — please sign in again.' } }));
+        return;
+      }
+      setPendingId(tier.id);
+      try {
+        const res = await authedRequest('/reselling/plan', token, {
+          method: 'POST',
+          body: { pricing_group_id: tier.id },
+        });
+        if (!res.ok) {
+          setResults((r) => ({ ...r, [tier.id]: { ok: false, message: res.data?.error?.message || `Failed (HTTP ${res.status})` } }));
+          return;
+        }
+        setResults((r) => ({ ...r, [tier.id]: { ok: true, message: res.data?.message || 'Plan changed.' } }));
+      } catch (err) {
+        setResults((r) => ({ ...r, [tier.id]: { ok: false, message: err.message || 'Request failed' } }));
+      } finally {
+        setPendingId(null);
+      }
+    },
+    [isAuthenticated, user, openAuthModal]
+  );
 
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
@@ -168,8 +213,11 @@ export default function Pricing() {
                   <span style={{ fontSize: '13px', color: 'var(--muted)' }}>/ month</span>
                 </div>
               }
-              ctaTo="/reseller/plan"
-              ctaLabel={`Choose ${tier.name}`}
+              ctaLabel={isAuthenticated ? `Choose ${tier.name}` : 'Sign in to choose'}
+              onAction={() => selectPlan(tier)}
+              actionPending={pendingId === tier.id}
+              actionMessage={results[tier.id]?.message}
+              actionOk={results[tier.id]?.ok}
               highlighted={i === 0}
               features={features}
             />
@@ -201,7 +249,7 @@ export default function Pricing() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           <div>
             <div style={{ fontWeight: 500, fontSize: '15px', marginBottom: '4px' }}>Can I switch plans anytime?</div>
-            <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>Yes — plan changes take effect immediately from your <Link to="/reseller/plan" style={{ color: accentDisplay }}>Plan page</Link>.</div>
+            <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>Yes — plan changes take effect immediately right from this page.</div>
           </div>
           <div>
             <div style={{ fontWeight: 500, fontSize: '15px', marginBottom: '4px' }}>What's the difference between token-metered and request-metered plans?</div>

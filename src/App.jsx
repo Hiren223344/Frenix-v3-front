@@ -13,7 +13,6 @@ const MCP = lazy(() => import('./pages/MCP'));
 const Plugins = lazy(() => import('./pages/Plugins'));
 const ResellerLayout = lazy(() => import('./pages/reseller/Layout'));
 const ResellerDashboard = lazy(() => import('./pages/reseller/Dashboard'));
-const ResellerPlan = lazy(() => import('./pages/reseller/Plan'));
 const ResellerAddon = lazy(() => import('./pages/reseller/Addon'));
 const ResellerBuyers = lazy(() => import('./pages/reseller/Buyers'));
 const Status = lazy(() => import('./pages/Status'));
@@ -69,9 +68,11 @@ export default function App() {
         >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<ResellerDashboard />} />
-          <Route path="plan" element={<ResellerPlan />} />
           <Route path="addon" element={<ResellerAddon />} />
           <Route path="buyers" element={<ResellerBuyers />} />
+          {/* Catches stale /reseller/plan links now that plan selection
+              moved to /pricing. */}
+          <Route path="*" element={<Navigate to="/reseller/dashboard" replace />} />
         </Route>
         <Route path="status" element={<Status />} />
         <Route path="changelog" element={<Changelog />} />
