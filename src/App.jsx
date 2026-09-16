@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 const Home = lazy(() => import('./pages/Home'));
 const Pricing = lazy(() => import('./pages/Pricing'));
+const Templates = lazy(() => import('./pages/Templates'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Playground = lazy(() => import('./pages/Playground'));
 const Models = lazy(() => import('./pages/Models'));
@@ -27,6 +28,7 @@ export default function App() {
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="pricing" element={<Pricing />} />
+        <Route path="templates" element={<Templates />} />
         <Route
           path="dashboard"
           element={

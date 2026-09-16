@@ -23,7 +23,8 @@ import {
   UserCheck,
   Menu,
   X,
-  FlaskConical
+  FlaskConical,
+  LayoutTemplate
 } from 'lucide-react';
 import TelegramAuthModal from './TelegramAuthModal';
 import CookieNotice from './CookieNotice';
@@ -82,6 +83,8 @@ export default function Layout() {
     switch (location.pathname) {
       case '/pricing':
         return 'Pricing';
+      case '/templates':
+        return 'Website Templates';
       case '/dashboard':
         return 'Dashboard';
       case '/playground':
@@ -187,6 +190,10 @@ export default function Layout() {
             <NavLink to="/pricing" style={navLinkStyle}>
               <Tag size={16} style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Pricing</span>
+            </NavLink>
+            <NavLink to="/templates" style={navLinkStyle}>
+              <LayoutTemplate size={16} style={{ flexShrink: 0 }} />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Templates</span>
             </NavLink>
             <NavLink to="/dashboard" style={navLinkStyle}>
               <Terminal size={16} style={{ flexShrink: 0 }} />
