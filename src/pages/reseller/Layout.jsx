@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { AlertTriangle, LayoutDashboard, Puzzle, Users } from 'lucide-react';
+import { AlertTriangle, LayoutDashboard, Puzzle, Users, LayoutTemplate } from 'lucide-react';
 
 // Plan browsing/switching lives on the main Pricing page (see
 // src/pages/Pricing.jsx) — it applies to every account, reseller or not,
@@ -10,6 +10,7 @@ const TABS = [
   { to: '/reseller/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/reseller/addon', label: 'Addons', icon: Puzzle },
   { to: '/reseller/buyers', label: 'Buyers', icon: Users },
+  { to: '/reseller/templates', label: 'Templates', icon: LayoutTemplate },
 ];
 
 function TestOnlyBanner() {
@@ -51,8 +52,8 @@ const tabStyle = ({ isActive }) => ({
 });
 
 // Shared shell for the whole reseller self-service portal: the test-only
-// banner and the Dashboard/Addons/Buyers tab strip, with each tab's
-// page rendered through the Outlet. Mounted at /reseller/* behind
+// banner and the Dashboard/Addons/Buyers/Templates tab strip, with each
+// tab's page rendered through the Outlet. Mounted at /reseller/* behind
 // ProtectedRoute (see App.jsx) — every page under it assumes an
 // authenticated session, and each page handles for itself the case where
 // that session isn't a reseller tenant yet (GET /reselling/me 404s).
@@ -64,8 +65,8 @@ export default function ResellerLayout() {
           Reseller Portal (Test)
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '620px' }}>
-          Manage your addons and buyer price sheet — a live test surface against the backend, not
-          a finished self-serve product yet.
+          Manage your addons, buyer price sheet, and frontend design — a live test surface
+          against the backend, not a finished self-serve product yet.
         </p>
       </div>
 

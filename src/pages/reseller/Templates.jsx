@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutTemplate, Check, Users } from 'lucide-react';
+import { Check, Users } from 'lucide-react';
+import { ErrorNotice, LoadingNotice } from './EmptyState';
 
 // Curated accent pairs for the mockup previews below — deterministically
 // picked per template (by name) so the same design always gets the same
@@ -105,7 +106,11 @@ function TemplateCard({ template }) {
   );
 }
 
-export default function Templates() {
+// Browse the white-label frontend designs a reseller picks at upgrade
+// time. GET /reselling/templates is public/unauthenticated on the
+// backend (useful even before signing up), so this fetches without a
+// session token — same reasoning as the Pricing page's tier list.
+export default function ResellerTemplates() {
   const [templates, setTemplates] = useState(null);
   const [error, setError] = useState('');
 
@@ -130,29 +135,18 @@ export default function Templates() {
   }, []);
 
   return (
-    <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
-      <div style={{ marginBottom: '32px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-          <LayoutTemplate size={26} />
-          <h1 style={{ fontSize: '32px', fontWeight: 300, margin: 0, letterSpacing: '-0.01em' }}>Website Templates</h1>
-        </div>
-        <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '640px' }}>
-          The white-label frontend designs a reseller picks at upgrade time — a one-time design
-          fee, separate from the API plan itself. Previews below are generic placeholder mockups,
-          not real screenshots; no design images are stored in the system yet.
-        </p>
-        <p style={{ fontSize: '12px', color: '#f59e0b', margin: '10px 0 0 0' }}>
-          Testing only — not purchasable in production yet. Prices shown are informational.
-        </p>
-      </div>
+    <div>
+      <p style={{ fontSize: '13px', color: 'var(--muted)', margin: '0 0 18px 0' }}>
+        The white-label frontend designs you can pick at upgrade time — a one-time design fee,
+        separate from your API plan. Previews below are generic placeholder mockups, not real
+        screenshots; no design images are stored in the system yet.
+      </p>
 
-      {error && <div style={{ fontSize: '13px', color: '#ef4444', marginBottom: '24px' }}>{error}</div>}
-      {!templates && !error && (
-        <div style={{ fontSize: '13px', color: 'var(--muted)' }}>Loading templates…</div>
-      )}
+      {error && <ErrorNotice message={error} />}
+      {!templates && !error && <LoadingNotice label="Loading templates…" />}
 
       {templates && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
           {templates.map((template) => (
             <TemplateCard key={template.id} template={template} />
           ))}

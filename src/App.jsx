@@ -5,7 +5,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 const Home = lazy(() => import('./pages/Home'));
 const Pricing = lazy(() => import('./pages/Pricing'));
-const Templates = lazy(() => import('./pages/Templates'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Playground = lazy(() => import('./pages/Playground'));
 const Models = lazy(() => import('./pages/Models'));
@@ -16,6 +15,7 @@ const ResellerLayout = lazy(() => import('./pages/reseller/Layout'));
 const ResellerDashboard = lazy(() => import('./pages/reseller/Dashboard'));
 const ResellerAddon = lazy(() => import('./pages/reseller/Addon'));
 const ResellerBuyers = lazy(() => import('./pages/reseller/Buyers'));
+const ResellerTemplates = lazy(() => import('./pages/reseller/Templates'));
 const Status = lazy(() => import('./pages/Status'));
 const Changelog = lazy(() => import('./pages/Changelog'));
 const Terms = lazy(() => import('./pages/Terms'));
@@ -28,7 +28,6 @@ export default function App() {
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="pricing" element={<Pricing />} />
-        <Route path="templates" element={<Templates />} />
         <Route
           path="dashboard"
           element={
@@ -72,8 +71,8 @@ export default function App() {
           <Route path="dashboard" element={<ResellerDashboard />} />
           <Route path="addon" element={<ResellerAddon />} />
           <Route path="buyers" element={<ResellerBuyers />} />
-          {/* Catches stale /reseller/plan links now that plan selection
-              moved to /pricing. */}
+          <Route path="templates" element={<ResellerTemplates />} />
+          {/* Catches stale /reseller/plan and /templates links. */}
           <Route path="*" element={<Navigate to="/reseller/dashboard" replace />} />
         </Route>
         <Route path="status" element={<Status />} />
