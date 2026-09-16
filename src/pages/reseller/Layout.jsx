@@ -65,8 +65,7 @@ export default function ResellerLayout() {
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '620px' }}>
           Manage your addons and buyer price sheet — a live test surface against the backend, not
-          a finished self-serve product yet. Pick or switch your plan from the{' '}
-          <a href="/pricing">Pricing page</a>.
+          a finished self-serve product yet.
         </p>
       </div>
 

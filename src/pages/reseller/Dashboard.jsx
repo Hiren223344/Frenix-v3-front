@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Building2, Wallet, Clock, Package, Puzzle } from 'lucide-react';
+import { Building2, Wallet, Clock, Puzzle } from 'lucide-react';
 import { sessionToken, authedRequest } from './shared';
 import { NotATenantNotice, LoadingNotice, ErrorNotice } from './EmptyState';
 
@@ -66,8 +66,6 @@ export default function ResellerDashboard() {
   if (error) return <ErrorNotice message={error} />;
   if (!me) return <LoadingNotice label="Loading your dashboard…" />;
 
-  const isTokenMode = me.plan.billing_mode === 'token';
-
   return (
     <div>
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
@@ -89,12 +87,6 @@ export default function ResellerDashboard() {
           value={`$${(me.credit_balance / 1_000_000).toFixed(2)}`}
           sub={`started with $${(me.trial_credits_granted / 1_000_000).toFixed(2)} trial credit`}
         />
-        <StatCard
-          icon={Package}
-          label="Current plan"
-          value={me.plan.name}
-          sub={me.plan.price_monthly != null ? `$${me.plan.price_monthly.toFixed(2)}/mo · ${isTokenMode ? 'token' : 'request'} mode` : 'no monthly price set'}
-        />
         <StatCard icon={Puzzle} label="Active addons" value={me.active_addon_count} />
         {me.status === 'trial' && me.trial_expires_at && (
           <StatCard
@@ -106,12 +98,6 @@ export default function ResellerDashboard() {
       </div>
 
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-        <Link
-          to="/pricing"
-          style={{ padding: '9px 18px', borderRadius: '18px', border: '1px solid var(--border)', color: 'var(--text)', fontSize: '13px', fontWeight: 500 }}
-        >
-          Change plan
-        </Link>
         <Link
           to="/reseller/addon"
           style={{ padding: '9px 18px', borderRadius: '18px', border: '1px solid var(--border)', color: 'var(--text)', fontSize: '13px', fontWeight: 500 }}
