@@ -11,6 +11,7 @@ const Models = lazy(() => import('./pages/Models'));
 const Docs = lazy(() => import('./pages/Docs'));
 const MCP = lazy(() => import('./pages/MCP'));
 const Plugins = lazy(() => import('./pages/Plugins'));
+const Reselling = lazy(() => import('./pages/Reselling'));
 const Status = lazy(() => import('./pages/Status'));
 const Changelog = lazy(() => import('./pages/Changelog'));
 const Terms = lazy(() => import('./pages/Terms'));
@@ -50,6 +51,11 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        {/* Path is "reseller", not "reselling", to avoid colliding with
+            the backend's /reselling/* API prefix — a dev-proxy rule for
+            that prefix would otherwise intercept this page's own
+            navigation, not just its fetch() calls. */}
+        <Route path="reseller" element={<Reselling />} />
         <Route path="status" element={<Status />} />
         <Route path="changelog" element={<Changelog />} />
         <Route path="terms" element={<Terms />} />

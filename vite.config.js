@@ -53,6 +53,14 @@ export default defineConfig({
         headers: {
           Origin: 'https://frenix.sh'
         }
+      },
+      '/reselling': {
+        target: 'https://api.frenix.sh',
+        changeOrigin: true,
+        secure: true,
+        headers: {
+          Origin: 'https://frenix.sh'
+        }
       }
     }
   }

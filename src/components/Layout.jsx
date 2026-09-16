@@ -22,7 +22,8 @@ import {
   LogOut,
   UserCheck,
   Menu,
-  X
+  X,
+  FlaskConical
 } from 'lucide-react';
 import TelegramAuthModal from './TelegramAuthModal';
 import CookieNotice from './CookieNotice';
@@ -94,6 +95,8 @@ export default function Layout() {
         return 'Status';
       case '/changelog':
         return 'Changelog';
+      case '/reseller':
+        return 'Reseller Program (Test)';
       case '/terms':
         return 'Terms of Service';
       case '/privacy':
@@ -222,7 +225,11 @@ export default function Layout() {
               <GitCommit size={16} style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Changelog</span>
             </NavLink>
-            
+            <NavLink to="/reseller" style={navLinkStyle}>
+              <FlaskConical size={16} style={{ flexShrink: 0 }} />
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>Reseller (Test)</span>
+            </NavLink>
+
             {/* Support link directed to @frenix_bot on Telegram */}
             <a
               href="https://t.me/frenix_bot"
