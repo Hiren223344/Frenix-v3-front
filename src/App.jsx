@@ -11,7 +11,11 @@ const Models = lazy(() => import('./pages/Models'));
 const Docs = lazy(() => import('./pages/Docs'));
 const MCP = lazy(() => import('./pages/MCP'));
 const Plugins = lazy(() => import('./pages/Plugins'));
-const Reselling = lazy(() => import('./pages/Reselling'));
+const ResellerLayout = lazy(() => import('./pages/reseller/Layout'));
+const ResellerDashboard = lazy(() => import('./pages/reseller/Dashboard'));
+const ResellerPlan = lazy(() => import('./pages/reseller/Plan'));
+const ResellerAddon = lazy(() => import('./pages/reseller/Addon'));
+const ResellerBuyers = lazy(() => import('./pages/reseller/Buyers'));
 const Status = lazy(() => import('./pages/Status'));
 const Changelog = lazy(() => import('./pages/Changelog'));
 const Terms = lazy(() => import('./pages/Terms'));
@@ -55,7 +59,20 @@ export default function App() {
             the backend's /reselling/* API prefix — a dev-proxy rule for
             that prefix would otherwise intercept this page's own
             navigation, not just its fetch() calls. */}
-        <Route path="reseller" element={<Reselling />} />
+        <Route
+          path="reseller"
+          element={
+            <ProtectedRoute>
+              <ResellerLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<ResellerDashboard />} />
+          <Route path="plan" element={<ResellerPlan />} />
+          <Route path="addon" element={<ResellerAddon />} />
+          <Route path="buyers" element={<ResellerBuyers />} />
+        </Route>
         <Route path="status" element={<Status />} />
         <Route path="changelog" element={<Changelog />} />
         <Route path="terms" element={<Terms />} />

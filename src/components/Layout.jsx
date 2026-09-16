@@ -76,6 +76,9 @@ export default function Layout() {
   }, []);
 
   const getSectionTitle = () => {
+    if (location.pathname.startsWith('/reseller')) {
+      return 'Reseller Portal (Test)';
+    }
     switch (location.pathname) {
       case '/pricing':
         return 'Pricing';
@@ -95,8 +98,6 @@ export default function Layout() {
         return 'Status';
       case '/changelog':
         return 'Changelog';
-      case '/reseller':
-        return 'Reseller Program (Test)';
       case '/terms':
         return 'Terms of Service';
       case '/privacy':
