@@ -242,7 +242,12 @@ export default function Pricing() {
           setResults((r) => ({ ...r, [tier.id]: { ok: false, message: res.data?.error?.message || `Failed (HTTP ${res.status})` } }));
           return;
         }
-        setResults((r) => ({ ...r, [tier.id]: { ok: true, message: res.data?.message || 'Plan changed.' } }));
+        let message = res.data?.message || 'Plan changed.';
+        if (res.data?.plan_expires_at) {
+          const expiry = new Date(res.data.plan_expires_at);
+          message += ` Access lasts until ${expiry.toLocaleDateString()}.`;
+        }
+        setResults((r) => ({ ...r, [tier.id]: { ok: true, message } }));
       } catch (err) {
         setResults((r) => ({ ...r, [tier.id]: { ok: false, message: err.message || 'Request failed' } }));
       } finally {
@@ -293,6 +298,7 @@ export default function Pricing() {
 
         {tiers && tiers.map((tier, i) => {
           const isTokenMode = tier.billing_mode === 'token';
+          const isFixedDuration = tier.duration_days != null;
           const isFairUseOnly = !isTokenMode && tier.daily_request_limit == null && tier.tpm_limit == null && tier.rpm_limit != null;
           let features;
           if (isTokenMode) {
@@ -300,19 +306,23 @@ export default function Pricing() {
           } else if (isFairUseOnly) {
             features = [`${tier.rpm_limit} requests / minute (fair use)`, 'No daily cap, no token budget', 'Unlimited access to all 150+ models', 'Automatic provider failover'];
           } else {
-            features = [`${formatLimit(tier.daily_request_limit)} requests / day`, `${formatLimit(tier.tpm_limit)} tokens / minute`, 'Unlimited access to all 150+ models', 'Automatic provider failover'];
+            features = [];
+            if (tier.daily_request_limit != null) features.push(`${formatLimit(tier.daily_request_limit)} requests / day`);
+            if (tier.tpm_limit != null) features.push(`${formatLimit(tier.tpm_limit)} tokens / minute`);
+            if (tier.rpm_limit != null) features.push(`${tier.rpm_limit} requests / minute burst cap`);
+            features.push('Unlimited access to all 150+ models', 'Automatic provider failover');
           }
           return (
             <PlanCard
               key={tier.id}
               icon={isTokenMode ? Layers : Zap}
-              badge={isFairUseOnly ? 'Fair use only' : isTokenMode ? 'Token metered' : 'Request metered'}
+              badge={isFixedDuration ? `${tier.duration_days}-day pass` : isFairUseOnly ? 'Fair use only' : isTokenMode ? 'Token metered' : 'Request metered'}
               name={tier.name}
               blurb={tier.description || (isTokenMode ? 'Token-metered plan' : 'Request-metered plan')}
               priceNode={
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
                   <span style={{ fontSize: '32px', fontWeight: 300 }}>${tier.price_monthly?.toFixed(2)}</span>
-                  <span style={{ fontSize: '13px', color: 'var(--muted)' }}>/ month</span>
+                  <span style={{ fontSize: '13px', color: 'var(--muted)' }}>{isFixedDuration ? `/ ${tier.duration_days} days` : '/ month'}</span>
                 </div>
               }
               ctaLabel={isAuthenticated ? `Choose ${tier.name}` : 'Sign in to choose'}
@@ -369,6 +379,10 @@ export default function Pricing() {
           <div>
             <div style={{ fontWeight: 500, fontSize: '15px', marginBottom: '4px' }}>What's the difference between token-metered, request-metered, and fair-use plans?</div>
             <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>Max is token-metered: a total tokens/month budget. Pro+/Max+ are request-metered: a daily request cap plus a tokens/minute rate, both independent. Pro is fair-use only: no daily cap, no token budget — just a requests/minute throttle you can raise by buying more headroom.</div>
+          </div>
+          <div>
+            <div style={{ fontWeight: 500, fontSize: '15px', marginBottom: '4px' }}>What is the Starter plan?</div>
+            <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>Starter is a one-time 7-day pass, not a recurring monthly plan — it gives you Pro's requests/minute throttle plus a daily request and tokens/minute allowance on top, all for a single $10 payment. Once the 7 days are up, pick Starter again or switch to a monthly plan to keep going.</div>
           </div>
           <div>
             <div style={{ fontWeight: 500, fontSize: '15px', marginBottom: '4px' }}>Need help picking a tier?</div>
