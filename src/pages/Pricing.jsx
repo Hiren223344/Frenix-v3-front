@@ -377,12 +377,12 @@ export default function Pricing() {
             <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>Yes — plan changes take effect immediately right from this page.</div>
           </div>
           <div>
-            <div style={{ fontWeight: 500, fontSize: '15px', marginBottom: '4px' }}>What's the difference between token-metered, request-metered, and fair-use plans?</div>
-            <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>Max is token-metered: a total tokens/month budget. Pro+/Max+ are request-metered: a daily request cap plus a tokens/minute rate, both independent. Pro is fair-use only: no daily cap, no token budget — just a requests/minute throttle you can raise by buying more headroom.</div>
+            <div style={{ fontWeight: 500, fontSize: '15px', marginBottom: '4px' }}>What's the difference between Pro and Starter?</div>
+            <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>Both give you a 10 requests/minute throttle, but Pro is a recurring $40/month plan with no daily cap or token budget — fair use only, and you can raise the throttle by buying more headroom. Starter is a one-time $10 pass for 7 days, with a 500 requests/day and 20,000 tokens/minute allowance layered on top.</div>
           </div>
           <div>
             <div style={{ fontWeight: 500, fontSize: '15px', marginBottom: '4px' }}>What is the Starter plan?</div>
-            <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>Starter is a one-time 7-day pass, not a recurring monthly plan — it gives you Pro's requests/minute throttle plus a daily request and tokens/minute allowance on top, all for a single $10 payment. Once the 7 days are up, pick Starter again or switch to a monthly plan to keep going.</div>
+            <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>Starter is a one-time 7-day pass, not a recurring monthly plan — it gives you Pro's requests/minute throttle plus a daily request and tokens/minute allowance on top, all for a single $10 payment. Once the 7 days are up, pick Starter again or switch to Pro to keep going.</div>
           </div>
           <div>
             <div style={{ fontWeight: 500, fontSize: '15px', marginBottom: '4px' }}>Need help picking a tier?</div>
