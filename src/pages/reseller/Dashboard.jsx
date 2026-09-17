@@ -75,7 +75,20 @@ export default function ResellerDashboard() {
         <div>
           <div style={{ fontSize: '18px', fontWeight: 500 }}>{me.business_name}</div>
           <div style={{ fontSize: '12px', color: 'var(--muted)' }}>
-            {me.domain || 'no domain claimed'} · status: <strong>{me.status}</strong>
+            {me.domain ? (
+              <>
+                {me.domain} ·{' '}
+                {me.dns_verified_at ? (
+                  <span style={{ color: '#22c55e' }}>DNS verified</span>
+                ) : (
+                  <span style={{ color: '#f59e0b' }}>DNS not verified yet</span>
+                )}{' '}
+                ·{' '}
+              </>
+            ) : (
+              'no domain claimed · '
+            )}
+            status: <strong>{me.status}</strong>
           </div>
         </div>
       </div>
@@ -98,6 +111,12 @@ export default function ResellerDashboard() {
       </div>
 
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <Link
+          to={me.domain ? '/reseller/settings' : '/reseller/onboarding'}
+          style={{ padding: '9px 18px', borderRadius: '18px', border: '1px solid var(--border)', color: 'var(--text)', fontSize: '13px', fontWeight: 500 }}
+        >
+          {me.domain ? 'Manage domain' : 'Claim a domain'}
+        </Link>
         <Link
           to="/reseller/addon"
           style={{ padding: '9px 18px', borderRadius: '18px', border: '1px solid var(--border)', color: 'var(--text)', fontSize: '13px', fontWeight: 500 }}

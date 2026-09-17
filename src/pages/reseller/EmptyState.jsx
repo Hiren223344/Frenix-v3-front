@@ -1,12 +1,13 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Info } from 'lucide-react';
 
 // Shown on every /reseller/* page when the signed-in account isn't a
 // reseller tenant yet (every /reselling/* protected endpoint 404s with
 // "this account is not a reseller tenant" in that case — see the
-// backend's Handlers.tenants.GetByUserID checks). There's no trial-signup
-// form wired into this portal yet, so this just explains the gap rather
-// than pretending it's one click away.
+// backend's Handlers.tenants.GetByUserID checks). Points at the
+// onboarding wizard (see Onboarding.jsx) rather than the old advice to
+// call POST /reselling/trial by hand.
 export function NotATenantNotice() {
   return (
     <div
@@ -25,10 +26,11 @@ export function NotATenantNotice() {
     >
       <Info size={16} style={{ flexShrink: 0, marginTop: '1px' }} />
       <span>
-        This account isn't a reseller tenant yet (no trial-signup form is wired into this portal
-        yet — the backend's <code>POST /reselling/trial</code> endpoint exists, but this UI
-        doesn't call it). Sign up via that endpoint directly to get a tenant, then reload this
-        page.
+        This account isn't a reseller tenant yet.{' '}
+        <Link to="/reseller/onboarding" style={{ color: 'var(--text)', fontWeight: 500 }}>
+          Start onboarding
+        </Link>{' '}
+        to create your reseller account, claim a domain, and get an API key.
       </span>
     </div>
   );

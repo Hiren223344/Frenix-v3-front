@@ -12,10 +12,12 @@ const Docs = lazy(() => import('./pages/Docs'));
 const MCP = lazy(() => import('./pages/MCP'));
 const Plugins = lazy(() => import('./pages/Plugins'));
 const ResellerLayout = lazy(() => import('./pages/reseller/Layout'));
+const ResellerOnboarding = lazy(() => import('./pages/reseller/Onboarding'));
 const ResellerDashboard = lazy(() => import('./pages/reseller/Dashboard'));
 const ResellerAddon = lazy(() => import('./pages/reseller/Addon'));
 const ResellerBuyers = lazy(() => import('./pages/reseller/Buyers'));
 const ResellerTemplates = lazy(() => import('./pages/reseller/Templates'));
+const ResellerSettings = lazy(() => import('./pages/reseller/Settings'));
 const Status = lazy(() => import('./pages/Status'));
 const Changelog = lazy(() => import('./pages/Changelog'));
 const Terms = lazy(() => import('./pages/Terms'));
@@ -59,6 +61,17 @@ export default function App() {
             the backend's /reselling/* API prefix — a dev-proxy rule for
             that prefix would otherwise intercept this page's own
             navigation, not just its fetch() calls. */}
+        {/* Standalone, outside ResellerLayout's tab shell: the wizard runs
+            before a tenant exists, so the Dashboard/Addons/Buyers/Templates
+            tabs (which all assume one) would just be dead weight here. */}
+        <Route
+          path="reseller/onboarding"
+          element={
+            <ProtectedRoute>
+              <ResellerOnboarding />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="reseller"
           element={
@@ -72,6 +85,7 @@ export default function App() {
           <Route path="addon" element={<ResellerAddon />} />
           <Route path="buyers" element={<ResellerBuyers />} />
           <Route path="templates" element={<ResellerTemplates />} />
+          <Route path="settings" element={<ResellerSettings />} />
           {/* Catches stale /reseller/plan and /templates links. */}
           <Route path="*" element={<Navigate to="/reseller/dashboard" replace />} />
         </Route>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { AlertTriangle, LayoutDashboard, Puzzle, Users, LayoutTemplate } from 'lucide-react';
+import { AlertTriangle, LayoutDashboard, Puzzle, Users, LayoutTemplate, Settings as SettingsIcon } from 'lucide-react';
 
 // Plan browsing/switching lives on the main Pricing page (see
 // src/pages/Pricing.jsx) — it applies to every account, reseller or not,
@@ -11,6 +11,7 @@ const TABS = [
   { to: '/reseller/addon', label: 'Addons', icon: Puzzle },
   { to: '/reseller/buyers', label: 'Buyers', icon: Users },
   { to: '/reseller/templates', label: 'Templates', icon: LayoutTemplate },
+  { to: '/reseller/settings', label: 'Settings', icon: SettingsIcon },
 ];
 
 function TestOnlyBanner() {
