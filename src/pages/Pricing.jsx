@@ -98,41 +98,49 @@ function PlanCard({
         ))}
       </div>
 
-      {rpmBoost && (
-        <div style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px dashed var(--border)' }}>
-          <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '8px' }}>
-            Need more throughput? +{rpmBoost.unitSize}rpm for ${rpmBoost.unitPrice.toFixed(2)} each.
-            {rpmBoost.state && (
-              <>
-                {' '}Currently <strong>{rpmBoost.state.effectiveRPM}rpm</strong> ({rpmBoost.state.units} bought).
-              </>
+      {rpmBoost && (() => {
+        const units = rpmBoost.state?.units ?? 0;
+        const atMax = rpmBoost.maxUnits != null && units >= rpmBoost.maxUnits;
+        const addDisabled = rpmBoost.pending || atMax;
+        return (
+          <div style={{ marginTop: '18px', paddingTop: '16px', borderTop: '1px dashed var(--border)' }}>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '8px' }}>
+              Need more throughput? +{rpmBoost.unitSize}rpm for ${rpmBoost.unitPrice.toFixed(2)} each
+              {rpmBoost.maxUnits != null && `, up to ${rpmBoost.maxUnits} times`}.
+              {rpmBoost.state && (
+                <>
+                  {' '}Currently <strong>{rpmBoost.state.effectiveRPM}rpm</strong>
+                  {rpmBoost.maxUnits != null ? ` (${units} of ${rpmBoost.maxUnits} bought).` : ` (${units} bought).`}
+                </>
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={rpmBoost.onAdd}
+                disabled={addDisabled}
+                title={atMax ? `Maximum reached — remove one to buy again` : undefined}
+                className="button-press"
+                style={{ padding: '7px 14px', borderRadius: '18px', border: 'none', backgroundColor: 'var(--text)', color: 'var(--bg)', fontSize: '12px', fontWeight: 500, cursor: addDisabled ? 'default' : 'pointer', opacity: addDisabled ? 0.5 : 1 }}
+              >
+                {atMax ? 'Max reached' : `+${rpmBoost.unitSize} rpm ($${rpmBoost.unitPrice.toFixed(0)})`}
+              </button>
+              <button
+                onClick={rpmBoost.onRemove}
+                disabled={rpmBoost.pending || !units}
+                className="button-press"
+                style={{ padding: '7px 14px', borderRadius: '18px', border: '1px solid var(--border)', backgroundColor: 'transparent', color: 'var(--text)', fontSize: '12px', fontWeight: 500, cursor: rpmBoost.pending || !units ? 'default' : 'pointer', opacity: rpmBoost.pending || !units ? 0.5 : 1 }}
+              >
+                Remove one
+              </button>
+            </div>
+            {rpmBoost.message && (
+              <div style={{ fontSize: '11px', color: rpmBoost.message.ok ? '#16a34a' : '#ef4444', marginTop: '8px' }}>
+                {rpmBoost.message.text}
+              </div>
             )}
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={rpmBoost.onAdd}
-              disabled={rpmBoost.pending}
-              className="button-press"
-              style={{ padding: '7px 14px', borderRadius: '18px', border: 'none', backgroundColor: 'var(--text)', color: 'var(--bg)', fontSize: '12px', fontWeight: 500, cursor: rpmBoost.pending ? 'default' : 'pointer', opacity: rpmBoost.pending ? 0.6 : 1 }}
-            >
-              +5 rpm ($7)
-            </button>
-            <button
-              onClick={rpmBoost.onRemove}
-              disabled={rpmBoost.pending || !rpmBoost.state?.units}
-              className="button-press"
-              style={{ padding: '7px 14px', borderRadius: '18px', border: '1px solid var(--border)', backgroundColor: 'transparent', color: 'var(--text)', fontSize: '12px', fontWeight: 500, cursor: rpmBoost.pending || !rpmBoost.state?.units ? 'default' : 'pointer', opacity: rpmBoost.pending || !rpmBoost.state?.units ? 0.5 : 1 }}
-            >
-              Remove one
-            </button>
-          </div>
-          {rpmBoost.message && (
-            <div style={{ fontSize: '11px', color: rpmBoost.message.ok ? '#16a34a' : '#ef4444', marginTop: '8px' }}>
-              {rpmBoost.message.text}
-            </div>
-          )}
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
@@ -337,6 +345,7 @@ export default function Pricing() {
                   ? {
                       unitSize: tier.rpm_boost_unit_size || 5,
                       unitPrice: tier.rpm_boost_unit_price || 7,
+                      maxUnits: tier.rpm_boost_max_units,
                       state: rpmBoostState,
                       pending: rpmBoostPending,
                       message: rpmBoostMessage,
