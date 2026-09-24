@@ -1,8 +1,39 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Check, Users, Info } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { sessionToken, authedRequest } from './shared';
 import { ErrorNotice, LoadingNotice } from './EmptyState';
+
+const PADDLE_JS_SRC = 'https://cdn.paddle.com/paddle/v2/paddle.js';
+
+// Loads Paddle.js at most once per page load (checkout is the only place
+// on this site that needs it), and resolves once window.Paddle is
+// actually usable — a plain <script> tag's onload fires before Paddle has
+// finished its own internal setup in some browsers, so polling for the
+// global a few times is more reliable than trusting onload alone.
+function loadPaddleJs() {
+  if (window.Paddle) return Promise.resolve(window.Paddle);
+  if (window.__frenixPaddleJsPromise) return window.__frenixPaddleJsPromise;
+
+  window.__frenixPaddleJsPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = PADDLE_JS_SRC;
+    script.async = true;
+    script.onload = () => {
+      let attempts = 0;
+      const check = () => {
+        if (window.Paddle) return resolve(window.Paddle);
+        attempts += 1;
+        if (attempts > 50) return reject(new Error('Paddle.js loaded but window.Paddle never appeared'));
+        setTimeout(check, 100);
+      };
+      check();
+    };
+    script.onerror = () => reject(new Error('Failed to load Paddle.js'));
+    document.head.appendChild(script);
+  });
+  return window.__frenixPaddleJsPromise;
+}
 
 // Curated accent pairs for the mockup previews below — deterministically
 // picked per template (by name) so the same design always gets the same
@@ -226,6 +257,53 @@ export default function ResellerTemplates() {
   const [notice, setNotice] = useState('');
   const [pendingID, setPendingID] = useState(null);
   const [billingChoices, setBillingChoices] = useState({});
+  const paddleReady = useRef(null); // resolved Paddle config, or null until fetched
+
+  // Paddle is entirely optional server-side (see GET /reselling/paddle/config) —
+  // fetch its public config once so `choose` below knows whether a
+  // paddle_transaction_id in the upgrade response should actually open a
+  // real checkout overlay. No script is loaded until a paid choice needs it.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await window.secureRelayRequest('/reselling/paddle/config', { method: 'GET' });
+        if (!cancelled && res.ok) paddleReady.current = res.data;
+      } catch (_) {
+        // Paddle being unreachable just means checkout can't open — the
+        // upgrade call itself still succeeds with its old fallback message.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const openPaddleCheckout = useCallback(async (transactionId) => {
+    const cfg = paddleReady.current;
+    if (!cfg?.enabled || !cfg.client_token) return;
+    try {
+      const Paddle = await loadPaddleJs();
+      if (!Paddle.__frenixInitialized) {
+        Paddle.Environment.set(cfg.sandbox ? 'sandbox' : 'production');
+        Paddle.Setup({
+          token: cfg.client_token,
+          eventCallback: (event) => {
+            // The webhook is what actually activates the tenant — this just
+            // refreshes the page's own view once the overlay reports the
+            // checkout itself completed, so "Current template"/status catch
+            // up without the tenant needing to manually reload.
+            if (event.name === 'checkout.completed') load();
+          },
+        });
+        Paddle.__frenixInitialized = true;
+      }
+      Paddle.Checkout.open({ transactionId });
+    } catch (err) {
+      setError(err.message || 'Failed to open checkout');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -271,6 +349,9 @@ export default function ResellerTemplates() {
       }
       setNotice(res.data?.message || 'Template updated.');
       await load();
+      if (res.data?.paddle_transaction_id) {
+        await openPaddleCheckout(res.data.paddle_transaction_id);
+      }
     } catch (err) {
       setError(err.message || 'Request failed');
     } finally {
