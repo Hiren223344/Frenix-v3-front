@@ -1,10 +1,51 @@
-﻿import React from 'react';
+﻿import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import { Check, User, Layers, Shield, ExternalLink } from 'lucide-react';
 
 export default function Pricing() {
   const { accentDisplay } = useTheme();
+  const { user, isAuthenticated, openAuthModal } = useAuth();
+  const [proLoading, setProLoading] = useState(false);
+  const [proError, setProError] = useState('');
+
+  // Starts a GMPay Edge crypto checkout for the Pro tier (see
+  // internal/billing.GMPayCreate) — the amount is always resolved
+  // server-side, never sent from here. GMPay's hosted checkout
+  // (payment_url) is what we always get back since no token/network is
+  // specified, so we just hand the browser off to it rather than building
+  // a custom QR/address UI.
+  const handleChoosePro = async () => {
+    if (!isAuthenticated) {
+      openAuthModal();
+      return;
+    }
+    setProError('');
+    setProLoading(true);
+    try {
+      const token = user?.sessionToken || localStorage.getItem('frenix_session_token');
+      if (!token || !window.secureRelayRequest) {
+        throw new Error('No active session found. Please log in first.');
+      }
+      const res = await window.secureRelayRequest('/v1/billing/gmpay/create', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: {},
+      });
+      if (!res.ok || !res.data?.payment_url) {
+        if (res.status === 501) {
+          throw new Error('Crypto checkout is not available yet — check back soon.');
+        }
+        throw new Error(res.data?.error?.message || `Failed to start checkout (HTTP ${res.status})`);
+      }
+      window.open(res.data.payment_url, '_blank', 'noopener,noreferrer');
+    } catch (err) {
+      setProError(err.message || 'Failed to start checkout.');
+    } finally {
+      setProLoading(false);
+    }
+  };
 
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
@@ -70,7 +111,7 @@ export default function Pricing() {
               <Layers size={20} />
             </div>
             <div style={{ fontSize: '11px', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '999px', padding: '3px 10px' }}>
-              20 RPM
+              10 RPM
             </div>
           </div>
           <div style={{ fontSize: '20px', fontWeight: 500, marginBottom: '4px' }}>Pro</div>
@@ -79,8 +120,10 @@ export default function Pricing() {
             <span style={{ fontSize: '32px', fontWeight: 300 }}>$30</span>
             <span style={{ fontSize: '13px', color: 'var(--muted)' }}>/ month</span>
           </div>
-          <Link
-            to="/dashboard"
+          <button
+            type="button"
+            onClick={handleChoosePro}
+            disabled={proLoading}
             className="button-press"
             style={{
               width: '100%',
@@ -91,15 +134,21 @@ export default function Pricing() {
               color: 'var(--bg)',
               fontSize: '14px',
               fontWeight: 500,
-              marginBottom: '24px',
+              marginBottom: proError ? '10px' : '24px',
+              border: 'none',
+              cursor: proLoading ? 'default' : 'pointer',
+              opacity: proLoading ? 0.7 : 1,
             }}
           >
-            Choose Pro
-          </Link>
+            {proLoading ? 'Starting checkout…' : 'Choose Pro'}
+          </button>
+          {proError && (
+            <div style={{ fontSize: '12px', color: '#e5484d', marginBottom: '24px', lineHeight: 1.5 }}>{proError}</div>
+          )}
           <div style={{ borderTop: '1px solid var(--border)', marginBottom: '18px' }} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px' }}>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> Unlimited access to all 150+ models</div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> <strong>20 requests per minute (20 RPM)</strong></div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> <strong>10 requests per minute (10 RPM)</strong></div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> Claude Code, Codex, Cline support</div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> Automatic provider failover</div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> Unlimited API key management</div>
