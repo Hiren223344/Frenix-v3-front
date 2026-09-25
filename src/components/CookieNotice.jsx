@@ -36,11 +36,11 @@ export default function CookieNotice() {
     <div
       role="region"
       aria-label="Cookie notice"
+      className="frenix-cookie-notice"
       style={{
         position: 'fixed',
         left: '16px',
         right: '16px',
-        bottom: '16px',
         zIndex: 9998,
         maxWidth: '560px',
         margin: '0 auto',
