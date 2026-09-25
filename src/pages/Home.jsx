@@ -5,7 +5,7 @@ import { BotAvatar } from 'bot-avatars';
 import { MetalFx } from 'metal-fx';
 import { useTheme } from '../context/ThemeContext';
 import { Reveal, ScrollReveal } from '../components/animations';
-import dashboardPreview from '../assets/dashboard-preview.jpg';
+import NetworkDiagram from '../components/NetworkDiagram';
 import {
   Check,
   Copy,
@@ -166,11 +166,7 @@ export default function Home() {
         </div>
 
         <BorderBeam size="md" colorVariant="mono" strength={0.4} theme={beamTheme} style={{ display: 'block' }}>
-          <img
-            src={dashboardPreview}
-            alt="Frenix dashboard showing credits, usage, and API keys"
-            style={{ display: 'block', width: '100%', height: 'auto', borderRadius: '18px' }}
-          />
+          <NetworkDiagram />
         </BorderBeam>
       </section>
 

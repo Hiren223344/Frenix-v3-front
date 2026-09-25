@@ -140,6 +140,14 @@ button {
   display: inline-block;
 }
 
+/* NetworkDiagram (src/components/NetworkDiagram.jsx) */
+@keyframes frenixLiveDotBlink {
+  50% { opacity: 0; }
+}
+@keyframes frenixFlowDash {
+  to { stroke-dashoffset: -16; }
+}
+
 .code-font {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 }
