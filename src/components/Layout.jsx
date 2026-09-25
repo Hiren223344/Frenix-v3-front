@@ -3,7 +3,9 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import { BotAvatar } from 'bot-avatars';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useTranslate } from '../context/LanguageContext';
 import { SoundToggle } from './sound';
+import LanguageSwitcher from './LanguageSwitcher';
 import {
   AnimatedSidebar,
   AnimatedSidebarClose,
@@ -34,7 +36,6 @@ import {
   MessageCircle,
   Sun,
   Moon,
-  Globe,
   ExternalLink,
   Send,
   LogOut,
@@ -85,6 +86,7 @@ const MOBILE_TAB_NAV = [
 export default function Layout() {
   const { isDark, toggleTheme, accentDisplay } = useTheme();
   const { user, isAuthenticated, logout, openAuthModal } = useAuth();
+  const t = useTranslate();
   const location = useLocation();
   // The version shown next to the logo comes from the gateway itself
   // (GET /v1/status), not a hardcoded frontend constant, so the sidebar
@@ -119,31 +121,31 @@ export default function Layout() {
   const getSectionTitle = () => {
     switch (location.pathname) {
       case '/pricing':
-        return 'Pricing';
+        return t('Pricing');
       case '/dashboard':
-        return 'Dashboard';
+        return t('Dashboard');
       case '/playground':
-        return 'Playground';
+        return t('Playground');
       case '/models':
-        return 'Models';
+        return t('Models');
       case '/docs':
-        return 'Documentation';
+        return t('Documentation');
       case '/mcp':
-        return 'MCP Gateway';
+        return t('MCP Gateway');
       case '/plugins':
-        return 'Plugins';
+        return t('Plugins');
       case '/status':
-        return 'Status';
+        return t('Status');
       case '/changelog':
-        return 'Changelog';
+        return t('Changelog');
       case '/terms':
-        return 'Terms of Service';
+        return t('Terms of Service');
       case '/privacy':
-        return 'Privacy Policy';
+        return t('Privacy Policy');
       case '/cookies':
-        return 'Cookie Policy';
+        return t('Cookie Policy');
       default:
-        return 'AI gateway';
+        return t('AI gateway');
     }
   };
 
@@ -156,7 +158,7 @@ export default function Layout() {
 
       <AnimatedSidebarProvider style={{ maxWidth: '1600px', width: '100%', margin: '0 auto', flex: 1 }}>
         <AnimatedSidebar
-          ariaLabel="Frenix navigation"
+          ariaLabel={t('Frenix navigation')}
           collapsible="icon"
           panelClassName="border-border bg-background"
         >
@@ -208,7 +210,7 @@ export default function Layout() {
                         isActive={isNavActive(item)}
                         icon={<item.Icon size={16} />}
                       >
-                        {item.label}
+                        {t(item.label)}
                       </AnimatedSidebarMenuButton>
                     </AnimatedSidebarMenuItem>
                   ))}
@@ -227,7 +229,7 @@ export default function Layout() {
                         isActive={isNavActive(item)}
                         icon={<item.Icon size={16} />}
                       >
-                        {item.label}
+                        {t(item.label)}
                       </AnimatedSidebarMenuButton>
                     </AnimatedSidebarMenuItem>
                   ))}
@@ -237,7 +239,7 @@ export default function Layout() {
                       icon={<MessageCircle size={16} />}
                       badge={<ExternalLink size={11} style={{ opacity: 0.7 }} />}
                     >
-                      Support
+                      {t('Support')}
                     </AnimatedSidebarMenuButton>
                   </AnimatedSidebarMenuItem>
                 </AnimatedSidebarMenu>
@@ -248,19 +250,15 @@ export default function Layout() {
           <AnimatedSidebarFooter className="gap-2 border-t border-border p-3">
             {/* Bottom language / theme */}
             <div className="flex items-center justify-between px-0.5">
-              <div
-                className="flex items-center gap-1.5 group-data-[state=collapsed]/sidebar:hidden"
-                style={{ fontSize: '12px', color: 'var(--muted)' }}
-              >
-                <Globe size={14} />
-                <span>EN</span>
+              <div className="group-data-[state=collapsed]/sidebar:hidden">
+                <LanguageSwitcher />
               </div>
               <div className="ml-auto flex items-center gap-0.5">
                 <SoundToggle />
                 <button
                   data-slot="button"
                   onClick={toggleTheme}
-                  aria-label="Toggle dark mode"
+                  aria-label={t('Toggle dark mode')}
                   style={{
                     border: 'none',
                     background: 'none',
@@ -293,7 +291,7 @@ export default function Layout() {
                 </div>
                 <button
                   onClick={logout}
-                  title="Sign out"
+                  title={t('Sign out')}
                   className="group-data-[state=collapsed]/sidebar:hidden"
                   style={{
                     background: 'none',
@@ -327,7 +325,7 @@ export default function Layout() {
                 }}
               >
                 <Send size={14} />
-                <span className="group-data-[state=collapsed]/sidebar:hidden">Sign in with Telegram</span>
+                <span className="group-data-[state=collapsed]/sidebar:hidden">{t('Sign in with Telegram')}</span>
               </button>
             )}
           </AnimatedSidebarFooter>
@@ -361,7 +359,7 @@ export default function Layout() {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 0' }}>
                 <AnimatedSidebarTrigger
-                  aria-label="Toggle sidebar"
+                  aria-label={t('Toggle sidebar')}
                   className="text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >
                   <PanelLeft size={18} />
@@ -376,7 +374,7 @@ export default function Layout() {
                   onMouseEnter={(e) => (e.currentTarget.style.color = accentDisplay)}
                   onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text)')}
                 >
-                  Read documentation
+                  {t('Read documentation')}
                 </Link>
 
                 {isAuthenticated ? (
@@ -410,7 +408,7 @@ export default function Layout() {
                         cursor: 'pointer',
                       }}
                     >
-                      Sign out
+                      {t('Sign out')}
                     </button>
                   </div>
                 ) : (
@@ -431,7 +429,7 @@ export default function Layout() {
                     }}
                   >
                     <Send size={14} />
-                    <span>Sign in with Telegram</span>
+                    <span>{t('Sign in with Telegram')}</span>
                   </button>
                 )}
               </div>
@@ -466,43 +464,43 @@ export default function Layout() {
               <div style={{ fontWeight: 600, fontSize: '15px' }}>Frenix</div>
               <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
                 <Link to="/" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
-                  Home
+                  {t('Home')}
                 </Link>
                 <Link to="/pricing" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
-                  Pricing
+                  {t('Pricing')}
                 </Link>
                 <Link to="/models" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
-                  Models
+                  {t('Models')}
                 </Link>
                 <Link to="/docs" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
-                  Documentation
+                  {t('Documentation')}
                 </Link>
                 <Link to="/mcp" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
                   MCP
                 </Link>
                 <Link to="/plugins" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
-                  Plugins
+                  {t('Plugins')}
                 </Link>
                 <Link to="/status" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
-                  Status
+                  {t('Status')}
                 </Link>
                 <Link to="/changelog" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
-                  Changelog
+                  {t('Changelog')}
                 </Link>
                 <Link to="/terms" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
-                  Terms
+                  {t('Terms')}
                 </Link>
                 <Link to="/privacy" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
-                  Privacy
+                  {t('Privacy')}
                 </Link>
                 <Link to="/cookies" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
-                  Cookies
+                  {t('Cookies')}
                 </Link>
                 <a href="https://t.me/frenix_bot" target="_blank" rel="noopener noreferrer" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
-                  Telegram Support (@frenix_bot)
+                  {t('Telegram Support (@frenix_bot)')}
                 </a>
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--muted)' }}>&copy; 2026 Frenix. All rights reserved.</div>
+              <div style={{ fontSize: '13px', color: 'var(--muted)' }}>{t('© 2026 Frenix. All rights reserved.')}</div>
             </div>
           </footer>
           )}
@@ -548,12 +546,12 @@ export default function Layout() {
                 }}
               >
                 <item.Icon size={19} />
-                <span>{item.label}</span>
+                <span>{t(item.label)}</span>
               </Link>
             );
           })}
           <AnimatedSidebarTrigger
-            aria-label="Open full menu"
+            aria-label={t('Open full menu')}
             className="text-muted-foreground hover:bg-transparent hover:text-foreground"
             style={{
               flex: 1,
@@ -570,7 +568,7 @@ export default function Layout() {
             }}
           >
             <Menu size={19} />
-            <span>More</span>
+            <span>{t('More')}</span>
           </AnimatedSidebarTrigger>
         </nav>
       </AnimatedSidebarProvider>

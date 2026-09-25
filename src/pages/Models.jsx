@@ -1,6 +1,7 @@
 ﻿import React, { useState, useMemo, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useTranslate } from '../context/LanguageContext';
 import { Search, Cpu, Filter, Check, Copy, Wifi, Lock } from 'lucide-react';
 import { resolveProviderIcons, displayProviderFor } from '../components/icons/BrandIcons';
 import SplitText from '../components/ui/split-text';
@@ -106,6 +107,7 @@ const MODEL_DATA = [
 export default function Models() {
   const { accentDisplay } = useTheme();
   const { user } = useAuth();
+  const t = useTranslate();
   const [searchTerm, setSearchTerm] = useState('');
   const [copiedId, setCopiedId] = useState(null);
   const [selectedProvider, setSelectedProvider] = useState('All');
@@ -164,10 +166,10 @@ export default function Models() {
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
       <div style={{ marginBottom: '36px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-          <SplitText tag="h1" text="Models Directory" className="frenix-page-title" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
+          <SplitText tag="h1" text={t('Models Directory')} className="frenix-page-title" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
           {liveData && (
             <span
-              title="Showing models available on your account right now"
+              title={t('Showing models available on your account right now')}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -181,14 +183,14 @@ export default function Models() {
               }}
             >
               <Wifi size={11} />
-              Live
+              {t('Live')}
             </span>
           )}
         </div>
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: '0 0 24px 0', maxWidth: '640px' }}>
           {liveData
-            ? 'Models available on your account right now, fetched live from the gateway. Switch any model instantaneously by passing its ID in your existing client.'
-            : '150+ models across every major provider behind one unified endpoint. Switch any model instantaneously by passing its ID in your existing client.'}
+            ? t('Models available on your account right now, fetched live from the gateway. Switch any model instantaneously by passing its ID in your existing client.')
+            : t('150+ models across every major provider behind one unified endpoint. Switch any model instantaneously by passing its ID in your existing client.')}
         </p>
 
         {/* Search Bar */}
@@ -198,7 +200,7 @@ export default function Models() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Filter models by name, slug or capability (e.g. gpt-5, opus, reasoning)..."
+            placeholder={t('Filter models by name, slug or capability (e.g. gpt-5, opus, reasoning)...')}
             className="code-font hover-lift"
             style={{
               width: '100%',
@@ -233,7 +235,7 @@ export default function Models() {
                   transition: 'all 0.18s ease',
                 }}
               >
-                {p}
+                {p === 'All' ? t('All') : p}
               </button>
             );
           })}
@@ -243,7 +245,7 @@ export default function Models() {
       {/* Model Cards / Listings */}
       {filteredData.length === 0 ? (
         <div style={{ padding: '48px 0', textAlign: 'center', color: 'var(--muted)' }}>
-          No models found matching "{searchTerm}". Try a different search term.
+          {t('No models found matching')} "{searchTerm}". {t('Try a different search term.')}
         </div>
       ) : (
         filteredData.map((group) => {
@@ -299,7 +301,7 @@ export default function Models() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                           {!isAccessible && (
                             <span
-                              title="Listed for visibility only — paid-tier models are served through a separate endpoint, not /v1/chat/completions or /v1/embeddings"
+                              title={t('Listed for visibility only — paid-tier models are served through a separate endpoint, not /v1/chat/completions or /v1/embeddings')}
                               style={{
                                 display: 'flex',
                                 alignItems: 'center',
@@ -312,7 +314,7 @@ export default function Models() {
                               }}
                             >
                               <Lock size={10} />
-                              Separate endpoint
+                              {t('Separate endpoint')}
                             </span>
                           )}
                           <span
@@ -324,12 +326,12 @@ export default function Models() {
                               color: 'var(--muted)',
                             }}
                           >
-                            {m.tier}
+                            {t(m.tier)}
                           </span>
                         </div>
                       </div>
                       <p style={{ fontSize: '13px', color: 'var(--muted)', margin: '0 0 12px 0', lineHeight: 1.5 }}>
-                        {m.type}
+                        {t(m.type)}
                       </p>
                     </div>
 
@@ -354,7 +356,7 @@ export default function Models() {
                         }}
                       >
                         {isCopied ? <Check size={12} className="animate-popIn" /> : <Copy size={12} />}
-                        <span>{isCopied ? 'Copied' : m.id}</span>
+                        <span>{isCopied ? t('Copied') : m.id}</span>
                       </button>
                     </div>
                   </div>

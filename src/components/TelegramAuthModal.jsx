@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslate } from '../context/LanguageContext';
 import { Send, X, Shield, ExternalLink, RefreshCw } from 'lucide-react';
 
 // Use local proxy or direct API endpoint
@@ -9,6 +10,7 @@ const API_BASE = typeof window !== 'undefined' && window.location.hostname === '
 
 export default function TelegramAuthModal() {
   const { isAuthModalOpen, closeAuthModal, loginWithSession } = useAuth();
+  const t = useTranslate();
   const [step, setStep] = useState('ready'); // 'ready' | 'loading' | 'waiting' | 'expired' | 'error'
   const [errorMessage, setErrorMessage] = useState('');
   const [botDeepLink, setBotDeepLink] = useState('');
@@ -131,7 +133,7 @@ export default function TelegramAuthModal() {
     } catch (err) {
       console.error('Telegram auth start error:', err);
       // Fallback if network blocked or CORS error occurs
-      setErrorMessage(err.message || 'Unable to connect to Frenix auth service.');
+      setErrorMessage(err.message || t('Unable to connect to Frenix auth service.'));
       setStep('error');
     }
   };
@@ -173,7 +175,7 @@ export default function TelegramAuthModal() {
       >
         <button
           onClick={handleClose}
-          aria-label="Close modal"
+          aria-label={t('Close modal')}
           className="button-press"
           style={{
             position: 'absolute',
@@ -211,20 +213,20 @@ export default function TelegramAuthModal() {
         </div>
 
         <h2 style={{ margin: '0 0 6px 0', fontSize: '20px', fontWeight: 500, letterSpacing: '-0.01em' }}>
-          Sign in via Telegram
+          {t('Sign in via Telegram')}
         </h2>
         <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: 'var(--muted)', lineHeight: 1.5 }}>
-          Click below to verify with <strong style={{ color: 'var(--text)' }}>@frenix_bot</strong> on Telegram. No username or password required.
+          {t('Click below to verify with')} <strong style={{ color: 'var(--text)' }}>@frenix_bot</strong> {t('on Telegram. No username or password required.')}
         </p>
 
         {step === 'loading' && (
           <div style={{ padding: '20px', backgroundColor: 'var(--hover-bg)', borderRadius: '14px', border: '1px solid var(--border)', marginBottom: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '13px', fontWeight: 500, marginBottom: '4px' }}>
               <RefreshCw size={14} className="animate-spin" />
-              <span>Generating secure Telegram session...</span>
+              <span>{t('Generating secure Telegram session...')}</span>
             </div>
             <div style={{ fontSize: '12px', color: 'var(--muted)' }}>
-              Connecting to https://api.frenix.sh/v1/auth/telegram/start
+              {t('Connecting to')} https://api.frenix.sh/v1/auth/telegram/start
             </div>
           </div>
         )}
@@ -232,10 +234,10 @@ export default function TelegramAuthModal() {
         {step === 'waiting' && (
           <div style={{ padding: '18px', backgroundColor: 'var(--hover-bg)', borderRadius: '14px', border: '1px solid var(--border)', marginBottom: '14px' }}>
             <div style={{ fontSize: '13px', fontWeight: 500, marginBottom: '6px' }}>
-              Waiting for @frenix_bot confirmation...
+              {t('Waiting for @frenix_bot confirmation...')}
             </div>
             <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '12px' }}>
-              Click <strong>Start</strong> in the Telegram chat window to authenticate.
+              {t('Click')} <strong>{t('Start')}</strong> {t('in the Telegram chat window to authenticate.')}
             </div>
             {botDeepLink && (
               <a
@@ -251,7 +253,7 @@ export default function TelegramAuthModal() {
                   textDecoration: 'underline',
                 }}
               >
-                <span>Re-open @frenix_bot</span>
+                <span>{t('Re-open @frenix_bot')}</span>
                 <ExternalLink size={12} />
               </a>
             )}
@@ -261,10 +263,10 @@ export default function TelegramAuthModal() {
         {step === 'expired' && (
           <div style={{ padding: '16px', backgroundColor: 'var(--hover-bg)', borderRadius: '14px', border: '1px solid var(--border)', marginBottom: '14px' }}>
             <div style={{ fontSize: '13px', fontWeight: 500, color: '#ef4444', marginBottom: '4px' }}>
-              Authentication session expired
+              {t('Authentication session expired')}
             </div>
             <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '10px' }}>
-              Sessions expire after 10 minutes. Click below to generate a new session.
+              {t('Sessions expire after 10 minutes. Click below to generate a new session.')}
             </div>
             <button
               onClick={handleStartTelegramAuth}
@@ -279,7 +281,7 @@ export default function TelegramAuthModal() {
                 cursor: 'pointer',
               }}
             >
-              Retry
+              {t('Retry')}
             </button>
           </div>
         )}
@@ -287,10 +289,10 @@ export default function TelegramAuthModal() {
         {step === 'error' && (
           <div style={{ padding: '16px', backgroundColor: 'var(--hover-bg)', borderRadius: '14px', border: '1px solid var(--border)', marginBottom: '14px' }}>
             <div style={{ fontSize: '13px', fontWeight: 500, color: '#ef4444', marginBottom: '4px' }}>
-              Connection Error
+              {t('Connection Error')}
             </div>
             <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '10px' }}>
-              {errorMessage || 'Failed to communicate with auth endpoint.'}
+              {errorMessage || t('Failed to communicate with auth endpoint.')}
             </div>
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
               <button
@@ -306,7 +308,7 @@ export default function TelegramAuthModal() {
                   cursor: 'pointer',
                 }}
               >
-                Try Again
+                {t('Try Again')}
               </button>
             </div>
           </div>
@@ -335,14 +337,14 @@ export default function TelegramAuthModal() {
             }}
           >
             <Send size={15} />
-            <span>Open @frenix_bot &amp; Verify</span>
+            <span>{t('Open @frenix_bot & Verify')}</span>
             <ExternalLink size={13} style={{ opacity: 0.7 }} />
           </button>
         )}
 
         <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '12px', color: 'var(--muted)' }}>
           <Shield size={13} color="#16a34a" />
-          <span>Verified authorization via @frenix_bot</span>
+          <span>{t('Verified authorization via @frenix_bot')}</span>
         </div>
       </div>
     </div>

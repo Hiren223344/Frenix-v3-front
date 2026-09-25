@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { CheckCircle2, AlertCircle, XCircle, HelpCircle, RefreshCw } from 'lucide-react';
 import { resolveProviderIcons, displayProviderFor } from '../components/icons/BrandIcons';
 import SplitText from '../components/ui/split-text';
+import { useTranslate } from '../context/LanguageContext';
 
 const STATUS_URL = typeof window !== 'undefined' && window.location.hostname === 'frenix.sh'
   ? 'https://api.frenix.sh/v1/status'
@@ -35,6 +36,7 @@ const OVERALL_LABEL = {
 };
 
 export default function Status() {
+  const t = useTranslate();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -57,7 +59,7 @@ export default function Status() {
       setError(null);
     } catch (err) {
       console.warn('Status fetch failed:', err);
-      setError('Unable to reach the status service.');
+      setError(t('Unable to reach the status service.'));
     } finally {
       setLastChecked(new Date());
       setIsRefreshing(false);
@@ -79,7 +81,7 @@ export default function Status() {
       {/* Top Banner */}
       <div style={{ marginBottom: '36px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '8px' }}>
-          <SplitText tag="h1" text="System Status" className="frenix-page-title" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
+          <SplitText tag="h1" text={t('System Status')} className="frenix-page-title" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
           <button
             onClick={fetchStatus}
             className="button-press"
@@ -97,11 +99,11 @@ export default function Status() {
             }}
           >
             <RefreshCw size={13} style={{ transition: 'transform 0.5s ease', transform: isRefreshing ? 'rotate(360deg)' : 'none' }} />
-            <span>{lastChecked ? `Checked ${lastChecked.toLocaleTimeString()}` : 'Checking…'}</span>
+            <span>{lastChecked ? `${t('Checked')} ${lastChecked.toLocaleTimeString()}` : t('Checking…')}</span>
           </button>
         </div>
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '640px' }}>
-          Live model and backend health, read directly from the gateway's own routing state.
+          {t("Live model and backend health, read directly from the gateway's own routing state.")}
         </p>
       </div>
 
@@ -133,14 +135,14 @@ export default function Status() {
             }}
           />
           <span style={{ fontSize: '16px', fontWeight: 500 }}>
-            {error ? 'Status Unavailable' : overall ? OVERALL_LABEL[overall] : 'Checking…'}
+            {error ? t('Status Unavailable') : overall ? t(OVERALL_LABEL[overall]) : t('Checking…')}
           </span>
         </div>
         {!error && data && (
           <div style={{ display: 'flex', gap: '20px', fontSize: '13px', color: 'var(--muted)' }}>
-            <div>Models tracked: <strong style={{ color: 'var(--text)' }}>{models.length}</strong></div>
+            <div>{t('Models tracked:')} <strong style={{ color: 'var(--text)' }}>{models.length}</strong></div>
             {data.checked_at && (
-              <div>Snapshot at: <strong style={{ color: 'var(--text)' }}>{new Date(data.checked_at).toLocaleTimeString()}</strong></div>
+              <div>{t('Snapshot at:')} <strong style={{ color: 'var(--text)' }}>{new Date(data.checked_at).toLocaleTimeString()}</strong></div>
             )}
           </div>
         )}
@@ -148,11 +150,11 @@ export default function Status() {
 
       {error ? (
         <div style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '20px', backgroundColor: 'var(--card)', color: 'var(--muted)', fontSize: '13px' }}>
-          {error} This page only shows live data from the gateway — it won't display placeholder health information while the status service is unreachable.
+          {error} {t("This page only shows live data from the gateway — it won't display placeholder health information while the status service is unreachable.")}
         </div>
       ) : (
         <div>
-          <h2 style={{ fontSize: '20px', fontWeight: 400, margin: '0 0 16px 0' }}>Model &amp; Backend Health</h2>
+          <h2 style={{ fontSize: '20px', fontWeight: 400, margin: '0 0 16px 0' }}>{t('Model & Backend Health')}</h2>
           <div style={{ border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden', backgroundColor: 'var(--card)' }}>
             <div
               className="frenix-status-header"
@@ -166,15 +168,15 @@ export default function Status() {
                 letterSpacing: '0.04em',
               }}
             >
-              <div>Model</div>
-              <div>Provider</div>
-              <div>Status</div>
-              <div>Backends Healthy</div>
+              <div>{t('Model')}</div>
+              <div>{t('Provider')}</div>
+              <div>{t('Status')}</div>
+              <div>{t('Backends Healthy')}</div>
             </div>
 
             {models.length === 0 ? (
               <div style={{ padding: '24px 18px', fontSize: '13px', color: 'var(--muted)' }}>
-                {data ? 'No models configured yet.' : 'Loading…'}
+                {data ? t('No models configured yet.') : t('Loading…')}
               </div>
             ) : (
               models.map((m, idx) => {
@@ -197,16 +199,16 @@ export default function Status() {
                   >
                     <div className="code-font" style={{ fontWeight: 500 }}>{m.id}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--muted)', fontSize: '12px', textTransform: 'capitalize' }}>
-                      <span className="frenix-mobile-label">Provider: </span>
+                      <span className="frenix-mobile-label">{t('Provider:')} </span>
                       {providerIcons.map((ProviderIcon, i) => <ProviderIcon key={i} size={13} />)}
                       {displayProvider}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: meta.color, fontWeight: 500, fontSize: '12px' }}>
                       <Icon size={14} />
-                      <span>{meta.label}</span>
+                      <span>{t(meta.label)}</span>
                     </div>
                     <div style={{ color: 'var(--muted)', fontSize: '12px' }}>
-                      <span className="frenix-mobile-label">Backends: </span>
+                      <span className="frenix-mobile-label">{t('Backends:')} </span>
                       {m.status === 'disabled' ? '—' : `${m.backends_healthy} / ${m.backends_total}`}
                     </div>
                   </div>

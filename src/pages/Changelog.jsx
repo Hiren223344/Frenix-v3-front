@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import { useTheme } from '../context/ThemeContext';
 import SplitText from '../components/ui/split-text';
+import { useTranslate } from '../context/LanguageContext';
 
 const RELEASES = [
   {
@@ -129,13 +130,14 @@ const RELEASES = [
 
 export default function Changelog() {
   const { accentDisplay } = useTheme();
+  const t = useTranslate();
 
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0', maxWidth: '820px', margin: '0 auto' }}>
       <div style={{ marginBottom: '40px' }}>
-        <SplitText tag="h1" text="Changelog" className="frenix-page-title-spaced" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
+        <SplitText tag="h1" text={t('Changelog')} className="frenix-page-title-spaced" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0 }}>
-          New features, model additions, performance benchmarks, and platform improvements.
+          {t('New features, model additions, performance benchmarks, and platform improvements.')}
         </p>
       </div>
 
@@ -168,7 +170,7 @@ export default function Changelog() {
                       fontWeight: 500,
                     }}
                   >
-                    {release.tag}
+                    {t(release.tag)}
                   </span>
                 )}
               </div>
@@ -176,7 +178,7 @@ export default function Changelog() {
             </div>
 
             <h2 style={{ fontSize: '20px', fontWeight: 400, margin: '0 0 20px 0', lineHeight: 1.4 }}>
-              {release.title}
+              {t(release.title)}
             </h2>
 
             {/* Change groups */}
@@ -184,12 +186,12 @@ export default function Changelog() {
               {release.changes.map((group, gIdx) => (
                 <div key={gIdx}>
                   <div style={{ fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--muted)', marginBottom: '8px' }}>
-                    {group.type}
+                    {t(group.type)}
                   </div>
                   <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', lineHeight: 1.7, color: 'var(--text)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     {group.items.map((item, iIdx) => (
                       <li key={iIdx} style={{ color: 'var(--muted)' }}>
-                        <span style={{ color: 'var(--text)' }}>{item}</span>
+                        <span style={{ color: 'var(--text)' }}>{t(item)}</span>
                       </li>
                     ))}
                   </ul>

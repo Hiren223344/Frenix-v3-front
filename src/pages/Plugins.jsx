@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslate } from '../context/LanguageContext';
 import { Puzzle, Check, X, Cloud, Calculator, Terminal } from 'lucide-react';
 import { PLUGIN_ICONS } from '../components/icons/BrandIcons';
 import SplitText from '../components/ui/split-text';
@@ -15,6 +16,7 @@ const GENERIC_PLUGIN_ICONS = {
 
 export default function Plugins() {
   const { user } = useAuth();
+  const t = useTranslate();
 
   const [plugins, setPlugins] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +33,7 @@ export default function Plugins() {
     try {
       const token = sessionToken();
       if (!token || !window.secureRelayRequest) {
-        throw new Error('No active Telegram session found. Please log in first.');
+        throw new Error(t('No active Telegram session found. Please log in first.'));
       }
       const res = await window.secureRelayRequest('/v1/plugins', {
         headers: { Authorization: `Bearer ${token}` },
@@ -44,11 +46,11 @@ export default function Plugins() {
           setPlugins([]);
           return;
         }
-        throw new Error(res?.data?.error?.message || `Failed to load plugins (HTTP ${res.status})`);
+        throw new Error(res?.data?.error?.message || `${t('Failed to load plugins')} (HTTP ${res.status})`);
       }
       setPlugins(res.data.plugins);
     } catch (err) {
-      setSyncError(err.message || 'Failed to sync with the Frenix gateway');
+      setSyncError(err.message || t('Failed to sync with the Frenix gateway'));
     } finally {
       setLoading(false);
     }
@@ -72,12 +74,12 @@ export default function Plugins() {
         body: { api_key: apiKey },
       });
       if (!res.ok) {
-        throw new Error(res?.data?.error?.message || `Failed to enable plugin (HTTP ${res.status})`);
+        throw new Error(res?.data?.error?.message || `${t('Failed to enable plugin')} (HTTP ${res.status})`);
       }
       setKeyInputs((prev) => ({ ...prev, [id]: '' }));
       await fetchPlugins();
     } catch (err) {
-      setActionError((prev) => ({ ...prev, [id]: err.message || 'Failed to enable plugin' }));
+      setActionError((prev) => ({ ...prev, [id]: err.message || t('Failed to enable plugin') }));
     } finally {
       setBusyId(null);
     }
@@ -93,11 +95,11 @@ export default function Plugins() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
-        throw new Error(res?.data?.error?.message || `Failed to disable plugin (HTTP ${res.status})`);
+        throw new Error(res?.data?.error?.message || `${t('Failed to disable plugin')} (HTTP ${res.status})`);
       }
       await fetchPlugins();
     } catch (err) {
-      setActionError((prev) => ({ ...prev, [id]: err.message || 'Failed to disable plugin' }));
+      setActionError((prev) => ({ ...prev, [id]: err.message || t('Failed to disable plugin') }));
     } finally {
       setBusyId(null);
     }
@@ -106,11 +108,9 @@ export default function Plugins() {
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
       <div style={{ marginBottom: '36px' }}>
-        <SplitText tag="h1" text="Plugins" className="frenix-page-title-spaced" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
+        <SplitText tag="h1" text={t('Plugins')} className="frenix-page-title-spaced" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '640px' }}>
-          Some plugins are built into Frenix and always available; others are third-party tools you add your own
-          key for. Either way, name one in a chat completion's <code className="code-font">plugins</code> field to
-          make it available to the model for that request.
+          {t("Some plugins are built into Frenix and always available; others are third-party tools you add your own key for. Either way, name one in a chat completion's")} <code className="code-font">plugins</code> {t('field to make it available to the model for that request.')}
         </p>
       </div>
 
@@ -121,10 +121,10 @@ export default function Plugins() {
       )}
 
       {loading ? (
-        <div style={{ color: 'var(--muted)', fontSize: '13px' }}>Loading plugins…</div>
+        <div style={{ color: 'var(--muted)', fontSize: '13px' }}>{t('Loading plugins…')}</div>
       ) : plugins.length === 0 && !syncError ? (
         <div style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', backgroundColor: 'var(--card)', color: 'var(--muted)', fontSize: '13px' }}>
-          Plugins aren't enabled on this gateway yet.
+          {t("Plugins aren't enabled on this gateway yet.")}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -139,7 +139,7 @@ export default function Plugins() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '6px', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <PluginIcon size={16} />
-                  <span style={{ fontSize: '15px', fontWeight: 500 }}>{p.name}</span>
+                  <span style={{ fontSize: '15px', fontWeight: 500 }}>{t(p.name)}</span>
                   <code className="code-font" style={{ fontSize: '11px', color: 'var(--muted)' }}>{p.id}</code>
                 </div>
                 <span
@@ -150,10 +150,10 @@ export default function Plugins() {
                   }}
                 >
                   {p.enabled ? <Check size={12} /> : <X size={12} />}
-                  {p.enabled ? 'Enabled' : 'Not enabled'}
+                  {p.enabled ? t('Enabled') : t('Not enabled')}
                 </span>
               </div>
-              <p style={{ fontSize: '13px', color: 'var(--muted)', margin: '0 0 14px 0' }}>{p.description}</p>
+              <p style={{ fontSize: '13px', color: 'var(--muted)', margin: '0 0 14px 0' }}>{t(p.description)}</p>
 
               {actionError[p.id] && (
                 <div style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #ef4444', backgroundColor: 'rgba(239, 68, 68, 0.08)', color: '#ef4444', fontSize: '12px', marginBottom: '10px' }}>
@@ -163,14 +163,14 @@ export default function Plugins() {
 
               {p.requires_api_key === false ? (
                 <p style={{ fontSize: '12px', color: 'var(--muted)', margin: 0 }}>
-                  Built into Frenix — always available, nothing to configure. Just name{' '}
-                  <code className="code-font">{p.id}</code> in a request's <code className="code-font">plugins</code> field.
+                  {t('Built into Frenix — always available, nothing to configure. Just name')}{' '}
+                  <code className="code-font">{p.id}</code> {t("in a request's")} <code className="code-font">plugins</code> {t('field.')}
                 </p>
               ) : (
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   <input
                     type="password"
-                    placeholder={p.enabled ? 'Replace stored key…' : `Your ${p.name} API key`}
+                    placeholder={p.enabled ? t('Replace stored key…') : `${t('Your')} ${t(p.name)} ${t('API key')}`}
                     value={keyInputs[p.id] || ''}
                     onChange={(e) => setKeyInputs((prev) => ({ ...prev, [p.id]: e.target.value }))}
                     style={{
@@ -188,7 +188,7 @@ export default function Plugins() {
                       opacity: !(keyInputs[p.id] || '').trim() ? 0.5 : 1,
                     }}
                   >
-                    {p.enabled ? 'Update key' : 'Enable'}
+                    {p.enabled ? t('Update key') : t('Enable')}
                   </button>
                   {p.enabled && (
                     <button
@@ -199,7 +199,7 @@ export default function Plugins() {
                         backgroundColor: 'transparent', color: 'var(--muted)', fontSize: '13px', cursor: 'pointer',
                       }}
                     >
-                      Disable
+                      {t('Disable')}
                     </button>
                   )}
                 </div>

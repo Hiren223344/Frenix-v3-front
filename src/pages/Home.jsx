@@ -4,6 +4,7 @@ import { BorderBeam } from 'border-beam';
 import { BotAvatar } from 'bot-avatars';
 import { MetalFx } from 'metal-fx';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslate } from '../context/LanguageContext';
 import { Reveal, ScrollReveal } from '../components/animations';
 import NetworkDiagram from '../components/NetworkDiagram';
 import {
@@ -63,6 +64,7 @@ const PLANS = [
 
 export default function Home() {
   const { isDark, accentDisplay } = useTheme();
+  const t = useTranslate();
   const beamTheme = isDark ? 'dark' : 'light';
   const [copied, setCopied] = useState(false);
 
@@ -94,7 +96,7 @@ export default function Home() {
             }}
           >
             <span style={{ backgroundColor: 'var(--text)', color: 'var(--bg)', borderRadius: '999px', padding: '2px 8px', fontSize: '11px', fontWeight: 500 }}>v0.3.2</span>
-            MCP &amp; Plugins are live
+            {t('MCP & Plugins are live')}
           </span>
         </div>
 
@@ -103,14 +105,14 @@ export default function Home() {
             className="t-stagger-line t-stagger-line--1"
             style={{ margin: 0, fontSize: 'clamp(36px, 6vw, 64px)', lineHeight: 1.02, fontWeight: 400, letterSpacing: '-0.03em', maxWidth: '720px' }}
           >
-            One API key.<br />
-            <span style={{ color: 'var(--muted)' }}>Every model.</span>
+            {t('One API key.')}<br />
+            <span style={{ color: 'var(--muted)' }}>{t('Every model.')}</span>
           </h1>
           <p
             className="t-stagger-line t-stagger-line--2"
             style={{ margin: '18px 0 0 0', fontSize: '17px', lineHeight: 1.6, color: 'var(--muted)', maxWidth: '520px' }}
           >
-            The OpenAI-compatible gateway with automatic failover and flat, predictable pricing.
+            {t('The OpenAI-compatible gateway with automatic failover and flat, predictable pricing.')}
           </p>
         </Reveal>
 
@@ -131,7 +133,7 @@ export default function Home() {
                 fontWeight: 500,
               }}
             >
-              Start free <ArrowRight size={15} />
+              {t('Start free')} <ArrowRight size={15} />
             </Link>
           </MetalFx>
           <button
@@ -154,15 +156,15 @@ export default function Home() {
             export FRENIX_BASE_URL=...
             <span style={{ fontSize: '11px', color: 'var(--muted)', borderLeft: '1px solid var(--border)', paddingLeft: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
               {copied ? <Check size={12} color="#16a34a" /> : <Copy size={12} />}
-              {copied ? 'copied' : 'copy'}
+              {copied ? t('copied') : t('copy')}
             </span>
           </button>
         </div>
 
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', fontSize: '12.5px', color: 'var(--muted)', marginBottom: '56px' }}>
-          <span>500 free requests / day</span><span style={{ color: 'var(--border)' }}>·</span>
-          <span>No token markups</span><span style={{ color: 'var(--border)' }}>·</span>
-          <span>BYOK supported</span>
+          <span>{t('500 free requests / day')}</span><span style={{ color: 'var(--border)' }}>·</span>
+          <span>{t('No token markups')}</span><span style={{ color: 'var(--border)' }}>·</span>
+          <span>{t('BYOK supported')}</span>
         </div>
 
         <BorderBeam size="md" colorVariant="mono" strength={0.4} theme={beamTheme} style={{ display: 'block' }}>
@@ -173,9 +175,9 @@ export default function Home() {
       {/* Works with */}
       <section style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', marginTop: '0' }}>
         <ScrollReveal style={{ padding: '22px 0', display: 'flex', alignItems: 'center', gap: '34px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '13px', color: 'var(--muted)' }}>Works with</span>
-          {TOOLS.map((t) => (
-            <span key={t} style={{ fontSize: '15px', fontWeight: 500, color: 'var(--muted)' }}>{t}</span>
+          <span style={{ fontSize: '13px', color: 'var(--muted)' }}>{t('Works with')}</span>
+          {TOOLS.map((tool) => (
+            <span key={tool} style={{ fontSize: '15px', fontWeight: 500, color: 'var(--muted)' }}>{tool}</span>
           ))}
         </ScrollReveal>
       </section>
@@ -184,10 +186,10 @@ export default function Home() {
       <section style={{ padding: '96px 0 40px 0' }}>
         <ScrollReveal style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '24px', flexWrap: 'wrap', marginBottom: '36px' }}>
           <h2 style={{ margin: 0, fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.1, fontWeight: 400, letterSpacing: '-0.02em', maxWidth: '560px' }}>
-            Everything between your code and the model.
+            {t('Everything between your code and the model.')}
           </h2>
           <p style={{ margin: 0, color: 'var(--muted)', fontSize: '15px', lineHeight: 1.55, maxWidth: '340px' }}>
-            Routing, failover, keys and limits handled once — at the gateway, not in every service.
+            {t('Routing, failover, keys and limits handled once — at the gateway, not in every service.')}
           </p>
         </ScrollReveal>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '16px' }}>
@@ -198,10 +200,10 @@ export default function Home() {
                   <span style={{ width: '36px', height: '36px', border: '1px solid var(--border)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Icon size={16} />
                   </span>
-                  <span style={{ fontSize: '11px', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '999px', padding: '3px 9px' }}>{tag}</span>
+                  <span style={{ fontSize: '11px', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '999px', padding: '3px 9px' }}>{t(tag)}</span>
                 </div>
-                <div style={{ fontSize: '18px', fontWeight: 500, letterSpacing: '-0.01em' }}>{title}</div>
-                <div style={{ color: 'var(--muted)', fontSize: '14px', lineHeight: 1.55 }}>{body}</div>
+                <div style={{ fontSize: '18px', fontWeight: 500, letterSpacing: '-0.01em' }}>{t(title)}</div>
+                <div style={{ color: 'var(--muted)', fontSize: '14px', lineHeight: 1.55 }}>{t(body)}</div>
               </div>
             </ScrollReveal>
           ))}
@@ -211,21 +213,21 @@ export default function Home() {
       {/* Quickstart */}
       <section style={{ padding: '56px 0', borderTop: '1px solid var(--border)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))', gap: '48px', alignItems: 'center' }}>
         <ScrollReveal style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          <span style={{ fontSize: '13px', color: 'var(--muted)' }}>Quickstart</span>
-          <h2 style={{ margin: 0, fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.1, fontWeight: 400, letterSpacing: '-0.02em' }}>Live in three steps.</h2>
+          <span style={{ fontSize: '13px', color: 'var(--muted)' }}>{t('Quickstart')}</span>
+          <h2 style={{ margin: 0, fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.1, fontWeight: 400, letterSpacing: '-0.02em' }}>{t('Live in three steps.')}</h2>
           <div style={{ display: 'flex', flexDirection: 'column', borderTop: '1px solid var(--border)' }}>
             {STEPS.map((s) => (
               <div key={s.n} style={{ display: 'grid', gridTemplateColumns: '36px 1fr', gap: '12px', padding: '18px 0', borderBottom: '1px solid var(--border)' }}>
                 <span className="code-font" style={{ fontSize: '13px', color: 'var(--muted)' }}>{s.n}</span>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <span style={{ fontSize: '15px', fontWeight: 500 }}>{s.title}</span>
-                  <span style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.5 }}>{s.body}</span>
+                  <span style={{ fontSize: '15px', fontWeight: 500 }}>{t(s.title)}</span>
+                  <span style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.5 }}>{t(s.body)}</span>
                 </div>
               </div>
             ))}
           </div>
           <Link to="/docs" className="button-press" style={{ alignSelf: 'flex-start', fontSize: '14px', border: '1px solid var(--border)', borderRadius: '999px', padding: '10px 18px', color: 'var(--text)' }}>
-            Read documentation ↗
+            {t('Read documentation')} ↗
           </Link>
         </ScrollReveal>
         <ScrollReveal delay={0.1} className="hover-lift code-font" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '16px', padding: '22px', fontSize: '13px', lineHeight: 2, color: 'var(--muted)', overflowX: 'auto' }}>
@@ -234,7 +236,7 @@ export default function Home() {
           <div style={{ height: '10px' }} />
           <div><span style={{ color: 'var(--border)' }}>$</span> <span style={{ color: 'var(--text)' }}>curl $FRENIX_BASE_URL/chat/completions \</span></div>
           <div>&nbsp;&nbsp;-H "Authorization: Bearer $FRENIX_API_KEY"</div>
-          <div style={{ color: '#16a34a' }}>✓ Frenix is ready (150+ models enabled)</div>
+          <div style={{ color: '#16a34a' }}>✓ {t('Frenix is ready (150+ models enabled)')}</div>
         </ScrollReveal>
       </section>
 
@@ -243,19 +245,19 @@ export default function Home() {
         <ScrollReveal style={{ border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <span style={{ fontSize: '18px', fontWeight: 500 }}>Models</span>
-              <span style={{ fontSize: '13.5px', color: 'var(--muted)' }}>150+ models, one schema.</span>
+              <span style={{ fontSize: '18px', fontWeight: 500 }}>{t('Models')}</span>
+              <span style={{ fontSize: '13.5px', color: 'var(--muted)' }}>{t('150+ models, one schema.')}</span>
             </div>
-            <Link to="/models" className="button-press" style={{ fontSize: '13px', color: accentDisplay }}>View all →</Link>
+            <Link to="/models" className="button-press" style={{ fontSize: '13px', color: accentDisplay }}>{t('View all')} →</Link>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr) minmax(0, 2fr)', gap: '12px', padding: '12px 24px', fontSize: '12px', color: 'var(--muted)', borderBottom: '1px solid var(--border)' }}>
-            <span>Model</span><span>Context</span><span>Notes</span>
+            <span>{t('Model')}</span><span>{t('Context')}</span><span>{t('Notes')}</span>
           </div>
           {MODELS.map((m) => (
             <div key={m.id} className="hover-lift" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr) minmax(0, 2fr)', gap: '12px', padding: '14px 24px', fontSize: '14px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
               <span className="code-font" style={{ fontSize: '13px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.id}</span>
               <span style={{ color: 'var(--muted)' }}>{m.ctx}</span>
-              <span style={{ color: 'var(--muted)', fontSize: '13px' }}>{m.type}</span>
+              <span style={{ color: 'var(--muted)', fontSize: '13px' }}>{t(m.type)}</span>
             </div>
           ))}
         </ScrollReveal>
@@ -264,9 +266,9 @@ export default function Home() {
       {/* Pricing */}
       <section style={{ padding: '56px 0', borderTop: '1px solid var(--border)' }}>
         <ScrollReveal>
-          <h2 style={{ margin: '0 0 10px 0', fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.1, fontWeight: 400, letterSpacing: '-0.02em' }}>Pricing Plans</h2>
+          <h2 style={{ margin: '0 0 10px 0', fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.1, fontWeight: 400, letterSpacing: '-0.02em' }}>{t('Pricing Plans')}</h2>
           <p style={{ margin: '0 0 36px 0', color: 'var(--muted)', fontSize: '15px', lineHeight: 1.55, maxWidth: '520px' }}>
-            Simple pricing with predictable concurrency and throughput. No surprise bills or token markups.
+            {t('Simple pricing with predictable concurrency and throughput. No surprise bills or token markups.')}
           </p>
         </ScrollReveal>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px' }}>
@@ -275,30 +277,30 @@ export default function Home() {
               <div className="hover-lift" style={{ position: 'relative', border: `${p.popular ? '1.5px' : '1px'} solid ${p.border}`, borderRadius: '16px', padding: '28px', backgroundColor: 'var(--card)', display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ width: '38px', height: '38px', border: '1px solid var(--border)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>{p.icon}</span>
-                  <span style={{ fontSize: '11px', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '999px', padding: '3px 10px' }}>{p.limit}</span>
+                  <span style={{ fontSize: '11px', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '999px', padding: '3px 10px' }}>{t(p.limit)}</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <span style={{ fontSize: '20px', fontWeight: 500 }}>{p.name}</span>
-                  <span style={{ fontSize: '13.5px', color: 'var(--muted)' }}>{p.desc}</span>
+                  <span style={{ fontSize: '20px', fontWeight: 500 }}>{t(p.name)}</span>
+                  <span style={{ fontSize: '13.5px', color: 'var(--muted)' }}>{t(p.desc)}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                  <span style={{ fontSize: '32px', fontWeight: 300, letterSpacing: '-0.02em' }}>{p.price}</span>
+                  <span style={{ fontSize: '32px', fontWeight: 300, letterSpacing: '-0.02em' }}>{t(p.price)}</span>
                   <span style={{ fontSize: '13px', color: 'var(--muted)' }}>{p.per}</span>
                 </div>
                 {p.external ? (
                   <a href={p.to} target="_blank" rel="noopener noreferrer" className="button-press" style={{ textAlign: 'center', fontSize: '14.5px', fontWeight: 500, borderRadius: '999px', padding: '12px', border: '1px solid var(--text)', backgroundColor: 'transparent', color: 'var(--text)' }}>
-                    {p.cta}
+                    {t(p.cta)}
                   </a>
                 ) : (
                   <Link to={p.to} className="button-press" style={{ textAlign: 'center', fontSize: '14.5px', fontWeight: 500, borderRadius: '999px', padding: '12px', border: p.filled ? 'none' : '1px solid var(--text)', backgroundColor: p.filled ? 'var(--text)' : 'transparent', color: p.filled ? 'var(--bg)' : 'var(--text)' }}>
-                    {p.cta}
+                    {t(p.cta)}
                   </Link>
                 )}
                 <div style={{ height: '1px', backgroundColor: 'var(--border)' }} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {p.items.map((i) => (
                     <div key={i} style={{ display: 'flex', gap: '10px', fontSize: '13.5px', color: 'var(--text)' }}>
-                      <Check size={15} color={accentDisplay} style={{ flexShrink: 0, marginTop: '2px' }} /> {i}
+                      <Check size={15} color={accentDisplay} style={{ flexShrink: 0, marginTop: '2px' }} /> {t(i)}
                     </div>
                   ))}
                 </div>
@@ -314,7 +316,7 @@ export default function Home() {
             return (
               <ScrollReveal key={p.name} delay={i * 0.08} y={16} style={{ position: 'relative', height: '100%' }}>
                 <span style={{ position: 'absolute', top: '-11px', right: '24px', zIndex: 1, background: 'var(--text)', color: 'var(--bg)', fontSize: '11px', fontWeight: 500, borderRadius: '999px', padding: '3px 10px' }}>
-                  Most Popular
+                  {t('Most Popular')}
                 </span>
                 <BorderBeam size="md" colorVariant="colorful" strength={0.6} theme={beamTheme} style={{ display: 'block', height: '100%' }}>
                   {card}
@@ -330,16 +332,16 @@ export default function Home() {
         <ScrollReveal>
         <BorderBeam size="md" colorVariant="colorful" strength={0.4} theme={beamTheme} style={{ display: 'block' }}>
           <div className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '56px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', textAlign: 'center', backgroundColor: 'var(--card)' }}>
-            <h2 style={{ margin: 0, fontSize: 'clamp(26px, 4vw, 38px)', fontWeight: 400, letterSpacing: '-0.02em' }}>Swap one base URL. Keep your stack.</h2>
-            <p style={{ margin: 0, color: 'var(--muted)', fontSize: '15px' }}>Free forever tier. No card required.</p>
+            <h2 style={{ margin: 0, fontSize: 'clamp(26px, 4vw, 38px)', fontWeight: 400, letterSpacing: '-0.02em' }}>{t('Swap one base URL. Keep your stack.')}</h2>
+            <p style={{ margin: 0, color: 'var(--muted)', fontSize: '15px' }}>{t('Free forever tier. No card required.')}</p>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
               <MetalFx variant="button" preset="chromatic" theme={beamTheme} normalizeHostStyles={false}>
                 <Link to="/dashboard" className="button-press" style={{ display: 'inline-block', fontSize: '15px', fontWeight: 500, backgroundColor: 'var(--text)', color: 'var(--bg)', padding: '13px 24px', borderRadius: '999px' }}>
-                  Get your API key
+                  {t('Get your API key')}
                 </Link>
               </MetalFx>
               <a href="https://t.me/frenix_bot" target="_blank" rel="noopener noreferrer" className="button-press" style={{ fontSize: '15px', border: '1px solid var(--border)', color: 'var(--text)', padding: '13px 24px', borderRadius: '999px' }}>
-                Join Telegram
+                {t('Join Telegram')}
               </a>
             </div>
           </div>
