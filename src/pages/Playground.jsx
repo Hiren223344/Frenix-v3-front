@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { Send, Plus, Loader2, AlertTriangle, SlidersHorizontal, X, Copy, Check, ChevronDown, ChevronUp, BrainCircuit, Globe } from 'lucide-react';
 import { resolveProviderIcons, displayProviderFor, FrenixIcon } from '../components/icons/BrandIcons';
 
@@ -222,6 +223,7 @@ function ThinkingBlock({ text, startOpen, autoCollapseWhen }) {
 
 export default function Playground() {
   const { user } = useAuth();
+  const toast = useToast();
 
   const [models, setModels] = useState([]);
   const [modelsLoading, setModelsLoading] = useState(true);
@@ -387,7 +389,9 @@ export default function Playground() {
 
       if (usage) setLastUsage(usage);
     } catch (err) {
-      setSendError(err.message || 'Request failed');
+      const message = err.message || 'Request failed';
+      setSendError(message);
+      toast.error('Message failed to send', message);
       if (!assistantStarted) {
         // Nothing ever streamed back — roll back the optimistic user
         // message so a failed send doesn't leave a one-sided message the

@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 import { SoundEffects } from './components/sound';
 import { SmoothScroll } from './components/motion/smooth-scroll';
 import './index.css';
@@ -100,11 +101,13 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
-          <SoundEffects>
-            <SmoothScroll root>
-              <App />
-            </SmoothScroll>
-          </SoundEffects>
+          <ToastProvider>
+            <SoundEffects>
+              <SmoothScroll root>
+                <App />
+              </SmoothScroll>
+            </SoundEffects>
+          </ToastProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
