@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 :root {
   --bg: #ffffff;
   --text: #111111;
@@ -253,4 +255,51 @@ button {
     display: none !important;
     visibility: hidden !important;
   }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Sound (src/components/sound.tsx) — its own tokens, beside the ones     */
+/* above rather than folded into them, so this component stays a single, */
+/* removable unit.                                                       */
+/* ---------------------------------------------------------------------- */
+
+:root {
+  --sound-toggle-fg: #52525b;
+  --sound-toggle-hover-bg: rgba(0, 0, 0, 0.06);
+  --sound-toggle-ring: rgba(17, 17, 17, 0.35);
+}
+
+[data-theme="dark"] {
+  --sound-toggle-fg: #a1a1aa;
+  --sound-toggle-hover-bg: rgba(255, 255, 255, 0.08);
+  --sound-toggle-ring: rgba(242, 242, 242, 0.35);
+}
+
+/* Theme keys behind the sound-toggle-* utilities used in sound.tsx —
+   Tailwind has no color of its own for these, so they're declared here,
+   indirected through the plain custom properties above so light/dark
+   keeps working exactly like the rest of this file's tokens do. */
+@theme {
+  --color-sound-toggle-fg: var(--sound-toggle-fg);
+  --color-sound-toggle-hover-bg: var(--sound-toggle-hover-bg);
+  --color-sound-toggle-ring: var(--sound-toggle-ring);
+}
+
+@keyframes sound-toggle-flourish {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* A utility, not a component class: the brief scale-bounce SoundToggle
+   applies to itself for ~220ms after every press — transient, not a
+   variant of anything, so @utility fits better than @layer components. */
+@utility sound-toggle-flourish {
+  animation: sound-toggle-flourish 220ms ease-out;
 }

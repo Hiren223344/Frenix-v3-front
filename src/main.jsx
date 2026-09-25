@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
+import { SoundEffects } from './components/sound';
 import './index.css';
 
 // The gateway lives on a different domain than this app in production, so
@@ -98,7 +99,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
-          <App />
+          <SoundEffects>
+            <App />
+          </SoundEffects>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
