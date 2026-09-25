@@ -5,6 +5,7 @@ import App from './App';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { SoundEffects } from './components/sound';
+import { SmoothScroll } from './components/motion/smooth-scroll';
 import './index.css';
 
 // The gateway lives on a different domain than this app in production, so
@@ -100,7 +101,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <ThemeProvider>
         <AuthProvider>
           <SoundEffects>
-            <App />
+            <SmoothScroll root>
+              <App />
+            </SmoothScroll>
           </SoundEffects>
         </AuthProvider>
       </ThemeProvider>

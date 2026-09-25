@@ -72,12 +72,17 @@ export default function NetworkDiagram() {
   }, []);
 
   const grabNode = useCallback((id, e) => {
+    // A touch drag on a node is indistinguishable from a page-scroll swipe
+    // that happens to start over it — leave touch input to native scroll
+    // and keep dragging a desktop-only (mouse/pen) affordance.
+    if (e.pointerType === 'touch') return;
     const origin = { ...pos[id] };
     setMoved(true);
     drag(e, (dx, dy) => setPos((p) => ({ ...p, [id]: { x: origin.x + dx, y: origin.y + dy } })));
   }, [pos]);
 
   const startPan = useCallback((e) => {
+    if (e.pointerType === 'touch') return;
     const origin = { ...pan };
     setPanning(true);
     drag(e, (dx, dy) => setPan({ x: origin.x + dx, y: origin.y + dy }), () => setPanning(false));
@@ -141,7 +146,7 @@ export default function NetworkDiagram() {
       <div
         ref={canvasRef}
         onPointerDown={startPan}
-        style={{ position: 'relative', height: '380px', overflow: 'hidden', backgroundColor: 'var(--bg)', cursor: panning ? 'grabbing' : 'grab', touchAction: 'none', userSelect: 'none' }}
+        style={{ position: 'relative', height: '380px', overflow: 'hidden', backgroundColor: 'var(--bg)', cursor: panning ? 'grabbing' : 'grab', touchAction: 'pan-y', userSelect: 'none' }}
       >
         <div style={{ position: 'absolute', inset: 0, transform: `translate(${pan.x}px, ${pan.y}px)` }}>
           <svg style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible', pointerEvents: 'none' }} width="1" height="1">

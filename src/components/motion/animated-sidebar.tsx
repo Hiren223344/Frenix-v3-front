@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { ComponentProps, ReactNode } from "react";
 import { createContext, useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
 
@@ -185,33 +186,30 @@ export type AnimatedSidebarMenuButtonProps = Omit<ComponentProps<"button">, "onS
   isActive?: boolean;
   ariaExpanded?: boolean;
   onSelect?: () => void;
+  /** Internal route — renders a react-router <Link> instead of a <button>. */
+  to?: string;
+  /** External URL — renders an <a target="_blank">. */
+  href?: string;
 };
 
-export function AnimatedSidebarMenuButton({
+const MENU_BUTTON_CLASS =
+  "group/menu-button flex min-h-9 w-full items-center gap-2.5 overflow-hidden rounded-lg px-2.5 text-sm font-medium transition-colors " +
+  "text-muted-foreground hover:bg-muted hover:text-foreground " +
+  "data-[active]:bg-muted data-[active]:text-foreground";
+
+function MenuButtonContent({
   icon,
   badge,
-  isActive,
   ariaExpanded,
-  onSelect,
-  className,
   children,
-  ...props
-}: AnimatedSidebarMenuButtonProps) {
+}: {
+  icon?: ReactNode;
+  badge?: ReactNode;
+  ariaExpanded?: boolean;
+  children?: ReactNode;
+}) {
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      aria-current={isActive ? "page" : undefined}
-      aria-expanded={ariaExpanded}
-      data-active={isActive || undefined}
-      className={cn(
-        "group/menu-button flex min-h-9 w-full items-center gap-2.5 overflow-hidden rounded-lg px-2.5 text-sm font-medium transition-colors",
-        "text-muted-foreground hover:bg-muted hover:text-foreground",
-        "data-[active]:bg-muted data-[active]:text-foreground",
-        className,
-      )}
-      {...props}
-    >
+    <>
       {icon && <span className="flex shrink-0 items-center justify-center">{icon}</span>}
       <span className="min-w-0 flex-1 truncate text-left group-data-[state=collapsed]/sidebar:hidden">
         {children}
@@ -229,6 +227,70 @@ export function AnimatedSidebarMenuButton({
           ›
         </motion.span>
       )}
+    </>
+  );
+}
+
+export function AnimatedSidebarMenuButton({
+  icon,
+  badge,
+  isActive,
+  ariaExpanded,
+  onSelect,
+  to,
+  href,
+  className,
+  children,
+  ...props
+}: AnimatedSidebarMenuButtonProps) {
+  const cls = cn(MENU_BUTTON_CLASS, className);
+
+  if (to) {
+    return (
+      <Link
+        to={to}
+        aria-current={isActive ? "page" : undefined}
+        data-active={isActive || undefined}
+        className={cls}
+        onClick={onSelect}
+      >
+        <MenuButtonContent icon={icon} badge={badge} ariaExpanded={ariaExpanded}>
+          {children}
+        </MenuButtonContent>
+      </Link>
+    );
+  }
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        data-active={isActive || undefined}
+        className={cls}
+        onClick={onSelect}
+      >
+        <MenuButtonContent icon={icon} badge={badge} ariaExpanded={ariaExpanded}>
+          {children}
+        </MenuButtonContent>
+      </a>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-current={isActive ? "page" : undefined}
+      aria-expanded={ariaExpanded}
+      data-active={isActive || undefined}
+      className={cls}
+      {...props}
+    >
+      <MenuButtonContent icon={icon} badge={badge} ariaExpanded={ariaExpanded}>
+        {children}
+      </MenuButtonContent>
     </button>
   );
 }
