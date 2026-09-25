@@ -201,7 +201,7 @@ export function SoundToggle({ className, ...props }: React.ComponentProps<'butto
   const handleClick = () => {
     setSoundMuted(!muted);
     setFlourish(true);
-    window.setTimeout(() => setFlourish(false), 220);
+    window.setTimeout(() => setFlourish(false), 160);
   };
 
   return (

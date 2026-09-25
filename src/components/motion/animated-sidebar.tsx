@@ -6,6 +6,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
+import { EASE_OUT, SPRING_LAYOUT } from "@/lib/motion-tokens";
 
 const MOBILE_BREAKPOINT = 768;
 const WIDTH_EXPANDED = 256;
@@ -107,10 +108,10 @@ export function AnimatedSidebar({
               data-state="expanded"
               className={cn("group/sidebar absolute inset-y-0 left-0 z-50 flex flex-col border-r", panelClassName)}
               style={{ width: WIDTH_MOBILE }}
-              initial={reduced ? undefined : { x: -WIDTH_MOBILE }}
-              animate={{ x: 0 }}
+              initial={reduced ? { opacity: 0 } : { x: -WIDTH_MOBILE }}
+              animate={{ opacity: 1, x: 0 }}
               exit={reduced ? { opacity: 0 } : { x: -WIDTH_MOBILE }}
-              transition={{ type: "spring", stiffness: 340, damping: 34 }}
+              transition={SPRING_LAYOUT}
               {...props}
             >
               {children}
@@ -131,7 +132,7 @@ export function AnimatedSidebar({
         className,
       )}
       animate={{ width: collapsed ? WIDTH_ICON : WIDTH_EXPANDED }}
-      transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 340, damping: 34 }}
+      transition={reduced ? { duration: 0 } : SPRING_LAYOUT}
       {...props}
     >
       {children}
@@ -318,7 +319,7 @@ export function AnimatedSidebarMenuSub({
           initial={reduced ? undefined : { height: 0, opacity: 0 }}
           animate={{ height: "auto", opacity: 1 }}
           exit={reduced ? undefined : { height: 0, opacity: 0 }}
-          transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.2, ease: EASE_OUT }}
           className={cn(
             "ml-4 flex flex-col gap-0.5 overflow-hidden border-l border-border pl-3",
             "group-data-[state=collapsed]/sidebar:hidden",

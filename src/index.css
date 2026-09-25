@@ -400,11 +400,19 @@ button {
   }
 }
 
-/* A utility, not a component class: the brief scale-bounce SoundToggle
-   applies to itself for ~220ms after every press — transient, not a
-   variant of anything, so @utility fits better than @layer components. */
-@utility sound-toggle-flourish {
-  animation: sound-toggle-flourish 220ms ease-out;
+/* The brief scale-bounce SoundToggle applies to itself after every press —
+   a plain class (not @utility) so the prefers-reduced-motion override below
+   can target it reliably, the same way .t-stagger-line and .t-skel-* do.
+   160ms keeps it inside press-feedback range (100-160ms) rather than the
+   220ms it shipped with. */
+.sound-toggle-flourish {
+  animation: sound-toggle-flourish 160ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sound-toggle-flourish {
+    animation: none;
+  }
 }
 
 /* Shared page-title typography for every non-Home page's <h1> (see

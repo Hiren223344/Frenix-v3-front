@@ -16,6 +16,7 @@ import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { EASE_OUT } from "@/lib/motion-tokens";
 
 type CenterMorphModalContextValue = {
   open: boolean;
@@ -167,7 +168,7 @@ export function CenterMorphModalContent({
             initial="hidden"
             animate="visible"
             exit="hidden"
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.45, ease: EASE_OUT }}
             className={cn(
               "relative w-full max-w-lg overflow-hidden rounded-[28px] border border-border bg-card text-card-foreground shadow-2xl focus:outline-none",
               className,
