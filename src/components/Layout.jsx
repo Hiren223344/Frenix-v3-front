@@ -40,6 +40,7 @@ import {
   LogOut,
   UserCheck,
   PanelLeft,
+  Menu,
   X
 } from 'lucide-react';
 import TelegramAuthModal from './TelegramAuthModal';
@@ -66,6 +67,19 @@ const PRIMARY_NAV = [
 const SECONDARY_NAV = [
   { to: '/status', label: 'Status', Icon: Activity },
   { to: '/changelog', label: 'Changelog', Icon: GitCommit },
+];
+
+// The full sidebar collapses to an off-canvas drawer below md (768px) and
+// stays closed until the header's hamburger is tapped — leaving mobile
+// visitors with no visible way to navigate at all until they discover that
+// button. This always-on bottom tab bar surfaces the handful of
+// destinations people actually jump between, with "More" opening the same
+// drawer for everything else.
+const MOBILE_TAB_NAV = [
+  { to: '/', end: true, label: 'Home', Icon: HomeIcon },
+  { to: '/pricing', label: 'Pricing', Icon: Tag },
+  { to: '/dashboard', label: 'Dashboard', Icon: Terminal },
+  { to: '/playground', label: 'Chat', Icon: MessageSquare },
 ];
 
 export default function Layout() {
@@ -492,7 +506,73 @@ export default function Layout() {
             </div>
           </footer>
           )}
+
+          {/* Reserves the space the fixed mobile tab bar below sits over, so
+              the last bit of page content never ends up hidden behind it. */}
+          <div className="md:hidden" style={{ height: '64px', paddingBottom: 'env(safe-area-inset-bottom)' }} aria-hidden="true" />
         </AnimatedSidebarInset>
+
+        {/* Always-visible mobile navigation — see MOBILE_TAB_NAV above. */}
+        <nav
+          aria-label="Mobile navigation"
+          className="border-border bg-background flex md:hidden"
+          style={{
+            position: 'fixed',
+            insetInline: 0,
+            bottom: 0,
+            zIndex: 45,
+            alignItems: 'stretch',
+            borderTop: '1px solid var(--border)',
+            backdropFilter: 'blur(8px)',
+            paddingBottom: 'env(safe-area-inset-bottom)',
+          }}
+        >
+          {MOBILE_TAB_NAV.map((item) => {
+            const active = isNavActive(item);
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                aria-current={active ? 'page' : undefined}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '3px',
+                  padding: '8px 0',
+                  fontSize: '10.5px',
+                  fontWeight: 500,
+                  color: active ? accentDisplay : 'var(--muted)',
+                }}
+              >
+                <item.Icon size={19} />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+          <AnimatedSidebarTrigger
+            aria-label="Open full menu"
+            className="text-muted-foreground hover:bg-transparent hover:text-foreground"
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '3px',
+              padding: '8px 0',
+              fontSize: '10.5px',
+              fontWeight: 500,
+              width: 'auto',
+              height: 'auto',
+            }}
+          >
+            <Menu size={19} />
+            <span>More</span>
+          </AnimatedSidebarTrigger>
+        </nav>
       </AnimatedSidebarProvider>
     </div>
   );
