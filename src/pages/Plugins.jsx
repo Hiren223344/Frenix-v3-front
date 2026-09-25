@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Puzzle, Check, X, Cloud, Calculator, Terminal } from 'lucide-react';
 import { PLUGIN_ICONS } from '../components/icons/BrandIcons';
+import SplitText from '../components/ui/split-text';
 
 // weather/calculator/code_interpreter are generic built-in tools, not
 // third-party brands — a plain lucide icon fits better here than a "real
@@ -105,9 +106,7 @@ export default function Plugins() {
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
       <div style={{ marginBottom: '36px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 300, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
-          Plugins
-        </h1>
+        <SplitText tag="h1" text="Plugins" className="frenix-page-title-spaced" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '640px' }}>
           Some plugins are built into Frenix and always available; others are third-party tools you add your own
           key for. Either way, name one in a chat completion's <code className="code-font">plugins</code> field to

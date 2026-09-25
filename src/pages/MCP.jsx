@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Copy, Check, Plug, ArrowRight } from 'lucide-react';
+import SplitText from '../components/ui/split-text';
 
 const TOOLS = [
   { name: 'list_models', mirrors: 'GET /v1/models', notes: 'pricing, capabilities, tier requirement' },
@@ -54,9 +55,7 @@ export default function MCP() {
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
       <div style={{ marginBottom: '36px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 300, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
-          MCP Gateway
-        </h1>
+        <SplitText tag="h1" text="MCP Gateway" className="frenix-page-title-spaced" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '640px' }}>
           Every API key doubles as credentials for a personal MCP (Model Context Protocol) server, so an MCP
           client — Claude Code, Claude Desktop, or anything else that speaks MCP — can do almost everything

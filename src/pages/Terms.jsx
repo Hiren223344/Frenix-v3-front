@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { ArrowLeft } from 'lucide-react';
+import SplitText from '../components/ui/split-text';
 
 export default function Terms() {
   const { accentDisplay } = useTheme();
@@ -24,9 +25,7 @@ export default function Terms() {
       </Link>
 
       <div style={{ marginBottom: '36px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 300, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
-          Terms of Service
-        </h1>
+        <SplitText tag="h1" text="Terms of Service" className="frenix-page-title-spaced" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
         <div style={{ fontSize: '13px', color: 'var(--muted)' }}>Last updated: September 10, 2026</div>
       </div>
 

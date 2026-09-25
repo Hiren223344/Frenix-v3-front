@@ -116,15 +116,6 @@ button {
   50.01%, 100% { opacity: 0; }
 }
 
-/* NetworkDiagram (src/components/NetworkDiagram.jsx) */
-@keyframes frenixLiveDotBlink {
-  50% { opacity: 0; }
-}
-
-@keyframes frenixFlowDash {
-  to { stroke-dashoffset: -16; }
-}
-
 .animate-pulse-cursor {
   animation: pulseCursor 1s step-end infinite;
 }
@@ -406,4 +397,36 @@ button {
    variant of anything, so @utility fits better than @layer components. */
 @utility sound-toggle-flourish {
   animation: sound-toggle-flourish 220ms ease-out;
+}
+
+/* Shared page-title typography for every non-Home page's <h1> (see
+   components/ui/split-text.jsx) — the exact fontSize/fontWeight/
+   letterSpacing every one of these headings already used inline before
+   being wired up to SplitText's className-only API. The "-spaced"
+   variant adds the 8px gap pages need before a following description
+   paragraph; the bare class is for headings sitting in a flex row
+   next to another element (Dashboard, Models, Status) where that gap
+   would be wrong. */
+.frenix-page-title {
+  font-size: 32px;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.frenix-page-title-spaced {
+  font-size: 32px;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px 0;
+}
+
+/* Playground's centered "Good <time of day>, <name>" greeting — its own
+   serif treatment, distinct from every other page's title style above. */
+.frenix-playground-greeting {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-weight: 400;
+  font-size: 34px;
+  margin: 0;
+  color: var(--text);
 }
