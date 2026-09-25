@@ -8,8 +8,11 @@
     <link rel="alternate icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="alternate icon" href="/favicon-16.png" type="image/png" sizes="16x16" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <!-- X-Content-Type-Options and X-Frame-Options are HTTP-header-only —
+         browsers silently ignore them (Chrome even logs a console error
+         for the latter) when set via <meta http-equiv>, so they were never
+         actually taking effect here. They're sent as real response headers
+         via vercel.json instead. -->
     <meta name="referrer" content="no-referrer" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
