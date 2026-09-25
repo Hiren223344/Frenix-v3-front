@@ -1,10 +1,15 @@
 ﻿import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { BorderBeam } from 'border-beam';
+import { BotAvatar } from 'bot-avatars';
+import { MetalFx } from 'metal-fx';
 import { useTheme } from '../context/ThemeContext';
+import { Reveal } from '../components/animations';
 import { Check, Copy, Terminal, Layers, Tag, BookOpen, Shield, ArrowRight } from 'lucide-react';
 
 export default function Home() {
-  const { accentDisplay } = useTheme();
+  const { isDark, accentDisplay } = useTheme();
+  const beamTheme = isDark ? 'dark' : 'light';
   const [copied, setCopied] = useState(false);
 
   const copyCommand = () => {
@@ -21,58 +26,68 @@ export default function Home() {
       {/* Hero Section */}
       <section style={{ padding: '80px 0 54px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', flexWrap: 'wrap' }}>
+          <BotAvatar type="circle" size={26} state="default" theme={beamTheme} />
           <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--muted)' }}>Welcome to Frenix AI API</span>
           <span style={{ fontSize: '11px', color: 'var(--muted)', padding: '2px 8px', borderRadius: '8px', border: '1px solid var(--border)' }}>
             current version shown in the sidebar, next to the logo
           </span>
         </div>
-        <h1 style={{ fontSize: 'clamp(32px, 5vw, 44px)', lineHeight: 1.15, fontWeight: 300, maxWidth: '680px', margin: '0 0 16px 0', letterSpacing: '-0.02em' }}>
-          The fastest way to ship with any model.
-        </h1>
-        <p style={{ fontSize: '17px', lineHeight: 1.6, color: 'var(--muted)', maxWidth: '580px', margin: '0 0 32px 0' }}>
-          One key for Claude Code, Codex, Cline, and your own apps. 150+ models behind a single unified endpoint.
-        </p>
+        <Reveal>
+          <h1
+            className="t-stagger-line t-stagger-line--1"
+            style={{ fontSize: 'clamp(32px, 5vw, 44px)', lineHeight: 1.15, fontWeight: 300, maxWidth: '680px', margin: '0 0 16px 0', letterSpacing: '-0.02em' }}
+          >
+            The fastest way to ship with any model.
+          </h1>
+          <p
+            className="t-stagger-line t-stagger-line--2"
+            style={{ fontSize: '17px', lineHeight: 1.6, color: 'var(--muted)', maxWidth: '580px', margin: '0 0 32px 0' }}
+          >
+            One key for Claude Code, Codex, Cline, and your own apps. 150+ models behind a single unified endpoint.
+          </p>
+        </Reveal>
 
         {/* Command Box */}
-        <div
-          className="hover-lift"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
-            border: '1px solid var(--border)',
-            borderRadius: '12px',
-            padding: '14px 18px',
-            marginBottom: '36px',
-            backgroundColor: 'var(--card)',
-          }}
-        >
-          <code className="code-font" style={{ fontSize: '14px', color: 'var(--text)', overflowX: 'auto', whiteSpace: 'nowrap' }}>
-            export FRENIX_BASE_URL=https://api.frenix.sh/v1
-          </code>
-          <button
-            onClick={copyCommand}
-            aria-label="Copy command"
-            className="button-press"
+        <BorderBeam size="line" colorVariant="mono" strength={0.5} theme={beamTheme} style={{ display: 'block', marginBottom: '36px' }}>
+          <div
+            className="hover-lift"
             style={{
-              flexShrink: 0,
-              width: '34px',
-              height: '34px',
-              borderRadius: '50%',
-              border: '1px solid var(--border)',
-              backgroundColor: 'var(--bg)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              color: 'var(--text)',
+              justifyContent: 'space-between',
+              gap: '12px',
+              border: '1px solid var(--border)',
+              borderRadius: '12px',
+              padding: '14px 18px',
+              backgroundColor: 'var(--card)',
             }}
-            title="Copy command"
           >
-            {copied ? <Check size={16} color="#16a34a" className="animate-popIn" /> : <Copy size={15} />}
-          </button>
-        </div>
+            <code className="code-font" style={{ fontSize: '14px', color: 'var(--text)', overflowX: 'auto', whiteSpace: 'nowrap' }}>
+              export FRENIX_BASE_URL=https://api.frenix.sh/v1
+            </code>
+            <button
+              onClick={copyCommand}
+              aria-label="Copy command"
+              className="button-press"
+              style={{
+                flexShrink: 0,
+                width: '34px',
+                height: '34px',
+                borderRadius: '50%',
+                border: '1px solid var(--border)',
+                backgroundColor: 'var(--bg)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: 'var(--text)',
+              }}
+              title="Copy command"
+            >
+              {copied ? <Check size={16} color="#16a34a" className="animate-popIn" /> : <Copy size={15} />}
+            </button>
+          </div>
+        </BorderBeam>
 
         {/* Quick link Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
@@ -244,40 +259,45 @@ export default function Home() {
 
       {/* CTA Section */}
       <section style={{ padding: '64px 0 96px 0', borderTop: '1px solid var(--border)' }}>
-        <div className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '18px', padding: '36px', backgroundColor: 'var(--card)' }}>
-          <h2 style={{ fontSize: '26px', fontWeight: 300, margin: '0 0 8px 0' }}>Get your API key in seconds</h2>
-          <p style={{ fontSize: '15px', color: 'var(--muted)', margin: '0 0 24px 0' }}>Start immediately on the free tier. No credit card required.</p>
-          <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
-            <Link
-              to="/dashboard"
-              className="button-press"
-              style={{
-                padding: '10px 22px',
-                borderRadius: '18px',
-                backgroundColor: 'var(--text)',
-                color: 'var(--bg)',
-                fontSize: '14px',
-                fontWeight: 500,
-              }}
-            >
-              Get started
-            </Link>
-            <Link
-              to="/pricing"
-              className="button-press"
-              style={{
-                padding: '10px 22px',
-                borderRadius: '18px',
-                border: '1px solid var(--border)',
-                color: 'var(--text)',
-                fontSize: '14px',
-                fontWeight: 500,
-              }}
-            >
-              View pricing
-            </Link>
+        <BorderBeam size="md" colorVariant="colorful" strength={0.5} theme={beamTheme} style={{ display: 'block' }}>
+          <div className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '18px', padding: '36px', backgroundColor: 'var(--card)' }}>
+            <h2 style={{ fontSize: '26px', fontWeight: 300, margin: '0 0 8px 0' }}>Get your API key in seconds</h2>
+            <p style={{ fontSize: '15px', color: 'var(--muted)', margin: '0 0 24px 0' }}>Start immediately on the free tier. No credit card required.</p>
+            <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <MetalFx variant="button" preset="chromatic" theme={beamTheme}>
+                <Link
+                  to="/dashboard"
+                  className="button-press"
+                  style={{
+                    display: 'inline-block',
+                    padding: '10px 22px',
+                    borderRadius: '18px',
+                    backgroundColor: 'var(--text)',
+                    color: 'var(--bg)',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                  }}
+                >
+                  Get started
+                </Link>
+              </MetalFx>
+              <Link
+                to="/pricing"
+                className="button-press"
+                style={{
+                  padding: '10px 22px',
+                  borderRadius: '18px',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text)',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                }}
+              >
+                View pricing
+              </Link>
+            </div>
           </div>
-        </div>
+        </BorderBeam>
       </section>
     </div>
   );

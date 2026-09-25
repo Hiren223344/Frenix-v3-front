@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect, Suspense } from 'react';
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
+import { BotAvatar } from 'bot-avatars';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -149,6 +150,7 @@ export default function Layout() {
                 />
               </svg>
               <span style={{ fontWeight: 600, fontSize: '18px', letterSpacing: '-0.01em' }}>Frenix</span>
+              <BotAvatar type="circle" size={22} state="default" theme={isDark ? 'dark' : 'light'} />
               {appVersion && (
                 <span
                   style={{

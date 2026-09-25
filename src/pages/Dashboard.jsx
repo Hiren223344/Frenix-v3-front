@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { BotAvatar } from 'bot-avatars';
+import { MetalFx } from 'metal-fx';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { SkeletonReveal } from '../components/animations';
 import { Key, Plus, Copy, Check, BarChart3, Activity, RefreshCw, Wallet, Hash, Gift, AlertTriangle, Bell, X } from 'lucide-react';
 
 // One optional-limit number input, shared by every field in the "Add spend
@@ -56,7 +59,8 @@ function tokenUsageLabel(current, limit) {
 }
 
 export default function Dashboard() {
-  const { accentDisplay } = useTheme();
+  const { isDark, accentDisplay } = useTheme();
+  const beamTheme = isDark ? 'dark' : 'light';
   const { user } = useAuth();
 
   const [keys, setKeys] = useState([]);
@@ -464,9 +468,12 @@ export default function Dashboard() {
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
       <div style={{ marginBottom: '32px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '8px' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: 300, margin: 0, letterSpacing: '-0.01em' }}>
-            Dashboard
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <h1 style={{ fontSize: '32px', fontWeight: 300, margin: 0, letterSpacing: '-0.01em' }}>
+              Dashboard
+            </h1>
+            <BotAvatar type="circle" size={28} state={loading ? 'working' : 'default'} theme={beamTheme} />
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
             {account && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--muted)' }}>
@@ -475,27 +482,29 @@ export default function Dashboard() {
                 <span>Credits: <strong style={{ color: 'var(--text)' }}>${Number(account.balance_credits || 0).toFixed(2)}</strong></span>
               </div>
             )}
-            <button
-              onClick={fetchDashboardData}
-              disabled={loading}
-              title="Refresh live usage and keys"
-              className="button-press"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
-                borderRadius: '14px',
-                border: '1px solid var(--border)',
-                backgroundColor: 'var(--card)',
-                color: 'var(--text)',
-                fontSize: '12px',
-                cursor: 'pointer',
-              }}
-            >
-              <RefreshCw size={13} style={{ transition: 'transform 0.4s ease', transform: loading ? 'rotate(360deg)' : 'none' }} />
-              <span>{loading ? 'Updating...' : 'Live Sync'}</span>
-            </button>
+            <MetalFx variant="button" preset="silver" theme={beamTheme} style={{ display: 'inline-block' }}>
+              <button
+                onClick={fetchDashboardData}
+                disabled={loading}
+                title="Refresh live usage and keys"
+                className="button-press"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  borderRadius: '14px',
+                  border: '1px solid var(--border)',
+                  backgroundColor: 'var(--card)',
+                  color: 'var(--text)',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                }}
+              >
+                <RefreshCw size={13} style={{ transition: 'transform 0.4s ease', transform: loading ? 'rotate(360deg)' : 'none' }} />
+                <span>{loading ? 'Updating...' : 'Live Sync'}</span>
+              </button>
+            </MetalFx>
           </div>
         </div>
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '580px' }}>
@@ -621,10 +630,21 @@ export default function Dashboard() {
             <span style={{ fontSize: '13px' }}>Total tokens used</span>
             <Hash size={16} />
           </div>
-          <div style={{ fontSize: '26px', fontWeight: 500 }}>
-            {Number(usage?.total_tokens ?? 0).toLocaleString()}
-          </div>
-          <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Lifetime, prompt + completion</div>
+          <SkeletonReveal
+            loading={loading && !account}
+            style={{ height: '46px' }}
+            skeleton={
+              <>
+                <div className="frenix-skel-bar" style={{ width: '70%', height: '26px', marginBottom: '6px' }} />
+                <div className="frenix-skel-bar" style={{ width: '90%', height: '12px' }} />
+              </>
+            }
+          >
+            <div style={{ fontSize: '26px', fontWeight: 500 }}>
+              {Number(usage?.total_tokens ?? 0).toLocaleString()}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Lifetime, prompt + completion</div>
+          </SkeletonReveal>
         </div>
 
         <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
@@ -632,10 +652,21 @@ export default function Dashboard() {
             <span style={{ fontSize: '13px' }}>Requests (24h)</span>
             <Activity size={16} />
           </div>
-          <div style={{ fontSize: '26px', fontWeight: 500 }}>
-            {Number(usage?.requests_last_24h ?? 0).toLocaleString()}
-          </div>
-          <div style={{ fontSize: '12px', color: '#16a34a', marginTop: '4px' }}>Live gateway counter</div>
+          <SkeletonReveal
+            loading={loading && !account}
+            style={{ height: '46px' }}
+            skeleton={
+              <>
+                <div className="frenix-skel-bar" style={{ width: '55%', height: '26px', marginBottom: '6px' }} />
+                <div className="frenix-skel-bar" style={{ width: '75%', height: '12px' }} />
+              </>
+            }
+          >
+            <div style={{ fontSize: '26px', fontWeight: 500 }}>
+              {Number(usage?.requests_last_24h ?? 0).toLocaleString()}
+            </div>
+            <div style={{ fontSize: '12px', color: '#16a34a', marginTop: '4px' }}>Live gateway counter</div>
+          </SkeletonReveal>
         </div>
 
         <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
@@ -643,10 +674,21 @@ export default function Dashboard() {
             <span style={{ fontSize: '13px' }}>Requests (30d)</span>
             <BarChart3 size={16} />
           </div>
-          <div style={{ fontSize: '26px', fontWeight: 500 }}>
-            {Number(usage?.requests_last_30d ?? 0).toLocaleString()}
-          </div>
-          <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>30-day cumulative volume</div>
+          <SkeletonReveal
+            loading={loading && !account}
+            style={{ height: '46px' }}
+            skeleton={
+              <>
+                <div className="frenix-skel-bar" style={{ width: '60%', height: '26px', marginBottom: '6px' }} />
+                <div className="frenix-skel-bar" style={{ width: '85%', height: '12px' }} />
+              </>
+            }
+          >
+            <div style={{ fontSize: '26px', fontWeight: 500 }}>
+              {Number(usage?.requests_last_30d ?? 0).toLocaleString()}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>30-day cumulative volume</div>
+          </SkeletonReveal>
         </div>
 
         <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
@@ -654,10 +696,21 @@ export default function Dashboard() {
             <span style={{ fontSize: '13px' }}>Active API Keys</span>
             <Key size={16} />
           </div>
-          <div style={{ fontSize: '26px', fontWeight: 500 }}>{keys.length}</div>
-          <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
-            {account?.tier ? `${account.tier.toUpperCase()} Tier quota` : 'Authenticated'}
-          </div>
+          <SkeletonReveal
+            loading={loading && !account}
+            style={{ height: '46px' }}
+            skeleton={
+              <>
+                <div className="frenix-skel-bar" style={{ width: '30%', height: '26px', marginBottom: '6px' }} />
+                <div className="frenix-skel-bar" style={{ width: '65%', height: '12px' }} />
+              </>
+            }
+          >
+            <div style={{ fontSize: '26px', fontWeight: 500 }}>{keys.length}</div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
+              {account?.tier ? `${account.tier.toUpperCase()} Tier quota` : 'Authenticated'}
+            </div>
+          </SkeletonReveal>
         </div>
       </div>
 
