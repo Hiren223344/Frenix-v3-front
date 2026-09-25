@@ -4,7 +4,7 @@ import { BorderBeam } from 'border-beam';
 import { MetalFx } from 'metal-fx';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Reveal } from '../components/animations';
+import { Reveal, ScrollReveal } from '../components/animations';
 import { Check, User, Layers, Shield, ExternalLink } from 'lucide-react';
 
 export default function Pricing() {
@@ -72,7 +72,7 @@ export default function Pricing() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '64px' }}>
         {/* Free Plan */}
-        <div className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '18px', padding: '28px', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--card)' }}>
+        <ScrollReveal y={16} className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '18px', padding: '28px', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px' }}>
             <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <User size={20} />
@@ -111,10 +111,10 @@ export default function Pricing() {
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> Telegram community support</div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> Standard response latency</div>
           </div>
-        </div>
+        </ScrollReveal>
 
         {/* Pro Plan */}
-        <div style={{ position: 'relative', height: '100%' }}>
+        <ScrollReveal delay={0.08} y={16} style={{ position: 'relative', height: '100%' }}>
           <div style={{ position: 'absolute', top: '-11px', right: '24px', zIndex: 1, background: 'var(--text)', color: 'var(--bg)', fontSize: '11px', padding: '2px 12px', borderRadius: '12px', fontWeight: 500 }}>
             Most Popular
           </div>
@@ -172,10 +172,10 @@ export default function Pricing() {
           </div>
         </div>
         </BorderBeam>
-        </div>
+        </ScrollReveal>
 
         {/* Enterprise Plan */}
-        <div className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '18px', padding: '28px', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--card)' }}>
+        <ScrollReveal delay={0.16} y={16} className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '18px', padding: '28px', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px' }}>
             <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Shield size={20} />
@@ -220,11 +220,11 @@ export default function Pricing() {
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> SSO, team roles & audit logs</div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> 24/7 dedicated Telegram engineer</div>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
 
       {/* Feature Comparison */}
-      <div className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '18px', padding: '32px', backgroundColor: 'var(--card)' }}>
+      <ScrollReveal className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '18px', padding: '32px', backgroundColor: 'var(--card)' }}>
         <h2 style={{ fontSize: '22px', fontWeight: 400, margin: '0 0 16px 0' }}>Frequently Asked Pricing Questions</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           <div>
@@ -240,7 +240,7 @@ export default function Pricing() {
             <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>Chat with our team directly via Telegram at <a href="https://t.me/frenix_bot" target="_blank" rel="noopener noreferrer" style={{ color: accentDisplay, textDecoration: 'underline' }}>@frenix_bot</a>.</div>
           </div>
         </div>
-      </div>
+      </ScrollReveal>
     </div>
   );
 }

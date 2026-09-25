@@ -3,7 +3,7 @@ import { BotAvatar } from 'bot-avatars';
 import { MetalFx } from 'metal-fx';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { SkeletonReveal } from '../components/animations';
+import { SkeletonReveal, ScrollReveal } from '../components/animations';
 import AnimatedCounter from '../components/ui/animated-counter';
 import DeleteButton from '../components/ui/delete-button';
 import { Key, Plus, Copy, Check, BarChart3, Activity, RefreshCw, Wallet, Hash, Gift, AlertTriangle, Bell, X } from 'lucide-react';
@@ -540,7 +540,7 @@ export default function Dashboard() {
 
       {/* Metrics Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '36px' }}>
-        <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
+        <ScrollReveal y={12} style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
             <span style={{ fontSize: '13px' }}>Credits left</span>
             <Wallet size={16} />
@@ -624,9 +624,9 @@ export default function Dashboard() {
               )}
             </div>
           )}
-        </div>
+        </ScrollReveal>
 
-        <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
+        <ScrollReveal delay={0.04} y={12} style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
             <span style={{ fontSize: '13px' }}>Total tokens used</span>
             <Hash size={16} />
@@ -644,9 +644,9 @@ export default function Dashboard() {
             <AnimatedCounter value={Number(usage?.total_tokens ?? 0)} style={{ fontSize: '26px', fontWeight: 500 }} />
             <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Lifetime, prompt + completion</div>
           </SkeletonReveal>
-        </div>
+        </ScrollReveal>
 
-        <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
+        <ScrollReveal delay={0.08} y={12} style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
             <span style={{ fontSize: '13px' }}>Requests (24h)</span>
             <Activity size={16} />
@@ -664,9 +664,9 @@ export default function Dashboard() {
             <AnimatedCounter value={Number(usage?.requests_last_24h ?? 0)} style={{ fontSize: '26px', fontWeight: 500 }} />
             <div style={{ fontSize: '12px', color: '#16a34a', marginTop: '4px' }}>Live gateway counter</div>
           </SkeletonReveal>
-        </div>
+        </ScrollReveal>
 
-        <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
+        <ScrollReveal delay={0.12} y={12} style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
             <span style={{ fontSize: '13px' }}>Requests (30d)</span>
             <BarChart3 size={16} />
@@ -684,9 +684,9 @@ export default function Dashboard() {
             <AnimatedCounter value={Number(usage?.requests_last_30d ?? 0)} style={{ fontSize: '26px', fontWeight: 500 }} />
             <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>30-day cumulative volume</div>
           </SkeletonReveal>
-        </div>
+        </ScrollReveal>
 
-        <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
+        <ScrollReveal delay={0.16} y={12} style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
             <span style={{ fontSize: '13px' }}>Active API Keys</span>
             <Key size={16} />
@@ -706,12 +706,12 @@ export default function Dashboard() {
               {account?.tier ? `${account.tier.toUpperCase()} Tier quota` : 'Authenticated'}
             </div>
           </SkeletonReveal>
-        </div>
+        </ScrollReveal>
       </div>
 
       {/* Referrals */}
       {account?.referral_code && (
-        <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '20px 22px', backgroundColor: 'var(--card)', marginBottom: '36px' }}>
+        <ScrollReveal style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '20px 22px', backgroundColor: 'var(--card)', marginBottom: '36px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
             <Gift size={16} />
             <h2 style={{ fontSize: '16px', fontWeight: 500, margin: 0 }}>Refer a friend, earn $100</h2>
@@ -762,7 +762,7 @@ export default function Dashboard() {
               <strong style={{ color: 'var(--text)' }}>{account.referral_count ?? 0}</strong> referral{account.referral_count === 1 ? '' : 's'} so far
             </span>
           </div>
-        </div>
+        </ScrollReveal>
       )}
 
       {/* API Keys Header & Creation */}
@@ -793,7 +793,7 @@ export default function Dashboard() {
       </div>
 
       {/* Keys Table / Container */}
-      <div style={{ border: '1px solid var(--border)', borderRadius: '14px', overflow: 'hidden', backgroundColor: 'var(--card)' }}>
+      <ScrollReveal style={{ border: '1px solid var(--border)', borderRadius: '14px', overflow: 'hidden', backgroundColor: 'var(--card)' }}>
         <div
           className="frenix-key-header"
           style={{
@@ -868,7 +868,7 @@ export default function Dashboard() {
             </div>
           ))
         )}
-      </div>
+      </ScrollReveal>
 
       {/* Creation Modal */}
       {showModal && (
