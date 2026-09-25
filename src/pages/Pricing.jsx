@@ -4,6 +4,7 @@ import { BorderBeam } from 'border-beam';
 import { MetalFx } from 'metal-fx';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { Reveal, ScrollReveal } from '../components/animations';
 import { Check, User, Layers, Shield, ExternalLink } from 'lucide-react';
 
@@ -11,6 +12,7 @@ export default function Pricing() {
   const { isDark, accentDisplay } = useTheme();
   const beamTheme = isDark ? 'dark' : 'light';
   const { user, isAuthenticated, openAuthModal } = useAuth();
+  const toast = useToast();
   const [proLoading, setProLoading] = useState(false);
   const [proError, setProError] = useState('');
 
@@ -45,7 +47,9 @@ export default function Pricing() {
       }
       window.open(res.data.payment_url, '_blank', 'noopener,noreferrer');
     } catch (err) {
-      setProError(err.message || 'Failed to start checkout.');
+      const message = err.message || 'Failed to start checkout.';
+      setProError(message);
+      toast.error('Checkout failed', message);
     } finally {
       setProLoading(false);
     }

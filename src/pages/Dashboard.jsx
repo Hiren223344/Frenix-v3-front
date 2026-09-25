@@ -3,6 +3,7 @@ import { BotAvatar } from 'bot-avatars';
 import { MetalFx } from 'metal-fx';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { SkeletonReveal, ScrollReveal } from '../components/animations';
 import AnimatedCounter from '../components/ui/animated-counter';
 import DeleteButton from '../components/ui/delete-button';
@@ -64,6 +65,7 @@ export default function Dashboard() {
   const { isDark, accentDisplay } = useTheme();
   const beamTheme = isDark ? 'dark' : 'light';
   const { user } = useAuth();
+  const toast = useToast();
 
   const [keys, setKeys] = useState([]);
   const [account, setAccount] = useState(null);
@@ -155,7 +157,9 @@ export default function Dashboard() {
       // Never fall back to fabricated keys/usage on a failed fetch — that
       // would show the user keys they never created and can't use, and
       // silently discard whatever real keys were already loaded.
-      setSyncError(err.message || 'Failed to sync with the Frenix gateway');
+      const message = err.message || 'Failed to sync with the Frenix gateway';
+      setSyncError(message);
+      toast.error('Sync failed', message);
     } finally {
       setLoading(false);
     }
@@ -299,7 +303,9 @@ export default function Dashboard() {
         throw new Error(serverError);
       }
     } catch (err) {
-      setErrorMsg(err.message || 'Error communicating with Frenix gateway');
+      const message = err.message || 'Error communicating with Frenix gateway';
+      setErrorMsg(message);
+      toast.error('Could not create API key', message);
     } finally {
       setIsSubmitting(false);
     }
@@ -311,7 +317,9 @@ export default function Dashboard() {
   const handleRevokeKey = async (id) => {
     const sessionToken = user?.sessionToken || localStorage.getItem('frenix_session_token');
     if (!sessionToken || !window.secureRelayRequest) {
-      setSyncError('No active Telegram session found. Please log in again and retry.');
+      const message = 'No active Telegram session found. Please log in again and retry.';
+      setSyncError(message);
+      toast.error('Revoke failed', message);
       return false;
     }
 
@@ -319,6 +327,7 @@ export default function Dashboard() {
     // actually revoked — previously this always removed it locally even
     // when the DELETE failed or was silently skipped, so a key could look
     // revoked in the UI while staying fully active (and usable) server-side.
+    const keyName = keys.find((k) => k.id === id)?.name;
     try {
       const relayRes = await window.secureRelayRequest(`/v1/keys/${id}`, {
         method: 'DELETE',
@@ -328,11 +337,17 @@ export default function Dashboard() {
         throw new Error(relayRes?.data?.error?.message || `Failed to revoke key (HTTP ${relayRes.status})`);
       }
     } catch (err) {
-      setSyncError(err.message || 'Failed to revoke key — it is still active. Please try again.');
+      const message = err.message || 'Failed to revoke key — it is still active. Please try again.';
+      setSyncError(message);
+      toast.error('Revoke failed', message);
       return false;
     }
 
     setKeys((prev) => prev.filter((k) => k.id !== id));
+    // DeleteButton's own "Deleted" checkmark never gets to render here — the
+    // row (and the button with it) unmounts the instant this state update
+    // lands — so this toast is the only success feedback the user gets.
+    toast.success('API key revoked', keyName ? `"${keyName}" is no longer active.` : undefined);
     return true;
   };
 
@@ -433,8 +448,11 @@ export default function Dashboard() {
       if (meRes.ok && meRes.data) setAccount(meRes.data);
       setShowThresholdEditor(false);
       setThresholdInput('');
+      toast.success(clear ? 'Balance alert cleared' : 'Balance alert set');
     } catch (err) {
-      setSyncError(err.message || 'Failed to update alert threshold');
+      const message = err.message || 'Failed to update alert threshold';
+      setSyncError(message);
+      toast.error('Could not update alert', message);
     } finally {
       setSavingThreshold(false);
     }
