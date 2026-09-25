@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useReducedMotion } from 'motion/react';
 
 // Real model ids (src/pages/Models.jsx) the "now serving" badge cycles
 // through — an illustrative animation, not a live request feed.
@@ -50,11 +51,19 @@ function drag(e, onMove, onDone) {
 
 export default function NetworkDiagram() {
   const canvasRef = useRef(null);
+  const panelRef = useRef(null);
   const [pos, setPos] = useState(() => layout(900));
   const [moved, setMoved] = useState(false);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [panning, setPanning] = useState(false);
   const [modelIndex, setModelIndex] = useState(0);
+  // Scrolled off-screen (or backgrounded), this panel is pure upkeep: a
+  // ticking interval plus two infinite CSS animations with nothing to show
+  // for it. Gating both on visibility is the cheapest way to make an
+  // always-mounted, always-on-Home decoration actually lightweight.
+  const [inView, setInView] = useState(true);
+  const reduced = useReducedMotion() ?? false;
+  const animated = inView && !reduced;
 
   useEffect(() => {
     const onResize = () => {
@@ -67,9 +76,21 @@ export default function NetworkDiagram() {
   }, [moved]);
 
   useEffect(() => {
+    const el = panelRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0.1 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!animated) return;
     const iv = setInterval(() => setModelIndex((i) => (i + 1) % MODEL_NAMES.length), 2200);
     return () => clearInterval(iv);
-  }, []);
+  }, [animated]);
 
   const grabNode = useCallback((id, e) => {
     // A touch drag on a node is indistinguishable from a page-scroll swipe
@@ -131,10 +152,10 @@ export default function NetworkDiagram() {
   ];
 
   return (
-    <div style={{ position: 'relative', width: '100%', background: 'var(--card)', border: '1px solid var(--border)', borderBottom: 'none', borderRadius: '18px 18px 0 0', textAlign: 'left' }}>
+    <div ref={panelRef} style={{ position: 'relative', width: '100%', background: 'var(--card)', border: '1px solid var(--border)', borderBottom: 'none', borderRadius: '18px 18px 0 0', textAlign: 'left' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 20px', borderBottom: '1px solid var(--border)', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', fontWeight: 500 }}>
-          <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: 'var(--text)', animation: 'frenixLiveDotBlink 1.6s ease-in-out infinite' }} />
+          <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: 'var(--text)', animation: animated ? 'frenixLiveDotBlink 1.6s ease-in-out infinite' : 'none' }} />
           Live routing
         </div>
         <span className="code-font" style={{ fontSize: '11.5px', color: 'var(--muted)' }}>req_8a2ce41</span>
@@ -158,7 +179,7 @@ export default function NetworkDiagram() {
                 stroke={ed.stroke}
                 strokeWidth={ed.w}
                 strokeDasharray={ed.dash}
-                style={ed.animated ? { animation: 'frenixFlowDash 0.8s linear infinite' } : undefined}
+                style={ed.animated && animated ? { animation: 'frenixFlowDash 0.8s linear infinite' } : undefined}
               />
             ))}
           </svg>
