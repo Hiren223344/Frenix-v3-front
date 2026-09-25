@@ -50,8 +50,9 @@ export default function Pricing() {
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
       <div style={{ marginBottom: '40px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 300, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
-          Pricing Plans
+        <h1 style={{ fontSize: 'clamp(34px, 5vw, 52px)', fontWeight: 500, margin: '0 0 12px 0', letterSpacing: '-0.04em', lineHeight: 1.05 }}>
+          <span className="gradient-text">Pricing that </span>
+          <span className="gradient-accent-text">scales with you.</span>
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '600px' }}>
           Simple pricing with predictable concurrency and throughput. No surprise bills or token markups.
@@ -62,7 +63,7 @@ export default function Pricing() {
         {/* Free Plan */}
         <div className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '18px', padding: '28px', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="icon-chip" style={{ width: '40px', height: '40px' }}>
               <User size={20} />
             </div>
             <div style={{ fontSize: '11px', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '999px', padding: '3px 10px' }}>
@@ -102,12 +103,12 @@ export default function Pricing() {
         </div>
 
         {/* Pro Plan */}
-        <div className="hover-lift" style={{ border: '1.5px solid var(--text)', borderRadius: '18px', padding: '28px', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--card)', position: 'relative' }}>
-          <div style={{ position: 'absolute', top: '-11px', right: '24px', background: 'var(--text)', color: 'var(--bg)', fontSize: '11px', padding: '2px 12px', borderRadius: '12px', fontWeight: 500 }}>
+        <div className="hover-lift glow-border" style={{ border: '1px solid color-mix(in srgb, var(--accent) 45%, transparent)', borderRadius: '18px', padding: '28px', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--card)', position: 'relative', boxShadow: 'var(--glow)' }}>
+          <div style={{ position: 'absolute', top: '-11px', right: '24px', background: 'var(--grad)', color: '#fff', fontSize: '11px', padding: '3px 12px', borderRadius: '12px', fontWeight: 600, zIndex: 2, boxShadow: 'var(--glow)' }}>
             Most Popular
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="icon-chip" style={{ width: '40px', height: '40px' }}>
               <Layers size={20} />
             </div>
             <div style={{ fontSize: '11px', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '999px', padding: '3px 10px' }}>
@@ -117,14 +118,14 @@ export default function Pricing() {
           <div style={{ fontSize: '20px', fontWeight: 500, marginBottom: '4px' }}>Pro</div>
           <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '22px' }}>For everyday builders & power agents</div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '22px' }}>
-            <span style={{ fontSize: '32px', fontWeight: 300 }}>$30</span>
+            <span className="gradient-accent-text" style={{ fontSize: '40px', fontWeight: 500, letterSpacing: '-0.03em' }}>$30</span>
             <span style={{ fontSize: '13px', color: 'var(--muted)' }}>/ month</span>
           </div>
           <button
             type="button"
             onClick={handleChoosePro}
             disabled={proLoading}
-            className="button-press"
+            className="btn-glow"
             style={{
               width: '100%',
               padding: '11px 0',
@@ -159,7 +160,7 @@ export default function Pricing() {
         {/* Enterprise Plan */}
         <div className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '18px', padding: '28px', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="icon-chip" style={{ width: '40px', height: '40px' }}>
               <Shield size={20} />
             </div>
             <div style={{ fontSize: '11px', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '999px', padding: '3px 10px' }}>

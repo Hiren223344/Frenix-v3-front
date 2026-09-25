@@ -17,7 +17,7 @@ export function ThemeProvider({ children }) {
   }, []);
 
   const isDark = theme === 'dark';
-  const accentDisplay = isDark ? '#f2f2f2' : '#111111';
+  const accentDisplay = isDark ? '#a594ff' : '#5b3df5';
 
   const value = useMemo(
     () => ({ theme, isDark, toggleTheme, accentDisplay }),

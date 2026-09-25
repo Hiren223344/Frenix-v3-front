@@ -105,14 +105,16 @@ export default function Layout() {
     }
   };
 
+  const navLinkClass = ({ isActive }) => `nav-item${isActive ? ' active' : ''}`;
+
   const navLinkStyle = ({ isActive }) => ({
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
     padding: '8px 12px',
-    borderRadius: '18px',
+    borderRadius: '12px',
     fontSize: '14px',
-    color: isActive ? accentDisplay : 'var(--text)',
+    color: isActive ? 'var(--text)' : 'var(--muted)',
     backgroundColor: isActive ? 'var(--hover-bg)' : 'transparent',
     fontWeight: isActive ? '500' : '400',
     transition: 'background-color 0.15s ease, color 0.15s ease',
@@ -130,7 +132,7 @@ export default function Layout() {
 
         {/* Left Sidebar */}
         <aside
-          className={`frenix-sidebar ${mobileNavOpen ? 'open' : ''}`}
+          className={`frenix-sidebar glass ${mobileNavOpen ? 'open' : ''}`}
           style={{
             borderRight: '1px solid var(--border)',
             padding: '20px 14px',
@@ -142,22 +144,30 @@ export default function Layout() {
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
             <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 6px', color: 'inherit' }}>
-              <svg viewBox="0 0 55 40" width="22" height="16" fill="none" style={{ flexShrink: 0 }}>
+              <svg viewBox="0 0 55 40" width="24" height="18" fill="none" style={{ flexShrink: 0, filter: 'drop-shadow(0 0 8px rgba(124, 92, 255, 0.55))' }}>
+                <defs>
+                  <linearGradient id="frenix-logo-grad" x1="0" y1="0" x2="55" y2="40" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stopColor="#7c5cff" />
+                    <stop offset="0.55" stopColor="#a78bfa" />
+                    <stop offset="1" stopColor="#22d3ee" />
+                  </linearGradient>
+                </defs>
                 <path
-                  fill="currentColor"
+                  fill="url(#frenix-logo-grad)"
                   d="M23.6322 0.597911C19.9395 1.76672 16.9327 5.48248 10.9192 12.914C3.501 22.0814 -0.208097 26.665 0.00900851 30.5474C0.155095 33.1598 1.30933 35.6108 3.22485 37.3763C6.07159 40 11.9392 40 23.6745 40H24.3275C27.1975 40 29.9133 38.6992 31.7186 36.4682C37.6627 29.1224 40.6348 25.4496 44.4744 24.8957C45.4078 24.7611 46.3555 24.7611 47.2889 24.8957C49.8634 25.2671 52.048 27.0408 55 30.3839C50.2776 21.5248 41.6084 3.83856 31.37 0.597911C28.8514 -0.199304 26.1508 -0.199304 23.6322 0.597911Z"
                 />
               </svg>
-              <span style={{ fontWeight: 600, fontSize: '18px', letterSpacing: '-0.01em' }}>Frenix</span>
+              <span style={{ fontWeight: 600, fontSize: '18px', letterSpacing: '-0.02em' }}>Frenix</span>
               {appVersion && (
                 <span
                   style={{
                     fontSize: '11px',
                     fontWeight: 500,
-                    color: 'var(--muted)',
-                    padding: '1px 6px',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border)',
+                    color: 'var(--accent-display)',
+                    padding: '1px 7px',
+                    borderRadius: '999px',
+                    border: '1px solid color-mix(in srgb, var(--accent) 35%, transparent)',
+                    background: 'var(--hover-bg)',
                   }}
                 >
                   v{appVersion}
@@ -176,35 +186,35 @@ export default function Layout() {
 
           {/* Primary Navigation */}
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginBottom: '14px', flexShrink: 0 }}>
-            <NavLink to="/" end style={navLinkStyle}>
+            <NavLink to="/" end className={navLinkClass} style={navLinkStyle}>
               <HomeIcon size={16} style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Home</span>
             </NavLink>
-            <NavLink to="/pricing" style={navLinkStyle}>
+            <NavLink to="/pricing" className={navLinkClass} style={navLinkStyle}>
               <Tag size={16} style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Pricing</span>
             </NavLink>
-            <NavLink to="/dashboard" style={navLinkStyle}>
+            <NavLink to="/dashboard" className={navLinkClass} style={navLinkStyle}>
               <Terminal size={16} style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Dashboard</span>
             </NavLink>
-            <NavLink to="/playground" style={navLinkStyle}>
+            <NavLink to="/playground" className={navLinkClass} style={navLinkStyle}>
               <MessageSquare size={16} style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Playground</span>
             </NavLink>
-            <NavLink to="/models" style={navLinkStyle}>
+            <NavLink to="/models" className={navLinkClass} style={navLinkStyle}>
               <Layers size={16} style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Models</span>
             </NavLink>
-            <NavLink to="/docs" style={navLinkStyle}>
+            <NavLink to="/docs" className={navLinkClass} style={navLinkStyle}>
               <BookOpen size={16} style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Documentation</span>
             </NavLink>
-            <NavLink to="/mcp" style={navLinkStyle}>
+            <NavLink to="/mcp" className={navLinkClass} style={navLinkStyle}>
               <Plug size={16} style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>MCP</span>
             </NavLink>
-            <NavLink to="/plugins" style={navLinkStyle}>
+            <NavLink to="/plugins" className={navLinkClass} style={navLinkStyle}>
               <Puzzle size={16} style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Plugins</span>
             </NavLink>
@@ -214,11 +224,11 @@ export default function Layout() {
 
           {/* Secondary Navigation & Support */}
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '3px', flexShrink: 0 }}>
-            <NavLink to="/status" style={navLinkStyle}>
+            <NavLink to="/status" className={navLinkClass} style={navLinkStyle}>
               <Activity size={16} style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Status</span>
             </NavLink>
-            <NavLink to="/changelog" style={navLinkStyle}>
+            <NavLink to="/changelog" className={navLinkClass} style={navLinkStyle}>
               <GitCommit size={16} style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Changelog</span>
             </NavLink>
@@ -228,17 +238,16 @@ export default function Layout() {
               href="https://t.me/frenix_bot"
               target="_blank"
               rel="noopener noreferrer"
+              className="nav-item"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
                 padding: '8px 12px',
-                borderRadius: '18px',
+                borderRadius: '12px',
                 fontSize: '14px',
-                color: 'var(--text)',
+                color: 'var(--muted)',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--hover-bg)')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
               <MessageCircle size={16} style={{ flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>Support</span>
@@ -301,6 +310,7 @@ export default function Layout() {
           ) : (
             <button
               onClick={openAuthModal}
+              className="btn-glow"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -308,7 +318,7 @@ export default function Layout() {
                 gap: '8px',
                 width: '100%',
                 padding: '10px 0',
-                borderRadius: '18px',
+                borderRadius: '12px',
                 background: 'var(--text)',
                 color: 'var(--bg)',
                 border: 'none',
@@ -328,13 +338,12 @@ export default function Layout() {
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
           {/* Header */}
           <header
+            className="glass"
             style={{
               position: 'sticky',
               top: 0,
               zIndex: 40,
-              backgroundColor: 'var(--bg)',
               borderBottom: '1px solid var(--border)',
-              backdropFilter: 'blur(8px)',
             }}
           >
             <div
@@ -358,8 +367,9 @@ export default function Layout() {
                 >
                   <Menu size={20} />
                 </button>
-                <span style={{ fontWeight: 600, fontSize: '18px', letterSpacing: '-0.01em' }}>Frenix</span>
-                <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{getSectionTitle()}</span>
+                <span style={{ fontWeight: 600, fontSize: '18px', letterSpacing: '-0.02em' }}>Frenix</span>
+                <span style={{ color: 'var(--border-strong)', fontSize: '16px' }}>/</span>
+                <span style={{ fontSize: '13px', color: 'var(--muted)', fontWeight: 500 }}>{getSectionTitle()}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '12px 0' }}>
                 <Link
@@ -408,6 +418,7 @@ export default function Layout() {
                 ) : (
                   <button
                     onClick={openAuthModal}
+                    className="btn-glow"
                     style={{
                       fontSize: '13px',
                       padding: '7px 16px',
@@ -443,7 +454,7 @@ export default function Layout() {
           content flush against the viewport bottom instead of repeating
           the full sitemap-style link list on every navigation. */}
       {location.pathname === '/' && (
-      <footer style={{ borderTop: '1px solid var(--border)', marginTop: 'auto', background: 'var(--bg)' }}>
+      <footer className="glass" style={{ borderTop: '1px solid var(--border)', marginTop: 'auto' }}>
         <div
           className="frenix-footer-inner"
           style={{
@@ -457,7 +468,7 @@ export default function Layout() {
             flexWrap: 'wrap',
           }}
         >
-          <div style={{ fontWeight: 600, fontSize: '15px' }}>Frenix</div>
+          <div className="gradient-accent-text" style={{ fontWeight: 600, fontSize: '16px', letterSpacing: '-0.02em' }}>Frenix</div>
           <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
             <Link to="/" style={{ fontSize: '13px', color: 'var(--muted)' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}>
               Home
