@@ -138,7 +138,19 @@ export default function Pricing() {
             <span style={{ fontSize: '32px', fontWeight: 300 }}>$30</span>
             <span style={{ fontSize: '13px', color: 'var(--muted)' }}>/ month</span>
           </div>
-          <MetalFx variant="button" preset="gold" theme={beamTheme} normalizeHostStyles={false} style={{ display: 'block' }}>
+          {/* marginBottom lives on the MetalFx wrapper, not the button: the
+              wrapper is a flex box that hugs its child's full margin box, so
+              a margin set on the button itself was being pulled inside the
+              wrapper's own rendered height — extending its solid background
+              (and rounded-corner mask) well past the visible pill, into what
+              was meant to be plain gap before the divider below. */}
+          <MetalFx
+            variant="button"
+            preset="gold"
+            theme={beamTheme}
+            normalizeHostStyles={false}
+            style={{ width: '100%', marginBottom: proError ? '10px' : '24px' }}
+          >
             <button
               type="button"
               onClick={handleChoosePro}
@@ -153,7 +165,6 @@ export default function Pricing() {
                 color: 'var(--bg)',
                 fontSize: '14px',
                 fontWeight: 500,
-                marginBottom: proError ? '10px' : '24px',
                 border: 'none',
                 cursor: proLoading ? 'default' : 'pointer',
                 opacity: proLoading ? 0.7 : 1,
