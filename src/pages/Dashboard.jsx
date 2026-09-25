@@ -4,6 +4,8 @@ import { MetalFx } from 'metal-fx';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { SkeletonReveal } from '../components/animations';
+import AnimatedCounter from '../components/ui/animated-counter';
+import DeleteButton from '../components/ui/delete-button';
 import { Key, Plus, Copy, Check, BarChart3, Activity, RefreshCw, Wallet, Hash, Gift, AlertTriangle, Bell, X } from 'lucide-react';
 
 // One optional-limit number input, shared by every field in the "Add spend
@@ -304,10 +306,6 @@ export default function Dashboard() {
   };
 
   const handleRevokeKey = async (id) => {
-    if (!window.confirm('Revoke this API key? Anything using it will stop working immediately.')) {
-      return;
-    }
-
     const sessionToken = user?.sessionToken || localStorage.getItem('frenix_session_token');
     if (!sessionToken || !window.secureRelayRequest) {
       setSyncError('No active Telegram session found. Please log in again and retry.');
@@ -547,9 +545,12 @@ export default function Dashboard() {
             <span style={{ fontSize: '13px' }}>Credits left</span>
             <Wallet size={16} />
           </div>
-          <div style={{ fontSize: '26px', fontWeight: 500 }}>
-            ${Number(account?.balance_credits ?? 0).toFixed(2)}
-          </div>
+          <AnimatedCounter
+            value={Number(account?.balance_credits ?? 0)}
+            decimals={2}
+            prefix="$"
+            style={{ fontSize: '26px', fontWeight: 500 }}
+          />
           <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
             {account?.tier ? `${account.tier.toUpperCase()} tier balance` : 'Available balance'}
           </div>
@@ -640,9 +641,7 @@ export default function Dashboard() {
               </>
             }
           >
-            <div style={{ fontSize: '26px', fontWeight: 500 }}>
-              {Number(usage?.total_tokens ?? 0).toLocaleString()}
-            </div>
+            <AnimatedCounter value={Number(usage?.total_tokens ?? 0)} style={{ fontSize: '26px', fontWeight: 500 }} />
             <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Lifetime, prompt + completion</div>
           </SkeletonReveal>
         </div>
@@ -662,9 +661,7 @@ export default function Dashboard() {
               </>
             }
           >
-            <div style={{ fontSize: '26px', fontWeight: 500 }}>
-              {Number(usage?.requests_last_24h ?? 0).toLocaleString()}
-            </div>
+            <AnimatedCounter value={Number(usage?.requests_last_24h ?? 0)} style={{ fontSize: '26px', fontWeight: 500 }} />
             <div style={{ fontSize: '12px', color: '#16a34a', marginTop: '4px' }}>Live gateway counter</div>
           </SkeletonReveal>
         </div>
@@ -684,9 +681,7 @@ export default function Dashboard() {
               </>
             }
           >
-            <div style={{ fontSize: '26px', fontWeight: 500 }}>
-              {Number(usage?.requests_last_30d ?? 0).toLocaleString()}
-            </div>
+            <AnimatedCounter value={Number(usage?.requests_last_30d ?? 0)} style={{ fontSize: '26px', fontWeight: 500 }} />
             <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>30-day cumulative volume</div>
           </SkeletonReveal>
         </div>
@@ -706,7 +701,7 @@ export default function Dashboard() {
               </>
             }
           >
-            <div style={{ fontSize: '26px', fontWeight: 500 }}>{keys.length}</div>
+            <AnimatedCounter value={keys.length} style={{ fontSize: '26px', fontWeight: 500 }} />
             <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
               {account?.tier ? `${account.tier.toUpperCase()} Tier quota` : 'Authenticated'}
             </div>
@@ -867,21 +862,8 @@ export default function Dashboard() {
               <div style={{ color: 'var(--muted)', fontSize: '12px' }}>
                 <span className="frenix-mobile-label">Last used: </span>{k.lastUsed}
               </div>
-              <div className="frenix-key-actions">
-                <button
-                  onClick={() => handleRevokeKey(k.id)}
-                  style={{
-                    border: 'none',
-                    background: 'none',
-                    cursor: 'pointer',
-                    fontSize: '12px',
-                    color: '#ef4444',
-                    padding: '4px 8px',
-                    borderRadius: '6px',
-                  }}
-                >
-                  Revoke
-                </button>
+              <div className="frenix-key-actions" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <DeleteButton aria-label={`Revoke ${k.name}`} onConfirm={() => handleRevokeKey(k.id)} />
               </div>
             </div>
           ))
