@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* This app toggles dark mode by setting data-theme="dark" on <html>
+   (see ThemeContext.jsx), not via prefers-color-scheme — so Tailwind's
+   dark: variant has to key off that attribute instead of its default
+   media-query behavior, or every dark: utility (delete-button,
+   animated-counter, …) would silently follow the OS theme instead of
+   the in-app toggle. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
   --bg: #ffffff;
   --text: #111111;
