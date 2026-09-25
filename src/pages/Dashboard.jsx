@@ -305,11 +305,14 @@ export default function Dashboard() {
     }
   };
 
+  // Returns true/false so DeleteButton (which shows an optimistic "Deleted"
+  // checkmark only once this resolves) knows whether the revoke actually
+  // succeeded server-side, instead of just assuming it did.
   const handleRevokeKey = async (id) => {
     const sessionToken = user?.sessionToken || localStorage.getItem('frenix_session_token');
     if (!sessionToken || !window.secureRelayRequest) {
       setSyncError('No active Telegram session found. Please log in again and retry.');
-      return;
+      return false;
     }
 
     // Only remove the key from the list once the server confirms it's
@@ -326,10 +329,11 @@ export default function Dashboard() {
       }
     } catch (err) {
       setSyncError(err.message || 'Failed to revoke key — it is still active. Please try again.');
-      return;
+      return false;
     }
 
     setKeys((prev) => prev.filter((k) => k.id !== id));
+    return true;
   };
 
   const handleCopy = async (id, text) => {
