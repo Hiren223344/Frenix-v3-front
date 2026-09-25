@@ -114,7 +114,11 @@ export type DeleteButtonProps = Omit<
   ComponentProps<"div">,
   "onAnimationStart" | "onDrag" | "onDragStart" | "onDragEnd"
 > & {
-  onConfirm?: () => void;
+  // Return (or resolve to) `false` to signal the delete failed — the
+  // button then falls back to "idle" instead of claiming success.
+  // Anything else (including a caller that returns nothing) counts as
+  // success, so existing synchronous confirm handlers keep working as-is.
+  onConfirm?: () => void | boolean | Promise<void | boolean>;
   onCancel?: () => void;
 };
 
@@ -159,9 +163,21 @@ export function DeleteButton({
 
   const resolve = (next: Exclude<Status, "idle">) => {
     setOpen(false);
-    setStatus(next);
     trigger.current?.focus();
-    (next === "deleted" ? onConfirm : onCancel)?.();
+
+    if (next === "kept") {
+      setStatus("kept");
+      onCancel?.();
+      return;
+    }
+
+    // Don't show the "Deleted" success state until onConfirm actually
+    // confirms it — a caller returning `false` (or a rejected promise,
+    // e.g. a failed API call) means the delete didn't happen server-side,
+    // so this falls back to idle instead of a false success checkmark.
+    Promise.resolve(onConfirm?.())
+      .then((result) => setStatus(result === false ? "idle" : "deleted"))
+      .catch(() => setStatus("idle"));
   };
 
   return (
