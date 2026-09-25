@@ -183,6 +183,19 @@ button {
   display: none;
 }
 
+/* Layout.jsx's fixed bottom tab bar (mobile only, see MOBILE_TAB_NAV) sits
+   at the very bottom of the viewport below 768px — this notice needs to
+   clear it instead of sitting underneath/on top of it. */
+.frenix-cookie-notice {
+  bottom: 16px;
+}
+
+@media (max-width: 767px) {
+  .frenix-cookie-notice {
+    bottom: calc(64px + 16px + env(safe-area-inset-bottom));
+  }
+}
+
 @media (max-width: 860px) {
   .frenix-header-inner,
   .frenix-main-outlet,
