@@ -92,6 +92,15 @@ button {
   50.01%, 100% { opacity: 0; }
 }
 
+/* NetworkDiagram (src/components/NetworkDiagram.jsx) */
+@keyframes frenixLiveDotBlink {
+  50% { opacity: 0; }
+}
+
+@keyframes frenixFlowDash {
+  to { stroke-dashoffset: -16; }
+}
+
 .animate-pulse-cursor {
   animation: pulseCursor 1s step-end infinite;
 }
