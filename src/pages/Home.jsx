@@ -4,7 +4,7 @@ import { BorderBeam } from 'border-beam';
 import { BotAvatar } from 'bot-avatars';
 import { MetalFx } from 'metal-fx';
 import { useTheme } from '../context/ThemeContext';
-import { Reveal } from '../components/animations';
+import { Reveal, ScrollReveal } from '../components/animations';
 import NetworkDiagram from '../components/NetworkDiagram';
 import {
   Check,
@@ -172,43 +172,45 @@ export default function Home() {
 
       {/* Works with */}
       <section style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', marginTop: '0' }}>
-        <div style={{ padding: '22px 0', display: 'flex', alignItems: 'center', gap: '34px', flexWrap: 'wrap' }}>
+        <ScrollReveal style={{ padding: '22px 0', display: 'flex', alignItems: 'center', gap: '34px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '13px', color: 'var(--muted)' }}>Works with</span>
           {TOOLS.map((t) => (
             <span key={t} style={{ fontSize: '15px', fontWeight: 500, color: 'var(--muted)' }}>{t}</span>
           ))}
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* Features */}
       <section style={{ padding: '96px 0 40px 0' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '24px', flexWrap: 'wrap', marginBottom: '36px' }}>
+        <ScrollReveal style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '24px', flexWrap: 'wrap', marginBottom: '36px' }}>
           <h2 style={{ margin: 0, fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.1, fontWeight: 400, letterSpacing: '-0.02em', maxWidth: '560px' }}>
             Everything between your code and the model.
           </h2>
           <p style={{ margin: 0, color: 'var(--muted)', fontSize: '15px', lineHeight: 1.55, maxWidth: '340px' }}>
             Routing, failover, keys and limits handled once — at the gateway, not in every service.
           </p>
-        </div>
+        </ScrollReveal>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '16px' }}>
-          {FEATURES.map(({ Icon, tag, title, body }) => (
-            <div key={tag} className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', backgroundColor: 'var(--card)', display: 'flex', flexDirection: 'column', gap: '14px', minHeight: '200px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ width: '36px', height: '36px', border: '1px solid var(--border)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon size={16} />
-                </span>
-                <span style={{ fontSize: '11px', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '999px', padding: '3px 9px' }}>{tag}</span>
+          {FEATURES.map(({ Icon, tag, title, body }, i) => (
+            <ScrollReveal key={tag} delay={Math.min(i, 3) * 0.06} y={16}>
+              <div className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', backgroundColor: 'var(--card)', display: 'flex', flexDirection: 'column', gap: '14px', minHeight: '200px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ width: '36px', height: '36px', border: '1px solid var(--border)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon size={16} />
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '999px', padding: '3px 9px' }}>{tag}</span>
+                </div>
+                <div style={{ fontSize: '18px', fontWeight: 500, letterSpacing: '-0.01em' }}>{title}</div>
+                <div style={{ color: 'var(--muted)', fontSize: '14px', lineHeight: 1.55 }}>{body}</div>
               </div>
-              <div style={{ fontSize: '18px', fontWeight: 500, letterSpacing: '-0.01em' }}>{title}</div>
-              <div style={{ color: 'var(--muted)', fontSize: '14px', lineHeight: 1.55 }}>{body}</div>
-            </div>
+            </ScrollReveal>
           ))}
         </div>
       </section>
 
       {/* Quickstart */}
       <section style={{ padding: '56px 0', borderTop: '1px solid var(--border)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))', gap: '48px', alignItems: 'center' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        <ScrollReveal style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           <span style={{ fontSize: '13px', color: 'var(--muted)' }}>Quickstart</span>
           <h2 style={{ margin: 0, fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.1, fontWeight: 400, letterSpacing: '-0.02em' }}>Live in three steps.</h2>
           <div style={{ display: 'flex', flexDirection: 'column', borderTop: '1px solid var(--border)' }}>
@@ -225,20 +227,20 @@ export default function Home() {
           <Link to="/docs" className="button-press" style={{ alignSelf: 'flex-start', fontSize: '14px', border: '1px solid var(--border)', borderRadius: '999px', padding: '10px 18px', color: 'var(--text)' }}>
             Read documentation ↗
           </Link>
-        </div>
-        <div className="hover-lift code-font" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '16px', padding: '22px', fontSize: '13px', lineHeight: 2, color: 'var(--muted)', overflowX: 'auto' }}>
+        </ScrollReveal>
+        <ScrollReveal delay={0.1} className="hover-lift code-font" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '16px', padding: '22px', fontSize: '13px', lineHeight: 2, color: 'var(--muted)', overflowX: 'auto' }}>
           <div><span style={{ color: 'var(--border)' }}>$</span> <span style={{ color: 'var(--text)' }}>export FRENIX_BASE_URL=https://api.frenix.sh/v1</span></div>
           <div><span style={{ color: 'var(--border)' }}>$</span> <span style={{ color: 'var(--text)' }}>export FRENIX_API_KEY=sk-frx-...</span></div>
           <div style={{ height: '10px' }} />
           <div><span style={{ color: 'var(--border)' }}>$</span> <span style={{ color: 'var(--text)' }}>curl $FRENIX_BASE_URL/chat/completions \</span></div>
           <div>&nbsp;&nbsp;-H "Authorization: Bearer $FRENIX_API_KEY"</div>
           <div style={{ color: '#16a34a' }}>✓ Frenix is ready (150+ models enabled)</div>
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* Models */}
       <section style={{ padding: '40px 0' }}>
-        <div style={{ border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden', backgroundColor: 'var(--card)' }}>
+        <ScrollReveal style={{ border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <span style={{ fontSize: '18px', fontWeight: 500 }}>Models</span>
@@ -256,17 +258,19 @@ export default function Home() {
               <span style={{ color: 'var(--muted)', fontSize: '13px' }}>{m.type}</span>
             </div>
           ))}
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* Pricing */}
       <section style={{ padding: '56px 0', borderTop: '1px solid var(--border)' }}>
-        <h2 style={{ margin: '0 0 10px 0', fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.1, fontWeight: 400, letterSpacing: '-0.02em' }}>Pricing Plans</h2>
-        <p style={{ margin: '0 0 36px 0', color: 'var(--muted)', fontSize: '15px', lineHeight: 1.55, maxWidth: '520px' }}>
-          Simple pricing with predictable concurrency and throughput. No surprise bills or token markups.
-        </p>
+        <ScrollReveal>
+          <h2 style={{ margin: '0 0 10px 0', fontSize: 'clamp(28px, 4vw, 40px)', lineHeight: 1.1, fontWeight: 400, letterSpacing: '-0.02em' }}>Pricing Plans</h2>
+          <p style={{ margin: '0 0 36px 0', color: 'var(--muted)', fontSize: '15px', lineHeight: 1.55, maxWidth: '520px' }}>
+            Simple pricing with predictable concurrency and throughput. No surprise bills or token markups.
+          </p>
+        </ScrollReveal>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px' }}>
-          {PLANS.map((p) => {
+          {PLANS.map((p, i) => {
             const card = (
               <div className="hover-lift" style={{ position: 'relative', border: `${p.popular ? '1.5px' : '1px'} solid ${p.border}`, borderRadius: '16px', padding: '28px', backgroundColor: 'var(--card)', display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -301,17 +305,21 @@ export default function Home() {
               </div>
             );
             if (!p.popular) {
-              return <div key={p.name}>{card}</div>;
+              return (
+                <ScrollReveal key={p.name} delay={i * 0.08} y={16}>
+                  {card}
+                </ScrollReveal>
+              );
             }
             return (
-              <div key={p.name} style={{ position: 'relative', height: '100%' }}>
+              <ScrollReveal key={p.name} delay={i * 0.08} y={16} style={{ position: 'relative', height: '100%' }}>
                 <span style={{ position: 'absolute', top: '-11px', right: '24px', zIndex: 1, background: 'var(--text)', color: 'var(--bg)', fontSize: '11px', fontWeight: 500, borderRadius: '999px', padding: '3px 10px' }}>
                   Most Popular
                 </span>
                 <BorderBeam size="md" colorVariant="colorful" strength={0.6} theme={beamTheme} style={{ display: 'block', height: '100%' }}>
                   {card}
                 </BorderBeam>
-              </div>
+              </ScrollReveal>
             );
           })}
         </div>
@@ -319,6 +327,7 @@ export default function Home() {
 
       {/* CTA */}
       <section style={{ padding: '20px 0 96px 0' }}>
+        <ScrollReveal>
         <BorderBeam size="md" colorVariant="colorful" strength={0.4} theme={beamTheme} style={{ display: 'block' }}>
           <div className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '56px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', textAlign: 'center', backgroundColor: 'var(--card)' }}>
             <h2 style={{ margin: 0, fontSize: 'clamp(26px, 4vw, 38px)', fontWeight: 400, letterSpacing: '-0.02em' }}>Swap one base URL. Keep your stack.</h2>
@@ -335,6 +344,7 @@ export default function Home() {
             </div>
           </div>
         </BorderBeam>
+        </ScrollReveal>
       </section>
     </div>
   );

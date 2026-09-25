@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 
 // transitions.dev's "texts reveal": mounts hidden (per the .t-stagger-line
 // CSS) and flips to .is-shown a frame later, so the browser has an initial
@@ -30,5 +31,35 @@ export function SkeletonReveal({ loading, skeleton, children, className = '', st
       <div className={`t-skel-skeleton ${loading ? 'is-pulsing' : ''}`}>{skeleton}</div>
       <div className="t-skel-content">{children}</div>
     </div>
+  );
+}
+
+// Fades + rises a block in as it scrolls into view — unlike Reveal (which
+// only ever plays once, on mount), this re-triggers per element via
+// IntersectionObserver (whileInView), so every section gets its own moment
+// as the page scrolls past it. `once` (default true) keeps it from
+// replaying on scroll back up, which reads as jittery rather than smooth.
+export function ScrollReveal({ children, className = '', style, delay = 0, y = 24, once = true, amount = 0.2 }) {
+  const reduced = useReducedMotion() ?? false;
+
+  if (reduced) {
+    return (
+      <div className={className} style={style}>
+        {children}
+      </div>
+    );
+  }
+
+  return (
+    <motion.div
+      className={className}
+      style={style}
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once, amount }}
+      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay }}
+    >
+      {children}
+    </motion.div>
   );
 }
