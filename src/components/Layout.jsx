@@ -3,6 +3,7 @@ import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
 import { BotAvatar } from 'bot-avatars';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { SoundToggle } from './sound';
 import {
   Home as HomeIcon,
   Tag,
@@ -256,24 +257,28 @@ export default function Layout() {
               <Globe size={14} />
               <span>EN</span>
             </div>
-            <button
-              onClick={toggleTheme}
-              aria-label="Toggle dark mode"
-              style={{
-                border: 'none',
-                background: 'none',
-                cursor: 'pointer',
-                color: 'var(--text)',
-                padding: '6px',
-                display: 'flex',
-                alignItems: 'center',
-                borderRadius: '6px',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--hover-bg)')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-            >
-              {isDark ? <Sun size={16} /> : <Moon size={16} />}
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+              <SoundToggle />
+              <button
+                data-slot="button"
+                onClick={toggleTheme}
+                aria-label="Toggle dark mode"
+                style={{
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--text)',
+                  padding: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  borderRadius: '6px',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--hover-bg)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                {isDark ? <Sun size={16} /> : <Moon size={16} />}
+              </button>
+            </div>
           </div>
 
           {/* Auth Button in Sidebar */}
