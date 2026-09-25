@@ -114,11 +114,12 @@ export default function Pricing() {
         </div>
 
         {/* Pro Plan */}
-        <BorderBeam size="md" colorVariant="colorful" strength={0.7} theme={beamTheme} style={{ display: 'block', height: '100%' }}>
-        <div className="hover-lift" style={{ border: '1.5px solid var(--text)', borderRadius: '18px', padding: '28px', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--card)', position: 'relative', height: '100%' }}>
-          <div style={{ position: 'absolute', top: '-11px', right: '24px', background: 'var(--text)', color: 'var(--bg)', fontSize: '11px', padding: '2px 12px', borderRadius: '12px', fontWeight: 500 }}>
+        <div style={{ position: 'relative', height: '100%' }}>
+          <div style={{ position: 'absolute', top: '-11px', right: '24px', zIndex: 1, background: 'var(--text)', color: 'var(--bg)', fontSize: '11px', padding: '2px 12px', borderRadius: '12px', fontWeight: 500 }}>
             Most Popular
           </div>
+        <BorderBeam size="md" colorVariant="colorful" strength={0.7} theme={beamTheme} style={{ display: 'block', height: '100%' }}>
+        <div className="hover-lift" style={{ border: '1.5px solid var(--text)', borderRadius: '18px', padding: '28px', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--card)', position: 'relative', height: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px' }}>
             <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Layers size={20} />
@@ -133,7 +134,7 @@ export default function Pricing() {
             <span style={{ fontSize: '32px', fontWeight: 300 }}>$30</span>
             <span style={{ fontSize: '13px', color: 'var(--muted)' }}>/ month</span>
           </div>
-          <MetalFx variant="button" preset="gold" theme={beamTheme} style={{ display: 'block' }}>
+          <MetalFx variant="button" preset="gold" theme={beamTheme} normalizeHostStyles={false} style={{ display: 'block' }}>
             <button
               type="button"
               onClick={handleChoosePro}
@@ -171,6 +172,7 @@ export default function Pricing() {
           </div>
         </div>
         </BorderBeam>
+        </div>
 
         {/* Enterprise Plan */}
         <div className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '18px', padding: '28px', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--card)' }}>

@@ -264,7 +264,7 @@ export default function Home() {
             <h2 style={{ fontSize: '26px', fontWeight: 300, margin: '0 0 8px 0' }}>Get your API key in seconds</h2>
             <p style={{ fontSize: '15px', color: 'var(--muted)', margin: '0 0 24px 0' }}>Start immediately on the free tier. No credit card required.</p>
             <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <MetalFx variant="button" preset="chromatic" theme={beamTheme}>
+              <MetalFx variant="button" preset="chromatic" theme={beamTheme} normalizeHostStyles={false}>
                 <Link
                   to="/dashboard"
                   className="button-press"

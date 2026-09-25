@@ -482,7 +482,7 @@ export default function Dashboard() {
                 <span>Credits: <strong style={{ color: 'var(--text)' }}>${Number(account.balance_credits || 0).toFixed(2)}</strong></span>
               </div>
             )}
-            <MetalFx variant="button" preset="silver" theme={beamTheme} style={{ display: 'inline-block' }}>
+            <MetalFx variant="button" preset="silver" theme={beamTheme} normalizeHostStyles={false} style={{ display: 'inline-block' }}>
               <button
                 onClick={fetchDashboardData}
                 disabled={loading}
