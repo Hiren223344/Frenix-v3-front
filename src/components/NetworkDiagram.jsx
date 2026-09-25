@@ -34,13 +34,39 @@ function layout(w) {
   };
 }
 
+// Pointer devices routinely report move events faster than the screen can
+// paint (a 1000Hz mouse vs. a 60Hz display, for instance) — calling onMove
+// (a setState) straight from every one of those, with no throttling at
+// all, was driving a full React re-render at input-event frequency rather
+// than frame frequency, which is what made dragging feel laggy. Coalescing
+// to one flush per animation frame keeps the drag tracking the pointer
+// exactly (the latest position is never dropped) while capping renders to
+// what the display can actually show.
 function drag(e, onMove, onDone) {
   e.preventDefault();
   e.stopPropagation();
   const sx = e.clientX;
   const sy = e.clientY;
-  const move = (ev) => onMove(ev.clientX - sx, ev.clientY - sy);
+  let raf = null;
+  let dx = 0;
+  let dy = 0;
+  const flush = () => {
+    raf = null;
+    onMove(dx, dy);
+  };
+  const move = (ev) => {
+    dx = ev.clientX - sx;
+    dy = ev.clientY - sy;
+    if (raf === null) raf = requestAnimationFrame(flush);
+  };
   const up = () => {
+    if (raf !== null) {
+      // A frame was still pending — apply its (latest) position now rather
+      // than dropping it, so release doesn't snap back to a stale frame.
+      cancelAnimationFrame(raf);
+      raf = null;
+      onMove(dx, dy);
+    }
     window.removeEventListener('pointermove', move);
     window.removeEventListener('pointerup', up);
     onDone?.();
@@ -190,8 +216,15 @@ export default function NetworkDiagram() {
               className="hover-lift"
               style={{
                 position: 'absolute',
-                left: `${n.x}px`,
-                top: `${n.y}px`,
+                // transform instead of left/top: dragging a node used to
+                // force a synchronous layout recalculation on every single
+                // pointermove (left/top are layout properties), which is
+                // what made dragging feel laggy. transform is
+                // compositor-only, same as the pan wrapper below already
+                // does.
+                left: 0,
+                top: 0,
+                transform: `translate(${n.x}px, ${n.y}px)`,
                 width: '160px',
                 height: '60px',
                 border: `1px solid ${n.border}`,
