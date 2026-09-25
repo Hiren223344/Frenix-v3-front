@@ -5,6 +5,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { AlertTriangle, Check, Circle, LoaderCircle, Radio, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { SPRING_PRESS } from "@/lib/motion-tokens";
 
 export type AnimatedBadgeStatus =
   | "neutral"
@@ -75,7 +76,7 @@ export function AnimatedBadge({
           initial={reduced ? undefined : { opacity: 0, scale: 0.5, rotate: -30 }}
           animate={{ opacity: 1, scale: 1, rotate: 0 }}
           exit={reduced ? undefined : { opacity: 0, scale: 0.5 }}
-          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+          transition={SPRING_PRESS}
           className="inline-flex shrink-0 items-center justify-center"
         >
           <Icon

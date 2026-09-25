@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
+import { EASE_OUT } from '@/lib/motion-tokens';
 
 // transitions.dev's "texts reveal": mounts hidden (per the .t-stagger-line
 // CSS) and flips to .is-shown a frame later, so the browser has an initial
@@ -57,7 +58,7 @@ export function ScrollReveal({ children, className = '', style, delay = 0, y = 2
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once, amount }}
-      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay }}
+      transition={{ duration: 0.55, ease: EASE_OUT, delay }}
     >
       {children}
     </motion.div>
