@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { SkeletonReveal, ScrollReveal } from '../components/animations';
 import AnimatedCounter from '../components/ui/animated-counter';
 import DeleteButton from '../components/ui/delete-button';
+import SplitText from '../components/ui/split-text';
 import { Key, Plus, Copy, Check, BarChart3, Activity, RefreshCw, Wallet, Hash, Gift, AlertTriangle, Bell, X } from 'lucide-react';
 
 // One optional-limit number input, shared by every field in the "Add spend
@@ -489,9 +490,7 @@ export default function Dashboard() {
       <div style={{ marginBottom: '32px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h1 style={{ fontSize: '32px', fontWeight: 300, margin: 0, letterSpacing: '-0.01em' }}>
-              Dashboard
-            </h1>
+            <SplitText tag="h1" text="Dashboard" className="frenix-page-title" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
             <BotAvatar type="circle" size={28} state={loading ? 'working' : 'default'} theme={beamTheme} />
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>

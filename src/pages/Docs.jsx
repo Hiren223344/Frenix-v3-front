@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { Copy, Check, Code, ExternalLink } from 'lucide-react';
+import SplitText from '../components/ui/split-text';
 
 export default function Docs() {
   const { accentDisplay } = useTheme();
@@ -33,9 +34,7 @@ export default function Docs() {
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
       <div style={{ marginBottom: '36px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 300, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
-          Documentation
-        </h1>
+        <SplitText tag="h1" text="Documentation" className="frenix-page-title-spaced" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '640px' }}>
           Complete developer reference for integrating Frenix into CLI coding assistants, custom applications, and autonomous agents.
         </p>

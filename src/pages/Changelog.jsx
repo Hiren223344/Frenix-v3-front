@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import { useTheme } from '../context/ThemeContext';
+import SplitText from '../components/ui/split-text';
 
 const RELEASES = [
   {
@@ -132,9 +133,7 @@ export default function Changelog() {
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0', maxWidth: '820px', margin: '0 auto' }}>
       <div style={{ marginBottom: '40px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 300, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
-          Changelog
-        </h1>
+        <SplitText tag="h1" text="Changelog" className="frenix-page-title-spaced" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0 }}>
           New features, model additions, performance benchmarks, and platform improvements.
         </p>

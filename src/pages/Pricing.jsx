@@ -6,6 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { Reveal, ScrollReveal } from '../components/animations';
+import SplitText from '../components/ui/split-text';
 import { Check, User, Layers, Shield, ExternalLink } from 'lucide-react';
 
 export default function Pricing() {
@@ -58,15 +59,10 @@ export default function Pricing() {
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
       <div style={{ marginBottom: '40px' }}>
+        <SplitText tag="h1" text="Pricing Plans" className="frenix-page-title-spaced" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
         <Reveal>
-          <h1
-            className="t-stagger-line t-stagger-line--1"
-            style={{ fontSize: '32px', fontWeight: 300, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}
-          >
-            Pricing Plans
-          </h1>
           <p
-            className="t-stagger-line t-stagger-line--2"
+            className="t-stagger-line t-stagger-line--1"
             style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '600px' }}
           >
             Simple pricing with predictable concurrency and throughput. No surprise bills or token markups.

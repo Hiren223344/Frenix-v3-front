@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { Send, Plus, Loader2, AlertTriangle, SlidersHorizontal, X, Copy, Check, ChevronDown, ChevronUp, BrainCircuit, Globe } from 'lucide-react';
 import { resolveProviderIcons, displayProviderFor, FrenixIcon } from '../components/icons/BrandIcons';
+import SplitText from '../components/ui/split-text';
 
 // Same fallback pattern main.jsx uses for GATEWAY_BASE_URL: relative paths
 // reach the gateway via the Vite dev proxy, production talks to it directly
@@ -444,9 +445,17 @@ export default function Playground() {
       {!hasMessages ? (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '22px', textAlign: 'center', padding: '0 16px' }}>
           <FrenixIcon size={40} style={{ color: 'var(--accent-display)' }} />
-          <h1 style={{ fontFamily: "'Georgia', 'Times New Roman', serif", fontWeight: 400, fontSize: '34px', margin: 0, color: 'var(--text)' }}>
-            Good {greetingWord()}, {firstName}
-          </h1>
+          <SplitText
+            tag="h1"
+            text={`Good ${greetingWord()}, ${firstName}`}
+            className="frenix-playground-greeting"
+            textAlign="center"
+            splitType="chars"
+            delay={18}
+            duration={0.6}
+            from={{ opacity: 0, y: 18 }}
+            to={{ opacity: 1, y: 0 }}
+          />
           {modelsError && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', borderRadius: '12px', border: '1px solid #ef4444', backgroundColor: 'rgba(239, 68, 68, 0.08)', color: '#ef4444', fontSize: '13px', maxWidth: '440px' }}>
               <AlertTriangle size={14} style={{ flexShrink: 0 }} />

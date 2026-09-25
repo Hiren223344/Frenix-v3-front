@@ -3,6 +3,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { Search, Cpu, Filter, Check, Copy, Wifi, Lock } from 'lucide-react';
 import { resolveProviderIcons, displayProviderFor } from '../components/icons/BrandIcons';
+import SplitText from '../components/ui/split-text';
 
 function formatContextWindow(tokens) {
   if (!tokens) return '—';
@@ -163,9 +164,7 @@ export default function Models() {
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
       <div style={{ marginBottom: '36px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: 300, margin: 0, letterSpacing: '-0.01em' }}>
-            Models Directory
-          </h1>
+          <SplitText tag="h1" text="Models Directory" className="frenix-page-title" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
           {liveData && (
             <span
               title="Showing models available on your account right now"
