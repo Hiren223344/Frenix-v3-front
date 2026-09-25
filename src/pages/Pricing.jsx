@@ -1,11 +1,15 @@
 ﻿import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { BorderBeam } from 'border-beam';
+import { MetalFx } from 'metal-fx';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { Reveal } from '../components/animations';
 import { Check, User, Layers, Shield, ExternalLink } from 'lucide-react';
 
 export default function Pricing() {
-  const { accentDisplay } = useTheme();
+  const { isDark, accentDisplay } = useTheme();
+  const beamTheme = isDark ? 'dark' : 'light';
   const { user, isAuthenticated, openAuthModal } = useAuth();
   const [proLoading, setProLoading] = useState(false);
   const [proError, setProError] = useState('');
@@ -50,12 +54,20 @@ export default function Pricing() {
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
       <div style={{ marginBottom: '40px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: 300, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
-          Pricing Plans
-        </h1>
-        <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '600px' }}>
-          Simple pricing with predictable concurrency and throughput. No surprise bills or token markups.
-        </p>
+        <Reveal>
+          <h1
+            className="t-stagger-line t-stagger-line--1"
+            style={{ fontSize: '32px', fontWeight: 300, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}
+          >
+            Pricing Plans
+          </h1>
+          <p
+            className="t-stagger-line t-stagger-line--2"
+            style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '600px' }}
+          >
+            Simple pricing with predictable concurrency and throughput. No surprise bills or token markups.
+          </p>
+        </Reveal>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '64px' }}>
@@ -102,7 +114,8 @@ export default function Pricing() {
         </div>
 
         {/* Pro Plan */}
-        <div className="hover-lift" style={{ border: '1.5px solid var(--text)', borderRadius: '18px', padding: '28px', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--card)', position: 'relative' }}>
+        <BorderBeam size="md" colorVariant="colorful" strength={0.7} theme={beamTheme} style={{ display: 'block', height: '100%' }}>
+        <div className="hover-lift" style={{ border: '1.5px solid var(--text)', borderRadius: '18px', padding: '28px', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--card)', position: 'relative', height: '100%' }}>
           <div style={{ position: 'absolute', top: '-11px', right: '24px', background: 'var(--text)', color: 'var(--bg)', fontSize: '11px', padding: '2px 12px', borderRadius: '12px', fontWeight: 500 }}>
             Most Popular
           </div>
@@ -120,28 +133,30 @@ export default function Pricing() {
             <span style={{ fontSize: '32px', fontWeight: 300 }}>$30</span>
             <span style={{ fontSize: '13px', color: 'var(--muted)' }}>/ month</span>
           </div>
-          <button
-            type="button"
-            onClick={handleChoosePro}
-            disabled={proLoading}
-            className="button-press"
-            style={{
-              width: '100%',
-              padding: '11px 0',
-              borderRadius: '22px',
-              textAlign: 'center',
-              backgroundColor: 'var(--text)',
-              color: 'var(--bg)',
-              fontSize: '14px',
-              fontWeight: 500,
-              marginBottom: proError ? '10px' : '24px',
-              border: 'none',
-              cursor: proLoading ? 'default' : 'pointer',
-              opacity: proLoading ? 0.7 : 1,
-            }}
-          >
-            {proLoading ? 'Starting checkout…' : 'Choose Pro'}
-          </button>
+          <MetalFx variant="button" preset="gold" theme={beamTheme} style={{ display: 'block' }}>
+            <button
+              type="button"
+              onClick={handleChoosePro}
+              disabled={proLoading}
+              className="button-press"
+              style={{
+                width: '100%',
+                padding: '11px 0',
+                borderRadius: '22px',
+                textAlign: 'center',
+                backgroundColor: 'var(--text)',
+                color: 'var(--bg)',
+                fontSize: '14px',
+                fontWeight: 500,
+                marginBottom: proError ? '10px' : '24px',
+                border: 'none',
+                cursor: proLoading ? 'default' : 'pointer',
+                opacity: proLoading ? 0.7 : 1,
+              }}
+            >
+              {proLoading ? 'Starting checkout…' : 'Choose Pro'}
+            </button>
+          </MetalFx>
           {proError && (
             <div style={{ fontSize: '12px', color: '#e5484d', marginBottom: '24px', lineHeight: 1.5 }}>{proError}</div>
           )}
@@ -155,6 +170,7 @@ export default function Pricing() {
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> Priority routing queue</div>
           </div>
         </div>
+        </BorderBeam>
 
         {/* Enterprise Plan */}
         <div className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '18px', padding: '28px', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--card)' }}>
