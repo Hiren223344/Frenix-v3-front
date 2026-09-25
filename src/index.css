@@ -8,6 +8,22 @@
    the in-app toggle. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* Maps shadcn's usual semantic color names (bg-background, text-foreground,
+   border-border, bg-muted, …) onto the CSS custom properties this app
+   already defines below and toggles for light/dark — so components written
+   against the shadcn convention (src/components/motion/*, ui/*) pick up
+   this app's real theme instead of needing their own color system. */
+@theme {
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-card-foreground: var(--text);
+  --color-muted: var(--hover-bg);
+  --color-muted-foreground: var(--muted);
+  --color-ring: var(--accent-display);
+}
+
 :root {
   --bg: #ffffff;
   --text: #111111;
