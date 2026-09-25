@@ -7,7 +7,8 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { Reveal, ScrollReveal } from '../components/animations';
 import SplitText from '../components/ui/split-text';
-import { Check, User, Layers, Shield, ExternalLink } from 'lucide-react';
+import { BouncyAccordion } from '../components/motion/bouncy-accordion';
+import { Check, User, Layers, Shield, ExternalLink, RefreshCw, Coins, HelpCircle } from 'lucide-react';
 
 export default function Pricing() {
   const { isDark, accentDisplay } = useTheme();
@@ -237,20 +238,34 @@ export default function Pricing() {
       {/* Feature Comparison */}
       <ScrollReveal className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '18px', padding: '32px', backgroundColor: 'var(--card)' }}>
         <h2 style={{ fontSize: '22px', fontWeight: 400, margin: '0 0 16px 0' }}>Frequently Asked Pricing Questions</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          <div>
-            <div style={{ fontWeight: 500, fontSize: '15px', marginBottom: '4px' }}>Can I switch plans anytime?</div>
-            <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>Yes, upgrades take effect immediately. Downgrades take effect at the end of the billing period.</div>
-          </div>
-          <div>
-            <div style={{ fontWeight: 500, fontSize: '15px', marginBottom: '4px' }}>Do you charge for token overages?</div>
-            <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>No, we do not bill variable per-token surcharges. Pro plans provide unlimited requests subject to fair concurrent rate limiting.</div>
-          </div>
-          <div>
-            <div style={{ fontWeight: 500, fontSize: '15px', marginBottom: '4px' }}>Need help picking a tier?</div>
-            <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6 }}>Chat with our team directly via Telegram at <a href="https://t.me/frenix_bot" target="_blank" rel="noopener noreferrer" style={{ color: accentDisplay, textDecoration: 'underline' }}>@frenix_bot</a>.</div>
-          </div>
-        </div>
+        <BouncyAccordion
+          defaultValue={null}
+          items={[
+            {
+              id: 'switch-plans',
+              title: 'Can I switch plans anytime?',
+              icon: <RefreshCw size={15} />,
+              description: 'Yes, upgrades take effect immediately. Downgrades take effect at the end of the billing period.',
+            },
+            {
+              id: 'overages',
+              title: 'Do you charge for token overages?',
+              icon: <Coins size={15} />,
+              description: 'No, we do not bill variable per-token surcharges. Pro plans provide unlimited requests subject to fair concurrent rate limiting.',
+            },
+            {
+              id: 'pick-a-tier',
+              title: 'Need help picking a tier?',
+              icon: <HelpCircle size={15} />,
+              description: (
+                <>
+                  Chat with our team directly via Telegram at{' '}
+                  <a href="https://t.me/frenix_bot" target="_blank" rel="noopener noreferrer" style={{ color: accentDisplay, textDecoration: 'underline' }}>@frenix_bot</a>.
+                </>
+              ),
+            },
+          ]}
+        />
       </ScrollReveal>
     </div>
   );
