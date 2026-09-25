@@ -8,6 +8,7 @@ import { SkeletonReveal, ScrollReveal } from '../components/animations';
 import AnimatedCounter from '../components/ui/animated-counter';
 import DeleteButton from '../components/ui/delete-button';
 import SplitText from '../components/ui/split-text';
+import { CenterMorphModal, CenterMorphModalContent, CenterMorphModalTrigger } from '../components/motion/center-morph-modal';
 import { Key, Plus, Copy, Check, BarChart3, Activity, RefreshCw, Wallet, Hash, Gift, AlertTriangle, Bell, X } from 'lucide-react';
 
 // One optional-limit number input, shared by every field in the "Add spend
@@ -787,30 +788,30 @@ export default function Dashboard() {
       )}
 
       {/* API Keys Header & Creation */}
+      <CenterMorphModal open={showModal} onOpenChange={setShowModal}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
         <h2 style={{ fontSize: '20px', fontWeight: 400, margin: 0 }}>API keys</h2>
-        <button
-          onClick={() => {
-            setShowModal(true);
-            setCreatedKey(null);
-          }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '8px 18px',
-            borderRadius: '18px',
-            border: '1px solid var(--text)',
-            backgroundColor: 'var(--text)',
-            color: 'var(--bg)',
-            fontSize: '13px',
-            fontWeight: 500,
-            cursor: 'pointer',
-          }}
-        >
-          <Plus size={15} />
-          <span>Create API key</span>
-        </button>
+        <CenterMorphModalTrigger>
+          <button
+            onClick={() => setCreatedKey(null)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 18px',
+              borderRadius: '18px',
+              border: '1px solid var(--text)',
+              backgroundColor: 'var(--text)',
+              color: 'var(--bg)',
+              fontSize: '13px',
+              fontWeight: 500,
+              cursor: 'pointer',
+            }}
+          >
+            <Plus size={15} />
+            <span>Create API key</span>
+          </button>
+        </CenterMorphModalTrigger>
       </div>
 
       {/* Keys Table / Container */}
@@ -892,33 +893,15 @@ export default function Dashboard() {
       </ScrollReveal>
 
       {/* Creation Modal */}
-      {showModal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0,0,0,0.6)',
-            backdropFilter: 'blur(4px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 100,
-            padding: '20px',
-          }}
-        >
-          <div
-            style={{
-              width: '100%',
-              maxWidth: '440px',
-              backgroundColor: 'var(--card)',
-              border: '1px solid var(--border)',
-              borderRadius: '16px',
-              padding: '24px',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-            }}
-          >
+      <CenterMorphModalContent
+        ariaLabel="Create New API Key"
+        ariaDescribedBy="create-key-description"
+        dismissible={!isSubmitting}
+        className="max-w-[440px]"
+      >
+          <div style={{ padding: '24px' }}>
             <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 500 }}>Create New API Key</h3>
-            <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: 'var(--muted)' }}>
+            <p id="create-key-description" style={{ margin: '0 0 16px 0', fontSize: '13px', color: 'var(--muted)' }}>
               Give your key a recognizable name to track where it is being utilized.
             </p>
 
@@ -1069,8 +1052,8 @@ export default function Dashboard() {
               </form>
             )}
           </div>
-        </div>
-      )}
+      </CenterMorphModalContent>
+      </CenterMorphModal>
     </div>
   );
 }
