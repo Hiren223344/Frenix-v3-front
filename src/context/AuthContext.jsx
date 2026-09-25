@@ -36,10 +36,6 @@ export function AuthProvider({ children }) {
     return userData;
   }, []);
 
-  const loginWithBot = useCallback(() => {
-    return loginWithSession({});
-  }, [loginWithSession]);
-
   const logout = useCallback(() => {
     setUser(null);
     localStorage.removeItem('frenix_user');
@@ -52,12 +48,11 @@ export function AuthProvider({ children }) {
     user,
     isAuthenticated: !!user,
     loginWithSession,
-    loginWithBot,
     logout,
     isAuthModalOpen,
     openAuthModal,
     closeAuthModal
-  }), [user, isAuthModalOpen, loginWithSession, loginWithBot, logout, openAuthModal, closeAuthModal]);
+  }), [user, isAuthModalOpen, loginWithSession, logout, openAuthModal, closeAuthModal]);
 
   return (
     <AuthContext.Provider value={value}>

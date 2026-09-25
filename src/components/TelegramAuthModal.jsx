@@ -8,7 +8,7 @@ const API_BASE = typeof window !== 'undefined' && window.location.hostname === '
   : (import.meta.env.DEV ? '' : 'https://api.frenix.sh');
 
 export default function TelegramAuthModal() {
-  const { isAuthModalOpen, closeAuthModal, loginWithSession, loginWithBot } = useAuth();
+  const { isAuthModalOpen, closeAuthModal, loginWithSession } = useAuth();
   const [step, setStep] = useState('ready'); // 'ready' | 'loading' | 'waiting' | 'expired' | 'error'
   const [errorMessage, setErrorMessage] = useState('');
   const [botDeepLink, setBotDeepLink] = useState('');
@@ -307,24 +307,6 @@ export default function TelegramAuthModal() {
                 }}
               >
                 Try Again
-              </button>
-              <button
-                onClick={() => {
-                  loginWithBot();
-                  closeAuthModal();
-                }}
-                className="button-press"
-                style={{
-                  padding: '7px 14px',
-                  borderRadius: '12px',
-                  backgroundColor: 'transparent',
-                  color: 'var(--text)',
-                  border: '1px solid var(--border)',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                }}
-              >
-                Offline Mode
               </button>
             </div>
           </div>
