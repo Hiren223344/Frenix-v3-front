@@ -125,7 +125,11 @@ export function AnimatedSidebar({
     <motion.aside
       aria-label={ariaLabel}
       data-state={state}
-      className={cn("group/sidebar flex shrink-0 flex-col overflow-hidden border-r", panelClassName, className)}
+      className={cn(
+        "group/sidebar sticky top-0 flex h-screen shrink-0 flex-col overflow-hidden border-r",
+        panelClassName,
+        className,
+      )}
       animate={{ width: collapsed ? WIDTH_ICON : WIDTH_EXPANDED }}
       transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 340, damping: 34 }}
       {...props}
