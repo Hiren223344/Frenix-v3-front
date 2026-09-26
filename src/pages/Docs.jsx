@@ -4,6 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useTranslate } from '../context/LanguageContext';
 import { Copy, Check, Code, ExternalLink } from 'lucide-react';
 import SplitText from '../components/ui/split-text';
+import { PreviewRail } from '../components/motion/preview-rail';
 
 export default function Docs() {
   const { accentDisplay } = useTheme();
@@ -20,17 +21,17 @@ export default function Docs() {
   };
 
   const navItems = [
-    { id: 'quickstart', label: t('Quickstart') },
-    { id: 'frontend-integration', label: t('Frontend Integration Guide') },
-    { id: 'authentication', label: t('Authentication & Keys') },
-    { id: 'client-configs', label: t('Claude Code & Codex Setup') },
-    { id: 'sdk-examples', label: t('Python & Node.js SDKs') },
-    { id: 'streaming', label: t('Streaming & Tool Calling') },
-    { id: 'model-routing', label: t('Model Routing & Fallbacks') },
-    { id: 'errors', label: t('Error Codes & Failover') },
-    { id: 'rate-limits', label: t('Rate Limits & Concurrency') },
-    { id: 'plugins', label: t('Plugins') },
-    { id: 'referrals', label: t('Referral Program') },
+    { id: 'quickstart', label: t('Quickstart'), description: t('Get a working request out in under a minute.') },
+    { id: 'frontend-integration', label: t('Frontend Integration Guide'), description: t('Wire Frenix into a web app frontend.') },
+    { id: 'authentication', label: t('Authentication & Keys'), description: t('Create, scope, and send your API keys.') },
+    { id: 'client-configs', label: t('Claude Code & Codex Setup'), description: t('Point CLI coding agents at Frenix.') },
+    { id: 'sdk-examples', label: t('Python & Node.js SDKs'), description: t('Drop-in examples with the official SDKs.') },
+    { id: 'streaming', label: t('Streaming & Tool Calling'), description: t('SSE streaming and function-calling requests.') },
+    { id: 'model-routing', label: t('Model Routing & Fallbacks'), description: t('How Frenix picks a backend and fails over.') },
+    { id: 'errors', label: t('Error Codes & Failover'), description: t('Error shapes and what each status code means.') },
+    { id: 'rate-limits', label: t('Rate Limits & Concurrency'), description: t('Per-tier limits and the headers that report them.') },
+    { id: 'plugins', label: t('Plugins'), description: t('Give the model tools it can call mid-request.') },
+    { id: 'referrals', label: t('Referral Program'), description: t('Earn credit for every signup you refer.') },
   ];
 
   return (
@@ -43,31 +44,17 @@ export default function Docs() {
       </div>
 
       <div style={{ display: 'flex', gap: '36px', flexWrap: 'wrap' }}>
-        {/* Sidebar Nav */}
-        <aside style={{ flex: '0 0 220px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          {navItems.map((item) => {
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                style={{
-                  textAlign: 'left',
-                  padding: '9px 12px',
-                  borderRadius: '10px',
-                  fontSize: '13px',
-                  backgroundColor: isActive ? 'var(--hover-bg)' : 'transparent',
-                  color: isActive ? 'var(--text)' : 'var(--muted)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontWeight: isActive ? 500 : 400,
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                {item.label}
-              </button>
-            );
-          })}
+        {/* Sidebar Nav — a compact tick rail: hover (or focus) a tick to see
+            which section it is via the floating preview, click to jump. */}
+        <aside style={{ flex: '0 0 60px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <PreviewRail
+            items={navItems}
+            activeId={activeTab}
+            onItemSelect={(item) => setActiveTab(item.id)}
+            highlightActive
+            itemSize={22}
+            label={t('Documentation sections')}
+          />
 
           <div style={{ borderTop: '1px solid var(--border)', margin: '14px 0 10px' }} />
           <a
