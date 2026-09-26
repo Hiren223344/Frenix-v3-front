@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Info, LoaderCircle, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { SuccessCheck } from "@/components/animations";
 
 export type ToastStatus = "neutral" | "info" | "loading" | "success" | "error";
 
@@ -176,7 +177,14 @@ export function AnimatedToastStack({
                   status === "loading" && "bg-muted text-muted-foreground",
                 )}
               >
-                {icon ?? <Icon size={14} className={status === "loading" ? "animate-spin" : undefined} />}
+                {icon ??
+                  (status === "success" ? (
+                    <SuccessCheck>
+                      <Icon size={14} />
+                    </SuccessCheck>
+                  ) : (
+                    <Icon size={14} className={status === "loading" ? "animate-spin" : undefined} />
+                  ))}
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-medium text-foreground">{toast.title}</span>

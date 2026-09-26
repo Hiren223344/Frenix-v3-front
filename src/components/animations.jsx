@@ -75,6 +75,20 @@ export function TextSwap({ value, as: Tag = 'span', className = '', style }) {
   );
 }
 
+// transitions.dev's "success check": fades a status icon in while it
+// rotates upright, settles with a Y-bob, and (for an SVG <path> icon)
+// draws its stroke. Appear-only per the spec — the icon is meant to mount
+// already in this state (e.g. inside a freshly-mounted success toast), so
+// there's no separate "out" phase to trigger from; a parent that remounts
+// the wrapper (a `key` change, an AnimatePresence item) is what replays it.
+export function SuccessCheck({ children, className = '', style = undefined }) {
+  return (
+    <span className={`t-success-check ${className}`.trim()} data-state="in" aria-hidden="true" style={style}>
+      {children}
+    </span>
+  );
+}
+
 // Fades + rises a block in as it scrolls into view — unlike Reveal (which
 // only ever plays once, on mount), this re-triggers per element via
 // IntersectionObserver (whileInView), so every section gets its own moment
