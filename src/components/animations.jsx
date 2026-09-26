@@ -75,6 +75,33 @@ export function TextSwap({ value, as: Tag = 'span', className = '', style }) {
   );
 }
 
+// transitions.dev's "card resize": tweens a container's width/height via
+// a plain CSS transition (.t-resize, in index.css). A raw CSS transition
+// can't interpolate to/from `height: auto`, so this measures the
+// content's natural height and toggles the wrapper between 0 and that
+// measured px value instead — the explicit-value contract the transition
+// needs, same trick as the auto-growing textarea in Playground.jsx.
+export function CardResize({ active, children, className = '', style = undefined }) {
+  const contentRef = useRef(null);
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    setHeight(active ? el.scrollHeight : 0);
+  }, [active, children]);
+
+  return (
+    <div
+      className={`t-resize ${className}`.trim()}
+      style={{ height, overflow: 'hidden', ...style }}
+      aria-hidden={!active}
+    >
+      <div ref={contentRef}>{children}</div>
+    </div>
+  );
+}
+
 // transitions.dev's "success check": fades a status icon in while it
 // rotates upright, settles with a Y-bob, and (for an SVG <path> icon)
 // draws its stroke. Appear-only per the spec — the icon is meant to mount

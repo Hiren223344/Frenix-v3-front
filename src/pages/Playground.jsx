@@ -546,6 +546,7 @@ export default function Playground() {
         >
           <textarea
             ref={textareaRef}
+            className="t-resize"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}

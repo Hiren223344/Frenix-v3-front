@@ -472,6 +472,31 @@ button {
 }
 
 /* ---------------------------------------------------------------------- */
+/* transitions.dev — "Card resize". Namespaced .t-* CSS pulled via        */
+/* `npx transitions-dev add card-resize`; see transitions/*.md for the    */
+/* source doc. Pure CSS, no JS orchestration — used on the Playground     */
+/* chat composer's auto-growing textarea (src/pages/Playground.jsx),      */
+/* which already sets el.style.height on every keystroke; this just      */
+/* tweens the jump instead of snapping.                                  */
+/* ---------------------------------------------------------------------- */
+
+:root {
+  --resize-dur: 300ms;
+  --resize-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.t-resize {
+  transition:
+    width  var(--resize-dur) var(--resize-ease),
+    height var(--resize-dur) var(--resize-ease);
+  will-change: width, height;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-resize { transition: none !important; }
+}
+
+/* ---------------------------------------------------------------------- */
 /* Sound (src/components/sound.tsx) — its own tokens, beside the ones     */
 /* above rather than folded into them, so this component stays a single, */
 /* removable unit.                                                       */
