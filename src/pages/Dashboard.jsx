@@ -5,7 +5,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useTranslate } from '../context/LanguageContext';
-import { SkeletonReveal, ScrollReveal } from '../components/animations';
+import { SkeletonReveal, ScrollReveal, TextSwap } from '../components/animations';
 import AnimatedCounter from '../components/ui/animated-counter';
 import DeleteButton from '../components/ui/delete-button';
 import SplitText from '../components/ui/split-text';
@@ -780,7 +780,7 @@ export default function Dashboard() {
               }}
             >
               {referralCopied ? <Check size={14} /> : <Copy size={14} />}
-              <span>{referralCopied ? t('Copied') : t('Copy link')}</span>
+              <TextSwap value={referralCopied ? t('Copied') : t('Copy link')} />
             </button>
             <span style={{ fontSize: '13px', color: 'var(--muted)', flexShrink: 0 }}>
               <strong style={{ color: 'var(--text)' }}>{account.referral_count ?? 0}</strong> {account.referral_count === 1 ? t('referral so far') : t('referrals so far')}
