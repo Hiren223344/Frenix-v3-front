@@ -5,7 +5,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useTranslate } from '../context/LanguageContext';
-import { SkeletonReveal, ScrollReveal, TextSwap } from '../components/animations';
+import { SkeletonReveal, ScrollReveal, TextSwap, CardResize } from '../components/animations';
 import AnimatedCounter from '../components/ui/animated-counter';
 import DeleteButton from '../components/ui/delete-button';
 import SplitText from '../components/ui/split-text';
@@ -1002,8 +1002,8 @@ export default function Dashboard() {
                   {showLimitFields ? t('Hide limits') : t('Add spend / rate limits (optional)')}
                 </button>
 
-                {showLimitFields && (
-                  <div style={{ marginBottom: '16px' }}>
+                <CardResize active={showLimitFields}>
+                  <div style={{ paddingBottom: '16px' }}>
                     <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
                       <LimitField label={t('Spend limit ($)')} placeholder={t('No limit')} min="0" step="0.01" value={newKeySpendLimit} onChange={setNewKeySpendLimit} />
                       <LimitField label={t('Rate limit (req/min)')} placeholder={t('No limit')} min="1" step="1" value={newKeyRateLimit} onChange={setNewKeyRateLimit} />
@@ -1015,7 +1015,7 @@ export default function Dashboard() {
                       <LimitField label={t('Per day')} placeholder={t('No limit')} min="1" step="1" value={newKeyTokensPerDay} onChange={setNewKeyTokensPerDay} />
                     </div>
                   </div>
-                )}
+                </CardResize>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                   <button
