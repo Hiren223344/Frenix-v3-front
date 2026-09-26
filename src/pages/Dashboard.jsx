@@ -65,10 +65,39 @@ function tokenUsageLabel(current, limit, t) {
   return `${used}/${limit.toLocaleString()} ${t('tok')}`;
 }
 
+const TOKEN_EXPIRY_WARNING_DAYS = 3;
+const TOKEN_LOW_BALANCE_THRESHOLD = 1_000_000;
+
+function daysUntil(isoDate) {
+  return Math.max(0, Math.ceil((new Date(isoDate).getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
+}
+
 function tokenExpiryLabel(expiresAt, t) {
   const date = new Date(expiresAt);
-  const days = Math.max(0, Math.ceil((date.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
-  return `${t('Expires')} ${date.toLocaleDateString()} (${days} ${t('days')})`;
+  return `${t('Expires')} ${date.toLocaleDateString()} (${daysUntil(expiresAt)} ${t('days')})`;
+}
+
+// Mirrors the dollar low-balance banner, but for the token quota: warns
+// separately about running low and about unused tokens being forfeited at
+// pack expiry, since either can happen without the other.
+function tokenBalanceWarning(account, t) {
+  if (account?.tier !== 'pro') return null;
+  const balance = Number(account.token_balance ?? 0);
+  if (balance <= 0) return null;
+
+  const expiresAt = account.token_balance_expires_at;
+  const expiringSoon = expiresAt && daysUntil(expiresAt) <= TOKEN_EXPIRY_WARNING_DAYS;
+  const runningLow = balance < TOKEN_LOW_BALANCE_THRESHOLD;
+  if (!expiringSoon && !runningLow) return null;
+
+  const balanceLabel = balance.toLocaleString();
+  if (expiringSoon && runningLow) {
+    return `${t('Only')} ${balanceLabel} ${t('tokens left, expiring in')} ${daysUntil(expiresAt)} ${t('days')} — ${t('buy more to avoid an interruption.')}`;
+  }
+  if (expiringSoon) {
+    return `${balanceLabel} ${t('unused tokens will be forfeited in')} ${daysUntil(expiresAt)} ${t('days')} — ${t('use them or buy more before they expire.')}`;
+  }
+  return `${t('Only')} ${balanceLabel} ${t('tokens left — buy more to avoid an interruption.')}`;
 }
 
 export default function Dashboard() {
@@ -495,6 +524,9 @@ export default function Dashboard() {
     }
   };
 
+  const tokenWarning = tokenBalanceWarning(account, t);
+  const tokenExpiringSoon = account?.token_balance_expires_at && daysUntil(account.token_balance_expires_at) <= TOKEN_EXPIRY_WARNING_DAYS;
+
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
       <div style={{ marginBottom: '32px' }}>
@@ -573,6 +605,26 @@ export default function Dashboard() {
         </div>
       )}
 
+      {tokenWarning && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '10px 14px',
+            borderRadius: '10px',
+            border: '1px solid #f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.08)',
+            color: '#f59e0b',
+            fontSize: '13px',
+            marginBottom: '24px',
+          }}
+        >
+          <AlertTriangle size={15} style={{ flexShrink: 0 }} />
+          <span>{tokenWarning}</span>
+        </div>
+      )}
+
       {/* Metrics Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '36px' }}>
         <ScrollReveal y={12} style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
@@ -587,7 +639,7 @@ export default function Dashboard() {
                 decimals={0}
                 style={{ fontSize: '26px', fontWeight: 500 }}
               />
-              <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
+              <div style={{ fontSize: '12px', color: tokenExpiringSoon ? '#f59e0b' : 'var(--muted)', marginTop: '4px' }}>
                 {account?.token_balance_expires_at
                   ? tokenExpiryLabel(account.token_balance_expires_at, t)
                   : t('No active token packs')}
