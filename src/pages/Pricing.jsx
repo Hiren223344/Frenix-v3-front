@@ -9,7 +9,7 @@ import { useTranslate } from '../context/LanguageContext';
 import { Reveal, ScrollReveal } from '../components/animations';
 import SplitText from '../components/ui/split-text';
 import { BouncyAccordion } from '../components/motion/bouncy-accordion';
-import { Check, User, Layers, Shield, ExternalLink, RefreshCw, Coins, HelpCircle } from 'lucide-react';
+import { Check, User, Layers, Shield, ExternalLink, RefreshCw, Coins, HelpCircle, Gift } from 'lucide-react';
 
 export default function Pricing() {
   const { isDark, accentDisplay } = useTheme();
@@ -19,6 +19,9 @@ export default function Pricing() {
   const t = useTranslate();
   const [proLoading, setProLoading] = useState(false);
   const [proError, setProError] = useState('');
+  const [trialLoading, setTrialLoading] = useState(false);
+  const [trialError, setTrialError] = useState('');
+  const [trialClaimed, setTrialClaimed] = useState(false);
 
   // Mirrors internal/billing.TokenPackSKUs exactly — GMPayCreate rejects
   // any `tokens` value that isn't one of these six, and always prices it
@@ -70,6 +73,46 @@ export default function Pricing() {
       toast.error(t('Checkout failed'), message);
     } finally {
       setProLoading(false);
+    }
+  };
+
+  // Claims the one-time free trial (see internal/billing.ClaimTrial) — a
+  // 5M-token grant that unlocks the same catalog a purchase does, no
+  // payment involved. A 409 means this account already claimed it
+  // (possibly in an earlier session), which we treat the same as success
+  // for UI purposes: either way there's nothing left to claim.
+  const handleClaimTrial = async () => {
+    if (!isAuthenticated) {
+      openAuthModal();
+      return;
+    }
+    setTrialError('');
+    setTrialLoading(true);
+    try {
+      const token = user?.sessionToken || localStorage.getItem('frenix_session_token');
+      if (!token || !window.secureRelayRequest) {
+        throw new Error(t('No active session found. Please log in first.'));
+      }
+      const res = await window.secureRelayRequest('/v1/billing/trial/claim', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        if (res.status === 409) {
+          setTrialClaimed(true);
+          toast.info(t('Trial already claimed'), t("You've already used your free trial on this account."));
+          return;
+        }
+        throw new Error(res.data?.error?.message || `${t('Failed to claim trial')} (HTTP ${res.status})`);
+      }
+      setTrialClaimed(true);
+      toast.success(t('Trial claimed!'), t('5M tokens added to your account — check your Dashboard.'));
+    } catch (err) {
+      const message = err.message || t('Failed to claim trial.');
+      setTrialError(message);
+      toast.error(t('Could not claim trial'), message);
+    } finally {
+      setTrialLoading(false);
     }
   };
 
@@ -217,6 +260,38 @@ export default function Pricing() {
           </MetalFx>
           {proError && (
             <div style={{ fontSize: '12px', color: '#e5484d', marginBottom: '24px', lineHeight: 1.5 }}>{proError}</div>
+          )}
+          {!trialClaimed && (
+            <button
+              type="button"
+              onClick={handleClaimTrial}
+              disabled={trialLoading}
+              className="button-press"
+              style={{
+                width: '100%',
+                padding: '9px 0',
+                marginBottom: trialError ? '10px' : '18px',
+                borderRadius: '22px',
+                textAlign: 'center',
+                backgroundColor: 'transparent',
+                border: '1px dashed var(--border)',
+                color: 'var(--muted)',
+                fontSize: '13px',
+                fontWeight: 500,
+                cursor: trialLoading ? 'default' : 'pointer',
+                opacity: trialLoading ? 0.7 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+              }}
+            >
+              <Gift size={14} />
+              <span>{trialLoading ? t('Claiming…') : t('Try free — claim 5M tokens')}</span>
+            </button>
+          )}
+          {trialError && (
+            <div style={{ fontSize: '12px', color: '#e5484d', marginBottom: '18px', lineHeight: 1.5 }}>{trialError}</div>
           )}
           <div style={{ borderTop: '1px solid var(--border)', marginBottom: '18px' }} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px' }}>
