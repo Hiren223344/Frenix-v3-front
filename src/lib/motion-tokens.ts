@@ -24,6 +24,10 @@ import type { Transition } from "motion/react";
 
 export const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 export const EASE_IN_OUT = [0.45, 0, 0.55, 1] as const;
+// The standard "drawer" deceleration curve (also used by Vaul/shadcn's
+// Sheet) — for a panel sliding in/out along an edge, where EASE_OUT reads
+// as slightly too snappy for something that large.
+export const EASE_DRAWER = [0.32, 0.72, 0, 1] as const;
 
 export const SPRING_PRESS: Transition = { type: "spring", stiffness: 500, damping: 30 };
 export const SPRING_LAYOUT: Transition = { type: "spring", stiffness: 340, damping: 34 };
