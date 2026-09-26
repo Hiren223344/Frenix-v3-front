@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslate } from '../context/LanguageContext';
-import { Copy, Check, Plug, ArrowRight } from 'lucide-react';
+import { Copy, Check, Plug } from 'lucide-react';
 import SplitText from '../components/ui/split-text';
+import { ExpandingArrowButton } from '../components/motion/expanding-arrow-button';
 
 const TOOLS = [
   { name: 'list_models', mirrors: 'GET /v1/models', notes: 'pricing, capabilities, tier requirement' },
@@ -30,6 +31,7 @@ const CONFIG_SNIPPET = (key) => `{
 export default function MCP() {
   const { isAuthenticated } = useAuth();
   const t = useTranslate();
+  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -145,24 +147,9 @@ export default function MCP() {
               : t('Sign in with Telegram, then create an API key from your Dashboard.')}
           </div>
         </div>
-        <Link
-          to="/dashboard"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '9px 18px',
-            borderRadius: '18px',
-            backgroundColor: 'var(--text)',
-            color: 'var(--bg)',
-            fontSize: '13px',
-            fontWeight: 500,
-            flexShrink: 0,
-          }}
-        >
-          <span>{t('Go to Dashboard')}</span>
-          <ArrowRight size={14} />
-        </Link>
+        <ExpandingArrowButton onClick={() => navigate('/dashboard')} className="shrink-0 py-2 pl-2 pr-4 text-[13px]">
+          {t('Go to Dashboard')}
+        </ExpandingArrowButton>
       </div>
     </div>
   );
