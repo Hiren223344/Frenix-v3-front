@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { ComponentProps, CSSProperties, ReactNode } from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useId, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
@@ -268,8 +268,40 @@ export function AnimatedSidebarGroupContent({ className, ...props }: ComponentPr
   return <div className={cn("flex flex-col", className)} {...props} />;
 }
 
-export function AnimatedSidebarMenu({ className, ...props }: ComponentProps<"ul">) {
-  return <ul className={cn("flex flex-col gap-0.5", className)} {...props} />;
+// Drives the sliding highlight pill behind menu items: a single shared
+// `motion.div` (matched across items by `layoutId`) that follows whichever
+// item is hovered, and falls back to the active item once the pointer
+// leaves the list. Scoped per <AnimatedSidebarMenu> instance (its own
+// state + a layoutId derived from useId) so two menus rendered at once —
+// e.g. the primary and secondary nav groups — never fight over one pill.
+type MenuHighlightContextValue = {
+  hoveredId: string | null;
+  setHoveredId: (id: string | null) => void;
+  layoutId: string;
+};
+
+const MenuHighlightContext = createContext<MenuHighlightContextValue | null>(null);
+
+export function AnimatedSidebarMenu({ className, onMouseLeave, ...props }: ComponentProps<"ul">) {
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const reactId = useId();
+  const value = useMemo(
+    () => ({ hoveredId, setHoveredId, layoutId: `sidebar-menu-highlight-${reactId}` }),
+    [hoveredId, reactId],
+  );
+
+  return (
+    <MenuHighlightContext.Provider value={value}>
+      <ul
+        className={cn("flex flex-col gap-0.5", className)}
+        onMouseLeave={(e) => {
+          setHoveredId(null);
+          onMouseLeave?.(e);
+        }}
+        {...props}
+      />
+    </MenuHighlightContext.Provider>
+  );
 }
 
 export function AnimatedSidebarMenuItem({ className, ...props }: ComponentProps<"li">) {
@@ -296,9 +328,9 @@ export type AnimatedSidebarMenuButtonProps = Omit<ComponentProps<"button">, "onS
 };
 
 const MENU_BUTTON_CLASS =
-  "group/menu-button flex min-h-9 w-full items-center gap-2.5 overflow-hidden rounded-lg px-2.5 text-sm font-medium transition-colors " +
-  "text-muted-foreground hover:bg-muted hover:text-foreground " +
-  "data-[active]:bg-muted data-[active]:text-foreground";
+  "group/menu-button relative flex min-h-9 w-full items-center gap-2.5 overflow-hidden rounded-lg px-2.5 text-sm font-medium transition-colors " +
+  "text-muted-foreground hover:text-foreground " +
+  "data-[active]:text-foreground";
 
 function MenuButtonContent({
   icon,
@@ -312,7 +344,7 @@ function MenuButtonContent({
   children?: ReactNode;
 }) {
   return (
-    <>
+    <span className="relative z-10 flex w-full min-w-0 items-center gap-2.5">
       {icon && <span className="flex shrink-0 items-center justify-center">{icon}</span>}
       <span className="min-w-0 flex-1 truncate text-left group-data-[state=collapsed]/sidebar:hidden">
         {children}
@@ -330,7 +362,7 @@ function MenuButtonContent({
           ›
         </motion.span>
       )}
-    </>
+    </span>
   );
 }
 
@@ -351,16 +383,35 @@ export function AnimatedSidebarMenuButton({
   ...props
 }: AnimatedSidebarMenuButtonProps) {
   const { isMobile, setOpenMobile } = useSidebar();
+  const reduced = useReducedMotion() ?? false;
+  const highlightCtx = useContext(MenuHighlightContext);
+  const reactId = useId();
   const cls = cn(MENU_BUTTON_CLASS, disabled && "pointer-events-none opacity-50", className);
+
+  // With nothing hovered, the active item carries the highlight; hovering
+  // any item (including the active one) hands it over for the duration of
+  // the hover, then it springs back once the pointer leaves the list.
+  const highlighted = highlightCtx
+    ? (highlightCtx.hoveredId ?? (isActive ? reactId : null)) === reactId
+    : !!isActive;
 
   const handleSelect = () => {
     onSelect?.();
     if (closeOnSelect && isMobile) setOpenMobile(false);
   };
 
+  const pill = highlighted && (
+    <motion.div
+      layoutId={highlightCtx?.layoutId}
+      className="absolute inset-0 rounded-lg bg-muted"
+      transition={reduced ? { duration: 0 } : SPRING_LAYOUT}
+    />
+  );
+
   if (disabled) {
     return (
       <span aria-disabled="true" className={cls}>
+        {pill}
         <MenuButtonContent icon={icon} badge={badge} ariaExpanded={ariaExpanded}>
           {children}
         </MenuButtonContent>
@@ -376,7 +427,9 @@ export function AnimatedSidebarMenuButton({
         data-active={isActive || undefined}
         className={cls}
         onClick={handleSelect}
+        onMouseEnter={() => highlightCtx?.setHoveredId(reactId)}
       >
+        {pill}
         <MenuButtonContent icon={icon} badge={badge} ariaExpanded={ariaExpanded}>
           {children}
         </MenuButtonContent>
@@ -393,7 +446,9 @@ export function AnimatedSidebarMenuButton({
         data-active={isActive || undefined}
         className={cls}
         onClick={handleSelect}
+        onMouseEnter={() => highlightCtx?.setHoveredId(reactId)}
       >
+        {pill}
         <MenuButtonContent icon={icon} badge={badge} ariaExpanded={ariaExpanded}>
           {children}
         </MenuButtonContent>
@@ -405,12 +460,14 @@ export function AnimatedSidebarMenuButton({
     <button
       type="button"
       onClick={handleSelect}
+      onMouseEnter={() => highlightCtx?.setHoveredId(reactId)}
       aria-current={isActive ? "page" : undefined}
       aria-expanded={ariaExpanded}
       data-active={isActive || undefined}
       className={cls}
       {...props}
     >
+      {pill}
       <MenuButtonContent icon={icon} badge={badge} ariaExpanded={ariaExpanded}>
         {children}
       </MenuButtonContent>
