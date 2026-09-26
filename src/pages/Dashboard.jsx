@@ -131,6 +131,8 @@ export default function Dashboard() {
   const [thresholdInput, setThresholdInput] = useState('');
   const [savingThreshold, setSavingThreshold] = useState(false);
 
+  const [trialLoading, setTrialLoading] = useState(false);
+
   const fetchDashboardData = async () => {
     setLoading(true);
     setSyncError('');
@@ -498,6 +500,44 @@ export default function Dashboard() {
     }
   };
 
+  // Claims the one-time free trial (see internal/billing.ClaimTrial) — a
+  // 5M-token grant that unlocks the same catalog a purchase does. A 409
+  // means it was already claimed (e.g. in an earlier session); re-fetching
+  // /v1/me either way keeps account.trial_available in sync so the button
+  // disappears regardless of which branch happened.
+  const handleClaimTrial = async () => {
+    const sessionToken = user?.sessionToken || localStorage.getItem('frenix_session_token');
+    if (!sessionToken || !window.secureRelayRequest) {
+      setSyncError(t('No active Telegram session found. Please log in again and retry.'));
+      return;
+    }
+    setTrialLoading(true);
+    try {
+      const res = await window.secureRelayRequest('/v1/billing/trial/claim', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${sessionToken}` },
+      });
+      if (!res.ok && res.status !== 409) {
+        throw new Error(res?.data?.error?.message || `${t('Failed to claim trial')} (HTTP ${res.status})`);
+      }
+      const meRes = await window.secureRelayRequest('/v1/me', {
+        headers: { Authorization: `Bearer ${sessionToken}` }
+      });
+      if (meRes.ok && meRes.data) setAccount(meRes.data);
+      if (res.status === 409) {
+        toast.info(t('Trial already claimed'), t("You've already used your free trial on this account."));
+      } else {
+        toast.success(t('Trial claimed!'), t('5M tokens added to your account.'));
+      }
+    } catch (err) {
+      const message = err.message || t('Failed to claim trial.');
+      setSyncError(message);
+      toast.error(t('Could not claim trial'), message);
+    } finally {
+      setTrialLoading(false);
+    }
+  };
+
   const referralLink = account?.referral_code
     ? `${window.location.origin}/?ref=${account.referral_code}`
     : '';
@@ -716,6 +756,30 @@ export default function Dashboard() {
                 <Plus size={11} />
                 <span>{t('Buy tokens')}</span>
               </Link>
+
+              {account?.trial_available && (
+                <button
+                  onClick={handleClaimTrial}
+                  disabled={trialLoading}
+                  className="button-press"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    marginTop: '8px',
+                    padding: 0,
+                    background: 'none',
+                    border: 'none',
+                    cursor: trialLoading ? 'default' : 'pointer',
+                    fontSize: '11px',
+                    color: 'var(--muted)',
+                    opacity: trialLoading ? 0.7 : 1,
+                  }}
+                >
+                  <Gift size={11} />
+                  <span>{trialLoading ? t('Claiming…') : t('Try free — claim 5M tokens')}</span>
+                </button>
+              )}
 
               <button
                 onClick={() => {
