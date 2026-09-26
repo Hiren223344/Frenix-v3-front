@@ -183,14 +183,17 @@ export default function Docs() {
               </p>
 
               <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 8px 0' }}>Claude Code CLI</h3>
-              <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', backgroundColor: 'var(--card)', marginBottom: '20px' }}>
+              <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', backgroundColor: 'var(--card)', marginBottom: '12px' }}>
                 <div className="code-font" style={{ fontSize: '13px', lineHeight: 1.8 }}>
-                  <div>export ANTHROPIC_BASE_URL=https://api.frenix.sh/v1</div>
+                  <div>export ANTHROPIC_BASE_URL=https://api.frenix.sh</div>
                   <div>export ANTHROPIC_API_KEY=sk-frx-your-key</div>
                   <div style={{ color: 'var(--muted)', marginTop: '8px' }}># {t('Launch Claude Code')}</div>
                   <div>claude</div>
                 </div>
               </div>
+              <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 20px 0' }}>
+                <strong>{t("No")}</strong> <code className="code-font">/v1</code> {t("suffix here — unlike the OpenAI-compatible base URLs below, the Anthropic SDK that Claude Code runs on appends")} <code className="code-font">/v1/messages</code> {t('to whatever you set')} <code className="code-font">ANTHROPIC_BASE_URL</code> {t('to. Add the')} <code className="code-font">/v1</code> {t('yourself and requests land on a doubled')} <code className="code-font">/v1/v1/messages</code> {t('and 404. Requests hit')} <code className="code-font">POST /v1/messages</code> {t("— Frenix's native Anthropic Messages endpoint, which routes to any model on the platform (not only Anthropic's own), including paid-tier ones the OpenAI-compatible endpoints block. Override the model Claude Code requests with")} <code className="code-font">ANTHROPIC_MODEL</code> {t('(and')} <code className="code-font">ANTHROPIC_SMALL_FAST_MODEL</code> {t('for its background/haiku-tier calls) if you want something other than its default.')}
+              </p>
 
               <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 8px 0' }}>Cline / Roo Code ({t('VS Code Extension')})</h3>
               <p style={{ fontSize: '14px', color: 'var(--muted)', margin: '0 0 10px 0' }}>
@@ -454,12 +457,28 @@ export default function Docs() {
               <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', backgroundColor: 'var(--card)', marginBottom: '20px' }}>
                 <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 10px 0' }}>{t('Available plugins')}</h3>
                 <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', lineHeight: 1.9, color: 'var(--muted)' }}>
-                  <li><code className="code-font">frenix_search</code> — {t("Frenix's own built-in web search. No account or API key needed; shares at most the top 7 results with the model.")}</li>
+                  <li><code className="code-font">frenix_search</code> — {t("Frenix's own built-in web search. No account or API key needed; shares at most the top 7 results with the model. Full details below.")}</li>
                   <li><code className="code-font">exa_search</code> — {t('web search via Exa (exa.ai), using your own Exa API key. Configure it first at')} <Link to="/plugins" style={{ color: accentDisplay }}>{t('Plugins')}</Link>.</li>
                   <li><code className="code-font">weather</code> — {t('current conditions for a named place, via Open-Meteo. No account or API key needed.')}</li>
                   <li><code className="code-font">calculator</code> — {t('evaluates an arithmetic expression locally. No account, API key, or network call.')}</li>
                   <li><code className="code-font">code_interpreter</code> — {t("runs a short code snippet on Piston, a free public sandboxed execution service — the code runs on Piston's own infrastructure, not Frenix's. No account or API key needed.")}</li>
                 </ul>
+              </div>
+
+              <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '20px 22px', backgroundColor: 'var(--card)', marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 10px 0' }}>{t('frenix_search, in depth')}</h3>
+                <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 10px 0' }}>
+                  {t('Naming')} <code className="code-font">frenix_search</code> {t('in the')} <code className="code-font">plugins</code> {t("array doesn't run a search — it hands the model a")} <code className="code-font">frenix_search(query: string)</code> {t('tool it can choose to call. Only when the model actually calls it does Frenix issue a live web search against its own self-hosted search backend and feed the results back as that tool call\'s result — you never see the intermediate tool call yourself, only the model\'s final answer, which may or may not have needed a search at all.')}
+                </p>
+                <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 10px 0' }}>
+                  {t('Each result the model sees carries a title, source URL, and the scraped page text — up to 7 results per call, each truncated to what the search backend itself returns. A query that turns up nothing yields a plain')} <code className="code-font">"No results found."</code> {t('tool result rather than an error, so the model can say so or try a different query. A backend failure (timeout, unreachable) is likewise fed back as the tool\'s own error text, not surfaced as a failed HTTP request — the model sees the failure and can retry, rephrase, or tell you the search failed.')}
+                </p>
+                <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 10px 0' }}>
+                  {t('Every call the model makes to')} <code className="code-font">frenix_search</code> {t('costs one more round trip to the underlying model — the first round is covered by the request you already sent, but the model\'s follow-up answer (after reading the search results) is a second, separately billed call, and a model that searches more than once before answering spends a third. Frenix caps this at 3 rounds total per request; a model still trying to search once that cap is hit gets cut off, and you receive whatever its last round produced as-is — which may itself be an unresolved tool call rather than a finished answer.')}
+                </p>
+                <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: 0 }}>
+                  {t('Unlike')} <code className="code-font">exa_search</code>, {t('there is no account to connect and no key to configure — it runs against infrastructure Frenix itself operates, so it works the moment you name it, on any account, at no extra setup cost.')}
+                </p>
               </div>
 
               <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '0 0 10px 0' }}>{t('Using a plugin')}</h3>
