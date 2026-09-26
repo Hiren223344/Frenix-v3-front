@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { EASE_OUT } from '@/lib/motion-tokens';
 
@@ -32,6 +32,46 @@ export function SkeletonReveal({ loading, skeleton, children, className = '', st
       <div className={`t-skel-skeleton ${loading ? 'is-pulsing' : ''}`}>{skeleton}</div>
       <div className="t-skel-content">{children}</div>
     </div>
+  );
+}
+
+// transitions.dev's "text states swap": swaps a status word/phrase in
+// place — the old text exits up with blur, the new text enters from below.
+// Mirrors the spec's three-phase is-exit / is-enter-start choreography,
+// translated from direct textContent mutation to a controlled `value` prop
+// so it can drive things like a "Save" -> "Saved" button label.
+export function TextSwap({ value, as: Tag = 'span', className = '', style }) {
+  const [display, setDisplay] = useState(value);
+  const [phase, setPhase] = useState('idle'); // 'idle' | 'exit' | 'enter-start'
+  const timers = useRef({ timeout: null, raf: null });
+
+  useEffect(() => {
+    if (value === display) return undefined;
+    setPhase('exit');
+    const dur =
+      parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue('--text-swap-dur')
+      ) || 150;
+    timers.current.timeout = setTimeout(() => {
+      setDisplay(value);
+      setPhase('enter-start');
+      // Force a reflow so the next class removal actually transitions.
+      timers.current.raf = requestAnimationFrame(() => setPhase('idle'));
+    }, dur);
+    return () => {
+      clearTimeout(timers.current.timeout);
+      cancelAnimationFrame(timers.current.raf);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return (
+    <Tag
+      className={`t-text-swap ${phase === 'exit' ? 'is-exit' : ''} ${phase === 'enter-start' ? 'is-enter-start' : ''} ${className}`.trim()}
+      style={style}
+    >
+      {display}
+    </Tag>
   );
 }
 
