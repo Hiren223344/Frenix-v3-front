@@ -20,12 +20,25 @@ export default function Pricing() {
   const [proLoading, setProLoading] = useState(false);
   const [proError, setProError] = useState('');
 
-  // Starts a GMPay Edge crypto checkout for the Pro tier (see
-  // internal/billing.GMPayCreate) — the amount is always resolved
-  // server-side, never sent from here. GMPay's hosted checkout
-  // (payment_url) is what we always get back since no token/network is
-  // specified, so we just hand the browser off to it rather than building
-  // a custom QR/address UI.
+  // Mirrors internal/billing.TokenPackSKUs exactly — GMPayCreate rejects
+  // any `tokens` value that isn't one of these five, and always prices it
+  // server-side from this same catalog, never from what we send.
+  const TOKEN_PACK_SKUS = [
+    { tokens: 10_000_000, priceUSD: 2.5, label: '10M' },
+    { tokens: 25_000_000, priceUSD: 6.75, label: '25M' },
+    { tokens: 50_000_000, priceUSD: 15, label: '50M' },
+    { tokens: 75_000_000, priceUSD: 21.75, label: '75M' },
+    { tokens: 100_000_000, priceUSD: 30, label: '100M' },
+  ];
+  const [selectedSkuIndex, setSelectedSkuIndex] = useState(2); // 50M — the "Most Popular" default
+  const selectedSku = TOKEN_PACK_SKUS[selectedSkuIndex];
+
+  // Starts a GMPay Edge crypto checkout for the selected token pack (see
+  // internal/billing.GMPayCreate) — the price is always resolved
+  // server-side from `tokens`, never sent from here. GMPay's hosted
+  // checkout (payment_url) is what we always get back since no
+  // token/network is specified, so we just hand the browser off to it
+  // rather than building a custom QR/address UI.
   const handleChoosePro = async () => {
     if (!isAuthenticated) {
       openAuthModal();
@@ -41,7 +54,7 @@ export default function Pricing() {
       const res = await window.secureRelayRequest('/v1/billing/gmpay/create', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
-        body: {},
+        body: { tokens: selectedSku.tokens },
       });
       if (!res.ok || !res.data?.payment_url) {
         if (res.status === 501) {
@@ -132,10 +145,39 @@ export default function Pricing() {
             </div>
           </div>
           <div style={{ fontSize: '20px', fontWeight: 500, marginBottom: '4px' }}>{t('Pro')}</div>
-          <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '22px' }}>{t('For everyday builders & power agents')}</div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '22px' }}>
-            <span style={{ fontSize: '32px', fontWeight: 300 }}>$30</span>
-            <span style={{ fontSize: '13px', color: 'var(--muted)' }}>/ {t('month')}</span>
+          <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '18px' }}>{t('Prepaid token packs for everyday builders & power agents')}</div>
+
+          <div style={{ display: 'flex', gap: '6px', marginBottom: '14px', flexWrap: 'wrap' }}>
+            {TOKEN_PACK_SKUS.map((sku, i) => (
+              <button
+                key={sku.tokens}
+                type="button"
+                onClick={() => setSelectedSkuIndex(i)}
+                className="button-press"
+                style={{
+                  flex: '1 1 auto',
+                  minWidth: '48px',
+                  padding: '7px 0',
+                  borderRadius: '10px',
+                  border: i === selectedSkuIndex ? '1.5px solid var(--text)' : '1px solid var(--border)',
+                  backgroundColor: i === selectedSkuIndex ? 'var(--text)' : 'transparent',
+                  color: i === selectedSkuIndex ? 'var(--bg)' : 'var(--text)',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                }}
+              >
+                {sku.label}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '6px' }}>
+            <span style={{ fontSize: '32px', fontWeight: 300 }}>${selectedSku.priceUSD.toFixed(2)}</span>
+            <span style={{ fontSize: '13px', color: 'var(--muted)' }}>/ {t('one-time')}</span>
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '22px' }}>
+            {t(`${selectedSku.label} tokens · expires 14 days after purchase`)}
           </div>
           {/* marginBottom lives on the MetalFx wrapper, not the button: the
               wrapper is a flex box that hugs its child's full margin box, so
@@ -177,8 +219,9 @@ export default function Pricing() {
           )}
           <div style={{ borderTop: '1px solid var(--border)', marginBottom: '18px' }} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px' }}>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('Unlimited access to all 150+ models')}</div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> <strong>{t('10 requests per minute (10 RPM)')}</strong></div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('Access to all 150+ models')}</div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> <strong>{t('Pick your pack: 10M to 100M tokens')}</strong></div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('10 requests per minute (10 RPM)')}</div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('Claude Code, Codex, Cline support')}</div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('Automatic provider failover')}</div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('Unlimited API key management')}</div>
@@ -245,15 +288,15 @@ export default function Pricing() {
           items={[
             {
               id: 'switch-plans',
-              title: t('Can I switch plans anytime?'),
+              title: t('Can I buy more than one pack?'),
               icon: <RefreshCw size={15} />,
-              description: t('Yes, upgrades take effect immediately. Downgrades take effect at the end of the billing period.'),
+              description: t('Yes — buying a new pack while one is still active tops up your balance and extends your Pro access to match the new pack\'s own 14-day window.'),
             },
             {
               id: 'overages',
-              title: t('Do you charge for token overages?'),
+              title: t('What happens when I run out of tokens?'),
               icon: <Coins size={15} />,
-              description: t('No, we do not bill variable per-token surcharges. Pro plans provide unlimited requests subject to fair concurrent rate limiting.'),
+              description: t('Requests are simply blocked until you buy another pack — there are no surprise per-token overage charges. Any tokens left unused 14 days after purchase are forfeited, so buy a pack sized to what you\'ll actually use in that window.'),
             },
             {
               id: 'pick-a-tier',
