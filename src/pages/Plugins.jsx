@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslate } from '../context/LanguageContext';
-import { Puzzle, Check, X, Cloud, Calculator, Terminal } from 'lucide-react';
+import { Puzzle, Cloud, Calculator, Terminal } from 'lucide-react';
 import { PLUGIN_ICONS } from '../components/icons/BrandIcons';
 import SplitText from '../components/ui/split-text';
+import { Switch } from '../components/motion/switch';
 
 // weather/calculator/code_interpreter are generic built-in tools, not
 // third-party brands — a plain lucide icon fits better here than a "real
@@ -142,16 +143,12 @@ export default function Plugins() {
                   <span style={{ fontSize: '15px', fontWeight: 500 }}>{t(p.name)}</span>
                   <code className="code-font" style={{ fontSize: '11px', color: 'var(--muted)' }}>{p.id}</code>
                 </div>
-                <span
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 500,
-                    padding: '2px 8px', borderRadius: '8px', border: '1px solid var(--border)',
-                    color: p.enabled ? '#16a34a' : 'var(--muted)',
-                  }}
-                >
-                  {p.enabled ? <Check size={12} /> : <X size={12} />}
-                  {p.enabled ? t('Enabled') : t('Not enabled')}
-                </span>
+                <Switch
+                  checked={p.enabled}
+                  disabled={p.requires_api_key === false || !p.enabled || busyId === p.id}
+                  onCheckedChange={() => handleDisable(p.id)}
+                  label={p.enabled ? t('Enabled') : t('Not enabled')}
+                />
               </div>
               <p style={{ fontSize: '13px', color: 'var(--muted)', margin: '0 0 14px 0' }}>{t(p.description)}</p>
 
@@ -190,18 +187,6 @@ export default function Plugins() {
                   >
                     {p.enabled ? t('Update key') : t('Enable')}
                   </button>
-                  {p.enabled && (
-                    <button
-                      onClick={() => handleDisable(p.id)}
-                      disabled={busyId === p.id}
-                      style={{
-                        padding: '9px 18px', borderRadius: '10px', border: '1px solid var(--border)',
-                        backgroundColor: 'transparent', color: 'var(--muted)', fontSize: '13px', cursor: 'pointer',
-                      }}
-                    >
-                      {t('Disable')}
-                    </button>
-                  )}
                 </div>
               )}
             </div>
