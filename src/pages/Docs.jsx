@@ -400,7 +400,7 @@ export default function Docs() {
             <div>
               <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>{t('Rate Limits & Concurrency')}</h2>
               <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 20px 0' }}>
-                {t('One flat rate limit applies to every account, regardless of tier — credit balance, not request count, is what actually bounds how much you can use the gateway.')}
+                {t('Free is capped at a flat requests-per-minute budget. Pro has no requests-per-minute cap at all — your purchased token balance is the only thing that limits how much you can use the gateway.')}
               </p>
 
               <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', backgroundColor: 'var(--card)', marginBottom: '20px', overflowX: 'auto' }}>
@@ -416,19 +416,24 @@ export default function Docs() {
                     <tr style={{ borderBottom: '1px solid var(--border)' }}>
                       <td style={{ padding: '12px 0', fontWeight: 500 }}>{t('Requests per minute')}</td>
                       <td style={{ padding: '12px 0', fontWeight: 600 }}>20 RPM</td>
-                      <td style={{ padding: '12px 0', color: 'var(--muted)' }}>{t('Every account, every tier')}</td>
+                      <td style={{ padding: '12px 0', color: 'var(--muted)' }}>{t('Free tier')}</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '12px 0', fontWeight: 500 }}>{t('Requests per minute')}</td>
+                      <td style={{ padding: '12px 0', fontWeight: 600 }}>{t('No cap')}</td>
+                      <td style={{ padding: '12px 0', color: 'var(--muted)' }}>{t('Pro tier — your token balance is the real ceiling')}</td>
                     </tr>
                     <tr>
                       <td style={{ padding: '12px 0', fontWeight: 500 }}>{t('Daily request cap')}</td>
                       <td style={{ padding: '12px 0', fontWeight: 600 }}>{t('None')}</td>
-                      <td style={{ padding: '12px 0', color: 'var(--muted)' }}>{t('Your credit balance is the real ceiling')}</td>
+                      <td style={{ padding: '12px 0', color: 'var(--muted)' }}>{t('Every tier')}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               <p style={{ fontSize: '14px', color: 'var(--muted)', margin: 0 }}>
-                {t('Response headers')} <code className="code-font">x-ratelimit-remaining-minute</code> {t('and')} <code className="code-font">x-ratelimit-reset</code> {t('indicate your current per-minute bucket status; a')} <code className="code-font">Retry-After</code> {t('header is set on a 429.')}
+                {t('On Free, response headers')} <code className="code-font">x-ratelimit-remaining-minute</code> {t('and')} <code className="code-font">x-ratelimit-reset</code> {t('indicate your current per-minute bucket status; a')} <code className="code-font">Retry-After</code> {t('header is set on a 429. Pro requests carry none of these — there is no per-minute bucket to report.')}
               </p>
             </div>
           )}
