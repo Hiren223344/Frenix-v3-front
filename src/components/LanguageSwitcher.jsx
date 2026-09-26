@@ -41,7 +41,9 @@ export default function LanguageSwitcher({ className }) {
           type="button"
           aria-label={`Change language (currently ${current.name})`}
           className="flex items-center gap-1.5"
-          style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+          style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 8px', borderRadius: '6px', transition: 'background-color 0.15s ease' }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--hover-bg)')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
         >
           <Globe size={14} />
           <span>{shortCode}</span>
