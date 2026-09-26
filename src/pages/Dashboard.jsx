@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { BotAvatar } from 'bot-avatars';
 import { MetalFx } from 'metal-fx';
 import { useTheme } from '../context/ThemeContext';
@@ -62,6 +63,12 @@ function keyLimitSummary(k, t) {
 function tokenUsageLabel(current, limit, t) {
   const used = current != null ? current.toLocaleString() : '0';
   return `${used}/${limit.toLocaleString()} ${t('tok')}`;
+}
+
+function tokenExpiryLabel(expiresAt, t) {
+  const date = new Date(expiresAt);
+  const days = Math.max(0, Math.ceil((date.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
+  return `${t('Expires')} ${date.toLocaleDateString()} (${days} ${t('days')})`;
 }
 
 export default function Dashboard() {
@@ -501,7 +508,11 @@ export default function Dashboard() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--muted)' }}>
                 <span>{t('Tier')}: <strong style={{ color: 'var(--text)', textTransform: 'capitalize' }}>{account.tier || t('Free')}</strong></span>
                 <span>&bull;</span>
-                <span>{t('Credits')}: <strong style={{ color: 'var(--text)' }}>${Number(account.balance_credits || 0).toFixed(2)}</strong></span>
+                {account.tier === 'pro' ? (
+                  <span>{t('Tokens')}: <strong style={{ color: 'var(--text)' }}>{Number(account.token_balance || 0).toLocaleString()}</strong></span>
+                ) : (
+                  <span>{t('Credits')}: <strong style={{ color: 'var(--text)' }}>${Number(account.balance_credits || 0).toFixed(2)}</strong></span>
+                )}
               </div>
             )}
             <MetalFx variant="button" preset="silver" theme={beamTheme} normalizeHostStyles={false} style={{ display: 'inline-block' }}>
@@ -540,7 +551,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {account?.low_balance && (
+      {account?.low_balance && account?.tier !== 'pro' && (
         <div
           style={{
             display: 'flex',
@@ -565,88 +576,126 @@ export default function Dashboard() {
       {/* Metrics Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '36px' }}>
         <ScrollReveal y={12} style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
-            <span style={{ fontSize: '13px' }}>{t('Credits left')}</span>
-            <Wallet size={16} />
-          </div>
-          <AnimatedCounter
-            value={Number(account?.balance_credits ?? 0)}
-            decimals={2}
-            prefix="$"
-            style={{ fontSize: '26px', fontWeight: 500 }}
-          />
-          <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
-            {account?.tier ? `${account.tier.toUpperCase()} ${t('tier balance')}` : t('Available balance')}
-          </div>
-
-          <button
-            onClick={() => {
-              setThresholdInput(
-                account?.low_balance_threshold != null ? String(account.low_balance_threshold / 1_000_000) : ''
-              );
-              setShowThresholdEditor((v) => !v);
-            }}
-            className="button-press"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              marginTop: '10px',
-              padding: 0,
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '11px',
-              color: 'var(--muted)',
-            }}
-          >
-            <Bell size={11} />
-            <span>
-              {account?.low_balance_threshold != null
-                ? `${t('Alert below')} $${(account.low_balance_threshold / 1_000_000).toFixed(2)}`
-                : t('Set balance alert')}
-            </span>
-          </button>
-
-          {showThresholdEditor && (
-            <div style={{ marginTop: '8px', display: 'flex', gap: '6px', alignItems: 'center' }}>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder={t('$ threshold')}
-                value={thresholdInput}
-                onChange={(e) => setThresholdInput(e.target.value)}
-                style={{
-                  width: '90px',
-                  padding: '6px 8px',
-                  borderRadius: '8px',
-                  border: '1px solid var(--border)',
-                  backgroundColor: 'var(--bg)',
-                  color: 'var(--text)',
-                  fontSize: '12px',
-                  outline: 'none',
-                }}
+          {account?.tier === 'pro' ? (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
+                <span style={{ fontSize: '13px' }}>{t('Token balance')}</span>
+                <Wallet size={16} />
+              </div>
+              <AnimatedCounter
+                value={Number(account?.token_balance ?? 0)}
+                decimals={0}
+                style={{ fontSize: '26px', fontWeight: 500 }}
               />
-              <button
-                onClick={() => handleSaveThreshold(false)}
-                disabled={savingThreshold}
-                title={t('Save')}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#16a34a', padding: '4px' }}
+              <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
+                {account?.token_balance_expires_at
+                  ? tokenExpiryLabel(account.token_balance_expires_at, t)
+                  : t('No active token packs')}
+              </div>
+
+              <Link
+                to="/pricing"
+                className="button-press"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  marginTop: '10px',
+                  fontSize: '11px',
+                  color: 'var(--muted)',
+                  textDecoration: 'none',
+                }}
               >
-                <Check size={13} />
+                <Plus size={11} />
+                <span>{t('Buy more tokens')}</span>
+              </Link>
+            </>
+          ) : (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
+                <span style={{ fontSize: '13px' }}>{t('Credits left')}</span>
+                <Wallet size={16} />
+              </div>
+              <AnimatedCounter
+                value={Number(account?.balance_credits ?? 0)}
+                decimals={2}
+                prefix="$"
+                style={{ fontSize: '26px', fontWeight: 500 }}
+              />
+              <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
+                {account?.tier ? `${account.tier.toUpperCase()} ${t('tier balance')}` : t('Available balance')}
+              </div>
+
+              <button
+                onClick={() => {
+                  setThresholdInput(
+                    account?.low_balance_threshold != null ? String(account.low_balance_threshold / 1_000_000) : ''
+                  );
+                  setShowThresholdEditor((v) => !v);
+                }}
+                className="button-press"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  marginTop: '10px',
+                  padding: 0,
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '11px',
+                  color: 'var(--muted)',
+                }}
+              >
+                <Bell size={11} />
+                <span>
+                  {account?.low_balance_threshold != null
+                    ? `${t('Alert below')} $${(account.low_balance_threshold / 1_000_000).toFixed(2)}`
+                    : t('Set balance alert')}
+                </span>
               </button>
-              {account?.low_balance_threshold != null && (
-                <button
-                  onClick={() => handleSaveThreshold(true)}
-                  disabled={savingThreshold}
-                  title={t('Clear alert')}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
-                >
-                  <X size={13} />
-                </button>
+
+              {showThresholdEditor && (
+                <div style={{ marginTop: '8px', display: 'flex', gap: '6px', alignItems: 'center' }}>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder={t('$ threshold')}
+                    value={thresholdInput}
+                    onChange={(e) => setThresholdInput(e.target.value)}
+                    style={{
+                      width: '90px',
+                      padding: '6px 8px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      backgroundColor: 'var(--bg)',
+                      color: 'var(--text)',
+                      fontSize: '12px',
+                      outline: 'none',
+                    }}
+                  />
+                  <button
+                    onClick={() => handleSaveThreshold(false)}
+                    disabled={savingThreshold}
+                    title={t('Save')}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#16a34a', padding: '4px' }}
+                  >
+                    <Check size={13} />
+                  </button>
+                  {account?.low_balance_threshold != null && (
+                    <button
+                      onClick={() => handleSaveThreshold(true)}
+                      disabled={savingThreshold}
+                      title={t('Clear alert')}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
+                    >
+                      <X size={13} />
+                    </button>
+                  )}
+                </div>
               )}
-            </div>
+            </>
           )}
         </ScrollReveal>
 
