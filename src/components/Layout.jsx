@@ -1,5 +1,5 @@
-import React, { useState, useEffect, Suspense } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { BotAvatar } from 'bot-avatars';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -46,6 +46,7 @@ import {
 } from 'lucide-react';
 import TelegramAuthModal from './TelegramAuthModal';
 import CookieNotice from './CookieNotice';
+import CommandPalette from './motion/command-palette';
 
 // Same fallback pattern as Status.jsx's STATUS_URL: only used if
 // window.secureRelayRequest (set synchronously in main.jsx before React
@@ -88,6 +89,7 @@ export default function Layout() {
   const { user, isAuthenticated, logout, openAuthModal } = useAuth();
   const t = useTranslate();
   const location = useLocation();
+  const navigate = useNavigate();
   // The version shown next to the logo comes from the gateway itself
   // (GET /v1/status), not a hardcoded frontend constant, so the sidebar
   // can never drift out of sync with what's actually deployed. Stays null
@@ -151,10 +153,33 @@ export default function Layout() {
 
   const isNavActive = ({ to, end }) => (end ? location.pathname === to : location.pathname.startsWith(to));
 
+  const commandItems = useMemo(() => {
+    const navGroup = t('Navigation');
+    const toNavItem = ({ to, label, Icon }) => ({
+      id: `nav-${to}`,
+      label: t(label),
+      group: navGroup,
+      icon: Icon,
+      onSelect: () => navigate(to),
+    });
+    return [
+      ...PRIMARY_NAV.map(toNavItem),
+      ...SECONDARY_NAV.map(toNavItem),
+      {
+        id: 'toggle-theme',
+        label: isDark ? t('Switch to light mode') : t('Switch to dark mode'),
+        group: t('Actions'),
+        icon: isDark ? Sun : Moon,
+        onSelect: toggleTheme,
+      },
+    ];
+  }, [t, navigate, isDark, toggleTheme]);
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <TelegramAuthModal />
       <CookieNotice />
+      <CommandPalette items={commandItems} />
 
       <AnimatedSidebarProvider style={{ maxWidth: '1600px', width: '100%', margin: '0 auto', flex: 1 }}>
         <AnimatedSidebar
