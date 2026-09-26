@@ -51,9 +51,9 @@ const PLANS = [
     items: ['Access to free models tier', '500 requests per day', '5 requests per minute burst', '1 active API key'],
   },
   {
-    icon: '≡', limit: '10 RPM', name: 'Pro', desc: 'For everyday builders & power agents', price: '$30', per: '/ month',
+    icon: '≡', limit: 'No RPM cap', name: 'Pro', desc: 'Prepaid token packs for everyday builders & power agents', price: '$15', per: '/ 50M tokens',
     cta: 'Choose Pro', to: '/pricing', border: 'var(--text)', filled: true, popular: true,
-    items: ['Unlimited access to all 150+ models', '10 requests per minute', 'Claude Code, Codex, Cline support', 'Automatic provider failover'],
+    items: ['Access to all 150+ models', 'Pick your pack: 10M to 400M tokens', 'No requests-per-minute cap', 'Claude Code, Codex, Cline support'],
   },
   {
     icon: '◇', limit: 'Custom Limits', name: 'Enterprise', desc: 'For high-scale production systems', price: 'Custom', per: '',

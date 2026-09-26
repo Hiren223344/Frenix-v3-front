@@ -142,7 +142,7 @@ export default function Pricing() {
               <Layers size={20} />
             </div>
             <div style={{ fontSize: '11px', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '999px', padding: '3px 10px' }}>
-              10 RPM
+              {t('No RPM cap')}
             </div>
           </div>
           <div style={{ fontSize: '20px', fontWeight: 500, marginBottom: '4px' }}>{t('Pro')}</div>
@@ -222,7 +222,7 @@ export default function Pricing() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px' }}>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('Access to all 150+ models')}</div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> <strong>{t('Pick your pack: 10M to 400M tokens')}</strong></div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('10 requests per minute (10 RPM)')}</div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('No requests-per-minute cap — only your token balance limits you')}</div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('Claude Code, Codex, Cline support')}</div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('Automatic provider failover')}</div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('Unlimited API key management')}</div>

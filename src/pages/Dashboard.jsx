@@ -547,6 +547,28 @@ export default function Dashboard() {
                 )}
               </div>
             )}
+            {account && account.tier !== 'pro' && (
+              <Link
+                to="/pricing"
+                className="button-press"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 14px',
+                  borderRadius: '14px',
+                  border: '1px solid var(--text)',
+                  backgroundColor: 'var(--text)',
+                  color: 'var(--bg)',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                }}
+              >
+                <Plus size={13} />
+                <span>{t('Buy tokens')}</span>
+              </Link>
+            )}
             <MetalFx variant="button" preset="silver" theme={beamTheme} normalizeHostStyles={false} style={{ display: 'inline-block' }}>
               <button
                 onClick={fetchDashboardData}
@@ -677,6 +699,23 @@ export default function Dashboard() {
               <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
                 {account?.tier ? `${account.tier.toUpperCase()} ${t('tier balance')}` : t('Available balance')}
               </div>
+
+              <Link
+                to="/pricing"
+                className="button-press"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  marginTop: '10px',
+                  fontSize: '11px',
+                  color: 'var(--muted)',
+                  textDecoration: 'none',
+                }}
+              >
+                <Plus size={11} />
+                <span>{t('Buy tokens')}</span>
+              </Link>
 
               <button
                 onClick={() => {
