@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useTranslate } from '../context/LanguageContext';
 import { Send, Plus, Loader2, AlertTriangle, SlidersHorizontal, X, Copy, Check, ChevronDown, ChevronUp, BrainCircuit, Globe } from 'lucide-react';
 import { resolveProviderIcons, displayProviderFor, FrenixIcon } from '../components/icons/BrandIcons';
 import SplitText from '../components/ui/split-text';
@@ -43,6 +44,7 @@ function parseContentBlocks(content) {
 
 function CodeBlock({ lang, value }) {
   const [copied, setCopied] = useState(false);
+  const t = useTranslate();
 
   const handleCopy = () => {
     if (navigator.clipboard) navigator.clipboard.writeText(value);
@@ -53,14 +55,14 @@ function CodeBlock({ lang, value }) {
   return (
     <div style={{ border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--card)', margin: '6px 0' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', borderBottom: '1px solid var(--border)' }}>
-        <span className="code-font" style={{ fontSize: '11px', color: 'var(--muted)' }}>{lang || 'text'}</span>
+        <span className="code-font" style={{ fontSize: '11px', color: 'var(--muted)' }}>{lang || t('text')}</span>
         <button
           onClick={handleCopy}
           className="button-press"
           style={{ display: 'flex', alignItems: 'center', gap: '4px', border: 'none', background: 'none', color: 'var(--muted)', fontSize: '11px', cursor: 'pointer', padding: '2px' }}
         >
           {copied ? <Check size={12} /> : <Copy size={12} />}
-          {copied ? 'Copied' : 'Copy'}
+          {copied ? t('Copied') : t('Copy')}
         </button>
       </div>
       <pre className="code-font selectable-text" style={{ margin: 0, padding: '13px', fontSize: '13px', lineHeight: 1.6, overflowX: 'auto', whiteSpace: 'pre' }}>
@@ -194,6 +196,7 @@ function MessageContent({ content }) {
 function ThinkingBlock({ text, startOpen, autoCollapseWhen }) {
   const [open, setOpen] = useState(startOpen);
   const collapsedOnceRef = useRef(false);
+  const t = useTranslate();
 
   useEffect(() => {
     if (autoCollapseWhen && !collapsedOnceRef.current) {
@@ -210,7 +213,7 @@ function ThinkingBlock({ text, startOpen, autoCollapseWhen }) {
         style={{ display: 'flex', alignItems: 'center', gap: '5px', border: 'none', background: 'none', color: 'var(--muted)', fontSize: '12px', cursor: 'pointer', padding: '2px 0' }}
       >
         <BrainCircuit size={13} />
-        Thinking
+        {t('Thinking')}
         {open ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
       </button>
       {open && (
@@ -225,6 +228,7 @@ function ThinkingBlock({ text, startOpen, autoCollapseWhen }) {
 export default function Playground() {
   const { user } = useAuth();
   const toast = useToast();
+  const t = useTranslate();
 
   const [models, setModels] = useState([]);
   const [modelsLoading, setModelsLoading] = useState(true);
@@ -244,7 +248,7 @@ export default function Playground() {
   const textareaRef = useRef(null);
 
   const sessionToken = () => user?.sessionToken || localStorage.getItem('frenix_session_token');
-  const firstName = (user?.username || 'there').replace(/^@/, '');
+  const firstName = (user?.username || t('there')).replace(/^@/, '');
 
   useEffect(() => {
     const fetchModels = async () => {
@@ -253,19 +257,19 @@ export default function Playground() {
       try {
         const token = sessionToken();
         if (!token || !window.secureRelayRequest) {
-          throw new Error('No active Telegram session found. Please log in first.');
+          throw new Error(t('No active Telegram session found. Please log in first.'));
         }
         const res = await window.secureRelayRequest('/v1/models', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok || !res.data?.data) {
-          throw new Error(res?.data?.error?.message || `Failed to load models (HTTP ${res.status})`);
+          throw new Error(res?.data?.error?.message || `${t('Failed to load models')} (HTTP ${res.status})`);
         }
         const accessible = res.data.data.filter((m) => m.accessible !== false);
         setModels(accessible);
         if (accessible.length > 0) setSelectedModel(accessible[0].id);
       } catch (err) {
-        setModelsError(err.message || 'Failed to load models');
+        setModelsError(err.message || t('Failed to load models'));
       } finally {
         setModelsLoading(false);
       }
@@ -300,7 +304,7 @@ export default function Playground() {
 
     const token = sessionToken();
     if (!token || !window.secureRelayRequest) {
-      setSendError('No active Telegram session found. Please log in first.');
+      setSendError(t('No active Telegram session found. Please log in first.'));
       return;
     }
 
@@ -335,7 +339,7 @@ export default function Playground() {
       });
 
       if (!res.ok) {
-        let message = `Request failed (HTTP ${res.status})`;
+        let message = `${t('Request failed')} (HTTP ${res.status})`;
         try {
           const errBody = await res.json();
           message = errBody?.error?.message || message;
@@ -390,9 +394,9 @@ export default function Playground() {
 
       if (usage) setLastUsage(usage);
     } catch (err) {
-      const message = err.message || 'Request failed';
+      const message = err.message || t('Request failed');
       setSendError(message);
-      toast.error('Message failed to send', message);
+      toast.error(t('Message failed to send'), message);
       if (!assistantStarted) {
         // Nothing ever streamed back — roll back the optimistic user
         // message so a failed send doesn't leave a one-sided message the
@@ -447,7 +451,7 @@ export default function Playground() {
           <FrenixIcon size={40} style={{ color: 'var(--accent-display)' }} />
           <SplitText
             tag="h1"
-            text={`Good ${greetingWord()}, ${firstName}`}
+            text={`${t('Good')} ${t(greetingWord())}, ${firstName}`}
             className="frenix-playground-greeting"
             textAlign="center"
             splitType="chars"
@@ -493,7 +497,7 @@ export default function Playground() {
           {awaitingFirstToken && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--muted)', fontSize: '13px', alignSelf: 'flex-start', padding: '11px 16px' }}>
               <Loader2 size={14} className="animate-spin" />
-              Thinking…
+              {t('Thinking…')}
             </div>
           )}
           {sendError && (
@@ -513,7 +517,7 @@ export default function Playground() {
             <textarea
               value={systemPrompt}
               onChange={(e) => setSystemPrompt(e.target.value)}
-              placeholder="Optional system prompt…"
+              placeholder={t('Optional system prompt…')}
               rows={2}
               className="code-font"
               style={{
@@ -523,7 +527,7 @@ export default function Playground() {
             />
             <button
               onClick={() => setShowSystemPrompt(false)}
-              aria-label="Close system prompt"
+              aria-label={t('Close system prompt')}
               style={{ display: 'flex', border: 'none', background: 'none', color: 'var(--muted)', cursor: 'pointer', padding: '2px', flexShrink: 0 }}
             >
               <X size={14} />
@@ -545,7 +549,7 @@ export default function Playground() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Chat with Frenix…"
+            placeholder={t('Chat with Frenix…')}
             rows={1}
             disabled={models.length === 0}
             style={{
@@ -560,8 +564,8 @@ export default function Playground() {
               <button
                 onClick={handleClear}
                 disabled={messages.length === 0}
-                aria-label="New chat"
-                title="New chat"
+                aria-label={t('New chat')}
+                title={t('New chat')}
                 className="button-press"
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', width: '30px', height: '30px',
@@ -590,8 +594,8 @@ export default function Playground() {
                     outline: 'none', cursor: 'pointer', maxWidth: '180px', textOverflow: 'ellipsis',
                   }}
                 >
-                  {modelsLoading && <option>Loading…</option>}
-                  {!modelsLoading && models.length === 0 && <option>No accessible models</option>}
+                  {modelsLoading && <option>{t('Loading…')}</option>}
+                  {!modelsLoading && models.length === 0 && <option>{t('No accessible models')}</option>}
                   {models.map((m) => (
                     <option key={m.id} value={m.id}>{m.id}</option>
                   ))}
@@ -600,8 +604,8 @@ export default function Playground() {
 
               <button
                 onClick={() => setShowSystemPrompt((v) => !v)}
-                aria-label="System prompt"
-                title="System prompt"
+                aria-label={t('System prompt')}
+                title={t('System prompt')}
                 className="button-press"
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', width: '30px', height: '30px',
@@ -616,8 +620,8 @@ export default function Playground() {
               <button
                 onClick={() => setSearchEnabled((v) => !v)}
                 disabled={!supportsSearch}
-                aria-label="Web search"
-                title={supportsSearch ? 'Web search (frenix_search, built in)' : "This model doesn't support tool calling, so it can't use web search"}
+                aria-label={t('Web search')}
+                title={supportsSearch ? t('Web search (frenix_search, built in)') : t("This model doesn't support tool calling, so it can't use web search")}
                 className="button-press"
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', width: '30px', height: '30px',
@@ -635,7 +639,7 @@ export default function Playground() {
             <button
               onClick={handleSend}
               disabled={sending || !input.trim() || models.length === 0}
-              aria-label="Send"
+              aria-label={t('Send')}
               className="button-press"
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px',
@@ -653,13 +657,13 @@ export default function Playground() {
         {searchEnabled && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', marginTop: '10px', fontSize: '11px', color: 'var(--muted)' }}>
             <Globe size={11} />
-            Web search on — the model decides whether it actually searches.
+            {t('Web search on — the model decides whether it actually searches.')}
           </div>
         )}
 
         {lastUsage && (
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px', fontSize: '11px', color: 'var(--muted)' }}>
-            {lastUsage.prompt_tokens} prompt + {lastUsage.completion_tokens} completion = {lastUsage.total_tokens} tokens
+            {lastUsage.prompt_tokens} {t('prompt')} + {lastUsage.completion_tokens} {t('completion')} = {lastUsage.total_tokens} {t('tokens')}
           </div>
         )}
       </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
+import { useTranslate } from '../context/LanguageContext';
 
 const DISMISSED_KEY = 'frenix_cookie_notice_dismissed';
 
@@ -11,6 +12,7 @@ const DISMISSED_KEY = 'frenix_cookie_notice_dismissed';
 // about what the site stores in their browser, so it's here regardless.
 export default function CookieNotice() {
   const [visible, setVisible] = useState(false);
+  const t = useTranslate();
 
   useEffect(() => {
     try {
@@ -35,7 +37,7 @@ export default function CookieNotice() {
   return (
     <div
       role="region"
-      aria-label="Cookie notice"
+      aria-label={t('Cookie notice')}
       className="frenix-cookie-notice"
       style={{
         position: 'fixed',
@@ -55,9 +57,9 @@ export default function CookieNotice() {
       }}
     >
       <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.5, color: 'var(--muted)', flex: 1 }}>
-        We use your browser's local storage to keep you signed in and remember your preferences — no tracking cookies. See our{' '}
+        {t("We use your browser's local storage to keep you signed in and remember your preferences — no tracking cookies. See our")}{' '}
         <Link to="/cookies" style={{ color: 'var(--text)', textDecoration: 'underline' }}>
-          Cookie Policy
+          {t('Cookie Policy')}
         </Link>
         .
       </p>
@@ -76,11 +78,11 @@ export default function CookieNotice() {
           cursor: 'pointer',
         }}
       >
-        Got it
+        {t('Got it')}
       </button>
       <button
         onClick={dismiss}
-        aria-label="Dismiss"
+        aria-label={t('Dismiss')}
         className="button-press"
         style={{
           flexShrink: 0,

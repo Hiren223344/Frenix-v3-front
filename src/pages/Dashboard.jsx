@@ -4,6 +4,7 @@ import { MetalFx } from 'metal-fx';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useTranslate } from '../context/LanguageContext';
 import { SkeletonReveal, ScrollReveal } from '../components/animations';
 import AnimatedCounter from '../components/ui/animated-counter';
 import DeleteButton from '../components/ui/delete-button';
@@ -15,7 +16,7 @@ import { Key, Plus, Copy, Check, BarChart3, Activity, RefreshCw, Wallet, Hash, G
 // / rate limits" section of the create-key form — each is otherwise
 // identical (same styling, same "blank = no limit" semantics) so this
 // avoids repeating that markup five times over.
-function LimitField({ label, value, onChange, min, step }) {
+function LimitField({ label, value, onChange, min, step, placeholder }) {
   return (
     <div style={{ flex: 1 }}>
       <label style={{ display: 'block', fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>{label}</label>
@@ -23,7 +24,7 @@ function LimitField({ label, value, onChange, min, step }) {
         type="number"
         min={min}
         step={step}
-        placeholder="No limit"
+        placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         style={{
@@ -45,22 +46,22 @@ function LimitField({ label, value, onChange, min, step }) {
 // one "Limit: $2.00/$5.00 • 30 req/min • 10,000 tok/min" string, or ''
 // when none are — so the row below its name only renders when there's
 // something to show.
-function keyLimitSummary(k) {
+function keyLimitSummary(k, t) {
   const parts = [];
   if (k.spendLimit != null) {
     const spent = k.currentSpend != null ? k.currentSpend / 1_000_000 : 0;
-    parts.push(`Limit: $${spent.toFixed(2)}/$${(k.spendLimit / 1_000_000).toFixed(2)}`);
+    parts.push(`${t('Limit')}: $${spent.toFixed(2)}/$${(k.spendLimit / 1_000_000).toFixed(2)}`);
   }
-  if (k.rateLimitRpm != null) parts.push(`${k.rateLimitRpm} req/min`);
-  if (k.tokenLimitPerMinute != null) parts.push(`${tokenUsageLabel(k.currentTokensPerMinute, k.tokenLimitPerMinute)}/min`);
-  if (k.tokenLimitPerHour != null) parts.push(`${tokenUsageLabel(k.currentTokensPerHour, k.tokenLimitPerHour)}/hr`);
-  if (k.tokenLimitPerDay != null) parts.push(`${tokenUsageLabel(k.currentTokensPerDay, k.tokenLimitPerDay)}/day`);
+  if (k.rateLimitRpm != null) parts.push(`${k.rateLimitRpm} ${t('req/min')}`);
+  if (k.tokenLimitPerMinute != null) parts.push(`${tokenUsageLabel(k.currentTokensPerMinute, k.tokenLimitPerMinute, t)}/${t('min')}`);
+  if (k.tokenLimitPerHour != null) parts.push(`${tokenUsageLabel(k.currentTokensPerHour, k.tokenLimitPerHour, t)}/${t('hr')}`);
+  if (k.tokenLimitPerDay != null) parts.push(`${tokenUsageLabel(k.currentTokensPerDay, k.tokenLimitPerDay, t)}/${t('day')}`);
   return parts.join(' • ');
 }
 
-function tokenUsageLabel(current, limit) {
+function tokenUsageLabel(current, limit, t) {
   const used = current != null ? current.toLocaleString() : '0';
-  return `${used}/${limit.toLocaleString()} tok`;
+  return `${used}/${limit.toLocaleString()} ${t('tok')}`;
 }
 
 export default function Dashboard() {
@@ -68,6 +69,7 @@ export default function Dashboard() {
   const beamTheme = isDark ? 'dark' : 'light';
   const { user } = useAuth();
   const toast = useToast();
+  const t = useTranslate();
 
   const [keys, setKeys] = useState([]);
   const [account, setAccount] = useState(null);
@@ -99,7 +101,7 @@ export default function Dashboard() {
     try {
       const sessionToken = user?.sessionToken || localStorage.getItem('frenix_session_token');
       if (!sessionToken || !window.secureRelayRequest) {
-        throw new Error('No active Telegram session found. Please log in first.');
+        throw new Error(t('No active Telegram session found. Please log in first.'));
       }
 
       // 1. Fetch Account Info (GET /v1/me)
@@ -123,7 +125,7 @@ export default function Dashboard() {
         headers: { Authorization: `Bearer ${sessionToken}` }
       });
       if (!keysRes.ok || !keysRes.data?.keys) {
-        throw new Error(keysRes?.data?.error?.message || `Failed to load API keys (HTTP ${keysRes.status})`);
+        throw new Error(keysRes?.data?.error?.message || `${t('Failed to load API keys')} (HTTP ${keysRes.status})`);
       }
       // Preserve the raw secret for any key minted earlier this session
       // (the server never returns it again after creation).
@@ -141,8 +143,8 @@ export default function Dashboard() {
           id: k.id,
           name: k.name,
           key: `${k.key_prefix || 'sk-frx-'}************`,
-          created: k.created_at ? new Date(k.created_at).toLocaleDateString() : 'Active',
-          lastUsed: k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : 'Never',
+          created: k.created_at ? new Date(k.created_at).toLocaleDateString() : t('Active'),
+          lastUsed: k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : t('Never'),
           raw: rawById[k.id] || null,
           spendLimit: k.spend_limit ?? null,
           rateLimitRpm: k.rate_limit_rpm ?? null,
@@ -159,9 +161,9 @@ export default function Dashboard() {
       // Never fall back to fabricated keys/usage on a failed fetch — that
       // would show the user keys they never created and can't use, and
       // silently discard whatever real keys were already loaded.
-      const message = err.message || 'Failed to sync with the Frenix gateway';
+      const message = err.message || t('Failed to sync with the Frenix gateway');
       setSyncError(message);
-      toast.error('Sync failed', message);
+      toast.error(t('Sync failed'), message);
     } finally {
       setLoading(false);
     }
@@ -208,9 +210,9 @@ export default function Dashboard() {
     try {
       const sessionToken = user?.sessionToken || localStorage.getItem('frenix_session_token');
       if (!sessionToken) {
-        throw new Error('No active Telegram session found. Please log in first.');
+        throw new Error(t('No active Telegram session found. Please log in first.'));
       }
-      
+
       // Every limit field is optional: an empty/blank input means no cap,
       // same as leaving the field out of the request body entirely.
       const spendLimitDollars = newKeySpendLimit.trim() ? Number(newKeySpendLimit) : null;
@@ -219,17 +221,17 @@ export default function Dashboard() {
       const tokensPerHour = newKeyTokensPerHour.trim() ? Number(newKeyTokensPerHour) : null;
       const tokensPerDay = newKeyTokensPerDay.trim() ? Number(newKeyTokensPerDay) : null;
       if (spendLimitDollars !== null && (!Number.isFinite(spendLimitDollars) || spendLimitDollars < 0)) {
-        throw new Error('Spend limit must be a non-negative number.');
+        throw new Error(t('Spend limit must be a non-negative number.'));
       }
       const positiveIntFields = [
-        ['Rate limit', rateLimitRpm],
-        ['Token limit per minute', tokensPerMinute],
-        ['Token limit per hour', tokensPerHour],
-        ['Token limit per day', tokensPerDay],
+        [t('Rate limit'), rateLimitRpm],
+        [t('Token limit per minute'), tokensPerMinute],
+        [t('Token limit per hour'), tokensPerHour],
+        [t('Token limit per day'), tokensPerDay],
       ];
       for (const [label, value] of positiveIntFields) {
         if (value !== null && (!Number.isFinite(value) || value <= 0)) {
-          throw new Error(`${label} must be a positive number.`);
+          throw new Error(`${label} ${t('must be a positive number.')}`);
         }
       }
       const body = { name: newKeyName.trim() };
@@ -272,8 +274,8 @@ export default function Dashboard() {
           name: minted.name || newKeyName.trim(),
           key: `${minted.key_prefix || 'sk-frx-'}************`,
           raw: rawSecret, // Shown once
-          created: 'Just now',
-          lastUsed: 'Never',
+          created: t('Just now'),
+          lastUsed: t('Never'),
           spendLimit: minted.spend_limit ?? null,
           rateLimitRpm: minted.rate_limit_rpm ?? null,
           tokenLimitPerMinute: minted.token_limit_per_minute ?? null,
@@ -301,13 +303,13 @@ export default function Dashboard() {
         setShowLimitFields(false);
         return;
       } else {
-        const serverError = createRes?.data?.error?.message || `Gateway returned HTTP ${createRes.status}`;
+        const serverError = createRes?.data?.error?.message || `${t('Gateway returned')} HTTP ${createRes.status}`;
         throw new Error(serverError);
       }
     } catch (err) {
-      const message = err.message || 'Error communicating with Frenix gateway';
+      const message = err.message || t('Error communicating with Frenix gateway');
       setErrorMsg(message);
-      toast.error('Could not create API key', message);
+      toast.error(t('Could not create API key'), message);
     } finally {
       setIsSubmitting(false);
     }
@@ -319,9 +321,9 @@ export default function Dashboard() {
   const handleRevokeKey = async (id) => {
     const sessionToken = user?.sessionToken || localStorage.getItem('frenix_session_token');
     if (!sessionToken || !window.secureRelayRequest) {
-      const message = 'No active Telegram session found. Please log in again and retry.';
+      const message = t('No active Telegram session found. Please log in again and retry.');
       setSyncError(message);
-      toast.error('Revoke failed', message);
+      toast.error(t('Revoke failed'), message);
       return false;
     }
 
@@ -336,12 +338,12 @@ export default function Dashboard() {
         headers: { Authorization: `Bearer ${sessionToken}` }
       });
       if (!relayRes.ok) {
-        throw new Error(relayRes?.data?.error?.message || `Failed to revoke key (HTTP ${relayRes.status})`);
+        throw new Error(relayRes?.data?.error?.message || `${t('Failed to revoke key')} (HTTP ${relayRes.status})`);
       }
     } catch (err) {
-      const message = err.message || 'Failed to revoke key — it is still active. Please try again.';
+      const message = err.message || t('Failed to revoke key — it is still active. Please try again.');
       setSyncError(message);
-      toast.error('Revoke failed', message);
+      toast.error(t('Revoke failed'), message);
       return false;
     }
 
@@ -349,7 +351,7 @@ export default function Dashboard() {
     // DeleteButton's own "Deleted" checkmark never gets to render here — the
     // row (and the button with it) unmounts the instant this state update
     // lands — so this toast is the only success feedback the user gets.
-    toast.success('API key revoked', keyName ? `"${keyName}" is no longer active.` : undefined);
+    toast.success(t('API key revoked'), keyName ? `"${keyName}" ${t('is no longer active.')}` : undefined);
     return true;
   };
 
@@ -395,7 +397,7 @@ export default function Dashboard() {
       setCopiedKeyId(id);
       setTimeout(() => setCopiedKeyId(null), 1800);
     } else {
-      setSyncError('Could not copy automatically — long-press (or select) the key text to copy it manually.');
+      setSyncError(t('Could not copy automatically — long-press (or select) the key text to copy it manually.'));
     }
   };
 
@@ -418,14 +420,14 @@ export default function Dashboard() {
   const handleSaveThreshold = async (clear) => {
     const sessionToken = user?.sessionToken || localStorage.getItem('frenix_session_token');
     if (!sessionToken || !window.secureRelayRequest) {
-      setSyncError('No active Telegram session found. Please log in again and retry.');
+      setSyncError(t('No active Telegram session found. Please log in again and retry.'));
       return;
     }
     let thresholdMicroCredits = null;
     if (!clear) {
       const dollars = Number(thresholdInput);
       if (!thresholdInput.trim() || !Number.isFinite(dollars) || dollars < 0) {
-        setSyncError('Alert threshold must be a non-negative number.');
+        setSyncError(t('Alert threshold must be a non-negative number.'));
         return;
       }
       thresholdMicroCredits = Math.round(dollars * 1_000_000);
@@ -439,7 +441,7 @@ export default function Dashboard() {
         body: { threshold: thresholdMicroCredits }
       });
       if (!res.ok) {
-        throw new Error(res?.data?.error?.message || `Failed to update alert threshold (HTTP ${res.status})`);
+        throw new Error(res?.data?.error?.message || `${t('Failed to update alert threshold')} (HTTP ${res.status})`);
       }
       // Re-fetch rather than compute low_balance locally — the server is
       // the source of truth for whether the new threshold is already
@@ -450,11 +452,11 @@ export default function Dashboard() {
       if (meRes.ok && meRes.data) setAccount(meRes.data);
       setShowThresholdEditor(false);
       setThresholdInput('');
-      toast.success(clear ? 'Balance alert cleared' : 'Balance alert set');
+      toast.success(clear ? t('Balance alert cleared') : t('Balance alert set'));
     } catch (err) {
-      const message = err.message || 'Failed to update alert threshold';
+      const message = err.message || t('Failed to update alert threshold');
       setSyncError(message);
-      toast.error('Could not update alert', message);
+      toast.error(t('Could not update alert'), message);
     } finally {
       setSavingThreshold(false);
     }
@@ -482,7 +484,7 @@ export default function Dashboard() {
       setReferralCopied(true);
       setTimeout(() => setReferralCopied(false), 1800);
     } else {
-      setSyncError('Could not copy automatically — long-press (or select) the link text to copy it manually.');
+      setSyncError(t('Could not copy automatically — long-press (or select) the link text to copy it manually.'));
     }
   };
 
@@ -491,22 +493,22 @@ export default function Dashboard() {
       <div style={{ marginBottom: '32px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <SplitText tag="h1" text="Dashboard" className="frenix-page-title" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
+            <SplitText tag="h1" text={t('Dashboard')} className="frenix-page-title" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
             <BotAvatar type="circle" size={28} state={loading ? 'working' : 'default'} theme={beamTheme} />
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
             {account && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--muted)' }}>
-                <span>Tier: <strong style={{ color: 'var(--text)', textTransform: 'capitalize' }}>{account.tier || 'Free'}</strong></span>
+                <span>{t('Tier')}: <strong style={{ color: 'var(--text)', textTransform: 'capitalize' }}>{account.tier || t('Free')}</strong></span>
                 <span>&bull;</span>
-                <span>Credits: <strong style={{ color: 'var(--text)' }}>${Number(account.balance_credits || 0).toFixed(2)}</strong></span>
+                <span>{t('Credits')}: <strong style={{ color: 'var(--text)' }}>${Number(account.balance_credits || 0).toFixed(2)}</strong></span>
               </div>
             )}
             <MetalFx variant="button" preset="silver" theme={beamTheme} normalizeHostStyles={false} style={{ display: 'inline-block' }}>
               <button
                 onClick={fetchDashboardData}
                 disabled={loading}
-                title="Refresh live usage and keys"
+                title={t('Refresh live usage and keys')}
                 className="button-press"
                 style={{
                   display: 'flex',
@@ -522,13 +524,13 @@ export default function Dashboard() {
                 }}
               >
                 <RefreshCw size={13} style={{ transition: 'transform 0.4s ease', transform: loading ? 'rotate(360deg)' : 'none' }} />
-                <span>{loading ? 'Updating...' : 'Live Sync'}</span>
+                <span>{loading ? t('Updating...') : t('Live Sync')}</span>
               </button>
             </MetalFx>
           </div>
         </div>
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '580px' }}>
-          Manage API keys minted via your Telegram session, monitor throughput, and call unified endpoints.
+          {t('Manage API keys minted via your Telegram session, monitor throughput, and call unified endpoints.')}
         </p>
       </div>
 
@@ -555,7 +557,7 @@ export default function Dashboard() {
         >
           <AlertTriangle size={15} style={{ flexShrink: 0 }} />
           <span>
-            Your balance (${Number(account.balance_credits || 0).toFixed(2)}) is at or below your alert threshold. Top up to avoid an interruption.
+            {t('Your balance')} (${Number(account.balance_credits || 0).toFixed(2)}) {t('is at or below your alert threshold. Top up to avoid an interruption.')}
           </span>
         </div>
       )}
@@ -564,7 +566,7 @@ export default function Dashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '36px' }}>
         <ScrollReveal y={12} style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
-            <span style={{ fontSize: '13px' }}>Credits left</span>
+            <span style={{ fontSize: '13px' }}>{t('Credits left')}</span>
             <Wallet size={16} />
           </div>
           <AnimatedCounter
@@ -574,7 +576,7 @@ export default function Dashboard() {
             style={{ fontSize: '26px', fontWeight: 500 }}
           />
           <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
-            {account?.tier ? `${account.tier.toUpperCase()} tier balance` : 'Available balance'}
+            {account?.tier ? `${account.tier.toUpperCase()} ${t('tier balance')}` : t('Available balance')}
           </div>
 
           <button
@@ -601,8 +603,8 @@ export default function Dashboard() {
             <Bell size={11} />
             <span>
               {account?.low_balance_threshold != null
-                ? `Alert below $${(account.low_balance_threshold / 1_000_000).toFixed(2)}`
-                : 'Set balance alert'}
+                ? `${t('Alert below')} $${(account.low_balance_threshold / 1_000_000).toFixed(2)}`
+                : t('Set balance alert')}
             </span>
           </button>
 
@@ -612,7 +614,7 @@ export default function Dashboard() {
                 type="number"
                 min="0"
                 step="0.01"
-                placeholder="$ threshold"
+                placeholder={t('$ threshold')}
                 value={thresholdInput}
                 onChange={(e) => setThresholdInput(e.target.value)}
                 style={{
@@ -629,7 +631,7 @@ export default function Dashboard() {
               <button
                 onClick={() => handleSaveThreshold(false)}
                 disabled={savingThreshold}
-                title="Save"
+                title={t('Save')}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#16a34a', padding: '4px' }}
               >
                 <Check size={13} />
@@ -638,7 +640,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => handleSaveThreshold(true)}
                   disabled={savingThreshold}
-                  title="Clear alert"
+                  title={t('Clear alert')}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
                 >
                   <X size={13} />
@@ -650,7 +652,7 @@ export default function Dashboard() {
 
         <ScrollReveal delay={0.04} y={12} style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
-            <span style={{ fontSize: '13px' }}>Total tokens used</span>
+            <span style={{ fontSize: '13px' }}>{t('Total tokens used')}</span>
             <Hash size={16} />
           </div>
           <SkeletonReveal
@@ -664,13 +666,13 @@ export default function Dashboard() {
             }
           >
             <AnimatedCounter value={Number(usage?.total_tokens ?? 0)} style={{ fontSize: '26px', fontWeight: 500 }} />
-            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Lifetime, prompt + completion</div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>{t('Lifetime, prompt + completion')}</div>
           </SkeletonReveal>
         </ScrollReveal>
 
         <ScrollReveal delay={0.08} y={12} style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
-            <span style={{ fontSize: '13px' }}>Requests (24h)</span>
+            <span style={{ fontSize: '13px' }}>{t('Requests (24h)')}</span>
             <Activity size={16} />
           </div>
           <SkeletonReveal
@@ -684,13 +686,13 @@ export default function Dashboard() {
             }
           >
             <AnimatedCounter value={Number(usage?.requests_last_24h ?? 0)} style={{ fontSize: '26px', fontWeight: 500 }} />
-            <div style={{ fontSize: '12px', color: '#16a34a', marginTop: '4px' }}>Live gateway counter</div>
+            <div style={{ fontSize: '12px', color: '#16a34a', marginTop: '4px' }}>{t('Live gateway counter')}</div>
           </SkeletonReveal>
         </ScrollReveal>
 
         <ScrollReveal delay={0.12} y={12} style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
-            <span style={{ fontSize: '13px' }}>Requests (30d)</span>
+            <span style={{ fontSize: '13px' }}>{t('Requests (30d)')}</span>
             <BarChart3 size={16} />
           </div>
           <SkeletonReveal
@@ -704,13 +706,13 @@ export default function Dashboard() {
             }
           >
             <AnimatedCounter value={Number(usage?.requests_last_30d ?? 0)} style={{ fontSize: '26px', fontWeight: 500 }} />
-            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>30-day cumulative volume</div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>{t('30-day cumulative volume')}</div>
           </SkeletonReveal>
         </ScrollReveal>
 
         <ScrollReveal delay={0.16} y={12} style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '18px', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--muted)', marginBottom: '8px' }}>
-            <span style={{ fontSize: '13px' }}>Active API Keys</span>
+            <span style={{ fontSize: '13px' }}>{t('Active API Keys')}</span>
             <Key size={16} />
           </div>
           <SkeletonReveal
@@ -725,7 +727,7 @@ export default function Dashboard() {
           >
             <AnimatedCounter value={keys.length} style={{ fontSize: '26px', fontWeight: 500 }} />
             <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
-              {account?.tier ? `${account.tier.toUpperCase()} Tier quota` : 'Authenticated'}
+              {account?.tier ? `${account.tier.toUpperCase()} ${t('Tier quota')}` : t('Authenticated')}
             </div>
           </SkeletonReveal>
         </ScrollReveal>
@@ -736,10 +738,10 @@ export default function Dashboard() {
         <ScrollReveal style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '20px 22px', backgroundColor: 'var(--card)', marginBottom: '36px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
             <Gift size={16} />
-            <h2 style={{ fontSize: '16px', fontWeight: 500, margin: 0 }}>Refer a friend, earn $100</h2>
+            <h2 style={{ fontSize: '16px', fontWeight: 500, margin: 0 }}>{t('Refer a friend, earn $100')}</h2>
           </div>
           <p style={{ fontSize: '13px', lineHeight: 1.6, color: 'var(--muted)', margin: '0 0 14px 0', maxWidth: '560px' }}>
-            Share your link. The moment someone signs up through it, you get $100 in credits — no limit on how many times.
+            {t('Share your link. The moment someone signs up through it, you get $100 in credits — no limit on how many times.')}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             <div
@@ -778,10 +780,10 @@ export default function Dashboard() {
               }}
             >
               {referralCopied ? <Check size={14} /> : <Copy size={14} />}
-              <span>{referralCopied ? 'Copied' : 'Copy link'}</span>
+              <span>{referralCopied ? t('Copied') : t('Copy link')}</span>
             </button>
             <span style={{ fontSize: '13px', color: 'var(--muted)', flexShrink: 0 }}>
-              <strong style={{ color: 'var(--text)' }}>{account.referral_count ?? 0}</strong> referral{account.referral_count === 1 ? '' : 's'} so far
+              <strong style={{ color: 'var(--text)' }}>{account.referral_count ?? 0}</strong> {account.referral_count === 1 ? t('referral so far') : t('referrals so far')}
             </span>
           </div>
         </ScrollReveal>
@@ -790,7 +792,7 @@ export default function Dashboard() {
       {/* API Keys Header & Creation */}
       <CenterMorphModal open={showModal} onOpenChange={setShowModal}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
-        <h2 style={{ fontSize: '20px', fontWeight: 400, margin: 0 }}>API keys</h2>
+        <h2 style={{ fontSize: '20px', fontWeight: 400, margin: 0 }}>{t('API keys')}</h2>
         <CenterMorphModalTrigger>
           <button
             onClick={() => setCreatedKey(null)}
@@ -809,7 +811,7 @@ export default function Dashboard() {
             }}
           >
             <Plus size={15} />
-            <span>Create API key</span>
+            <span>{t('Create API key')}</span>
           </button>
         </CenterMorphModalTrigger>
       </div>
@@ -828,18 +830,18 @@ export default function Dashboard() {
             letterSpacing: '0.04em',
           }}
         >
-          <div>Name</div>
-          <div>Key</div>
-          <div>Created</div>
-          <div>Last used</div>
-          <div className="frenix-key-actions">Actions</div>
+          <div>{t('Name')}</div>
+          <div>{t('Key')}</div>
+          <div>{t('Created')}</div>
+          <div>{t('Last used')}</div>
+          <div className="frenix-key-actions">{t('Actions')}</div>
         </div>
 
         {keys.length === 0 ? (
           <div style={{ padding: '36px', textAlign: 'center', color: 'var(--muted)', fontSize: '14px' }}>
             {syncError
-              ? 'Could not load your API keys. Try "Live Sync" above.'
-              : 'No API keys found. Click "Create API key" above to generate your first key.'}
+              ? t('Could not load your API keys. Try "Live Sync" above.')
+              : t('No API keys found. Click "Create API key" above to generate your first key.')}
           </div>
         ) : (
           keys.map((k) => (
@@ -854,8 +856,8 @@ export default function Dashboard() {
             >
               <div>
                 <div style={{ fontWeight: 500 }}>{k.name}</div>
-                {keyLimitSummary(k) && (
-                  <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>{keyLimitSummary(k)}</div>
+                {keyLimitSummary(k, t) && (
+                  <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>{keyLimitSummary(k, t)}</div>
                 )}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -873,19 +875,19 @@ export default function Dashboard() {
                     padding: '2px',
                     display: 'flex',
                   }}
-                  title={k.raw ? 'Copy key' : "Only shown once at creation — this browser doesn't have the secret for this key. Revoke and create a new one to get a copyable key."}
+                  title={k.raw ? t('Copy key') : t("Only shown once at creation — this browser doesn't have the secret for this key. Revoke and create a new one to get a copyable key.")}
                 >
                   {copiedKeyId === k.id ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
                 </button>
               </div>
               <div style={{ color: 'var(--muted)', fontSize: '12px' }}>
-                <span className="frenix-mobile-label">Created: </span>{k.created}
+                <span className="frenix-mobile-label">{t('Created')}: </span>{k.created}
               </div>
               <div style={{ color: 'var(--muted)', fontSize: '12px' }}>
-                <span className="frenix-mobile-label">Last used: </span>{k.lastUsed}
+                <span className="frenix-mobile-label">{t('Last used')}: </span>{k.lastUsed}
               </div>
               <div className="frenix-key-actions" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <DeleteButton aria-label={`Revoke ${k.name}`} onConfirm={() => handleRevokeKey(k.id)} />
+                <DeleteButton aria-label={`${t('Revoke')} ${k.name}`} onConfirm={() => handleRevokeKey(k.id)} />
               </div>
             </div>
           ))
@@ -894,22 +896,22 @@ export default function Dashboard() {
 
       {/* Creation Modal */}
       <CenterMorphModalContent
-        ariaLabel="Create New API Key"
+        ariaLabel={t('Create New API Key')}
         ariaDescribedBy="create-key-description"
         dismissible={!isSubmitting}
         className="max-w-[440px]"
       >
           <div style={{ padding: '24px' }}>
-            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 500 }}>Create New API Key</h3>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 500 }}>{t('Create New API Key')}</h3>
             <p id="create-key-description" style={{ margin: '0 0 16px 0', fontSize: '13px', color: 'var(--muted)' }}>
-              Give your key a recognizable name to track where it is being utilized.
+              {t('Give your key a recognizable name to track where it is being utilized.')}
             </p>
 
             {createdKey ? (
               <div>
                 <div style={{ padding: '12px', backgroundColor: 'var(--hover-bg)', borderRadius: '10px', border: '1px solid var(--border)', marginBottom: '16px' }}>
                   <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '6px' }}>
-                    Save this key now. You will not be able to view it in plaintext again:
+                    {t('Save this key now. You will not be able to view it in plaintext again:')}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
                     <code data-copyable className="code-font" style={{ fontSize: '13px', wordBreak: 'break-all', userSelect: 'text' }}>
@@ -926,7 +928,7 @@ export default function Dashboard() {
 
                 <div style={{ padding: '12px', backgroundColor: 'var(--hover-bg)', borderRadius: '10px', border: '1px solid var(--border)', marginBottom: '16px' }}>
                   <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '6px' }}>
-                    This key also works as an MCP server for Claude Code / Claude Desktop:
+                    {t('This key also works as an MCP server for Claude Code / Claude Desktop:')}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
                     <code data-copyable className="code-font" style={{ fontSize: '11px', wordBreak: 'break-all', userSelect: 'text', color: 'var(--muted)' }}>
@@ -954,7 +956,7 @@ export default function Dashboard() {
                     cursor: 'pointer',
                   }}
                 >
-                  Done
+                  {t('Done')}
                 </button>
               </div>
             ) : (
@@ -966,7 +968,7 @@ export default function Dashboard() {
                 )}
                 <input
                   type="text"
-                  placeholder="Key name (e.g. Staging Agent, Codex CLI)"
+                  placeholder={t('Key name (e.g. Staging Agent, Codex CLI)')}
                   value={newKeyName}
                   onChange={(e) => setNewKeyName(e.target.value)}
                   autoFocus
@@ -997,20 +999,20 @@ export default function Dashboard() {
                     textDecoration: 'underline',
                   }}
                 >
-                  {showLimitFields ? 'Hide limits' : 'Add spend / rate limits (optional)'}
+                  {showLimitFields ? t('Hide limits') : t('Add spend / rate limits (optional)')}
                 </button>
 
                 {showLimitFields && (
                   <div style={{ marginBottom: '16px' }}>
                     <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                      <LimitField label="Spend limit ($)" min="0" step="0.01" value={newKeySpendLimit} onChange={setNewKeySpendLimit} />
-                      <LimitField label="Rate limit (req/min)" min="1" step="1" value={newKeyRateLimit} onChange={setNewKeyRateLimit} />
+                      <LimitField label={t('Spend limit ($)')} placeholder={t('No limit')} min="0" step="0.01" value={newKeySpendLimit} onChange={setNewKeySpendLimit} />
+                      <LimitField label={t('Rate limit (req/min)')} placeholder={t('No limit')} min="1" step="1" value={newKeyRateLimit} onChange={setNewKeyRateLimit} />
                     </div>
-                    <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '6px' }}>Token throughput caps (optional)</div>
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '6px' }}>{t('Token throughput caps (optional)')}</div>
                     <div style={{ display: 'flex', gap: '10px' }}>
-                      <LimitField label="Per minute" min="1" step="1" value={newKeyTokensPerMinute} onChange={setNewKeyTokensPerMinute} />
-                      <LimitField label="Per hour" min="1" step="1" value={newKeyTokensPerHour} onChange={setNewKeyTokensPerHour} />
-                      <LimitField label="Per day" min="1" step="1" value={newKeyTokensPerDay} onChange={setNewKeyTokensPerDay} />
+                      <LimitField label={t('Per minute')} placeholder={t('No limit')} min="1" step="1" value={newKeyTokensPerMinute} onChange={setNewKeyTokensPerMinute} />
+                      <LimitField label={t('Per hour')} placeholder={t('No limit')} min="1" step="1" value={newKeyTokensPerHour} onChange={setNewKeyTokensPerHour} />
+                      <LimitField label={t('Per day')} placeholder={t('No limit')} min="1" step="1" value={newKeyTokensPerDay} onChange={setNewKeyTokensPerDay} />
                     </div>
                   </div>
                 )}
@@ -1029,7 +1031,7 @@ export default function Dashboard() {
                       fontSize: '13px',
                     }}
                   >
-                    Cancel
+                    {t('Cancel')}
                   </button>
                   <button
                     type="submit"
@@ -1046,7 +1048,7 @@ export default function Dashboard() {
                       opacity: newKeyName.trim() && !isSubmitting ? 1 : 0.5,
                     }}
                   >
-                    {isSubmitting ? 'Minting...' : 'Generate Key'}
+                    {isSubmitting ? t('Minting...') : t('Generate Key')}
                   </button>
                 </div>
               </form>

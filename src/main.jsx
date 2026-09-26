@@ -5,6 +5,7 @@ import App from './App';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import { LanguageProvider } from './context/LanguageContext';
 import { SoundEffects } from './components/sound';
 import { SmoothScroll } from './components/motion/smooth-scroll';
 import './index.css';
@@ -100,15 +101,17 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <ThemeProvider>
-        <AuthProvider>
-          <ToastProvider>
-            <SoundEffects>
-              <SmoothScroll root>
-                <App />
-              </SmoothScroll>
-            </SoundEffects>
-          </ToastProvider>
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <ToastProvider>
+              <SoundEffects>
+                <SmoothScroll root>
+                  <App />
+                </SmoothScroll>
+              </SoundEffects>
+            </ToastProvider>
+          </AuthProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>

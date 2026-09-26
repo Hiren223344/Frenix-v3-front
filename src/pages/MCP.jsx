@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTranslate } from '../context/LanguageContext';
 import { Copy, Check, Plug, ArrowRight } from 'lucide-react';
 import SplitText from '../components/ui/split-text';
 
@@ -28,6 +29,7 @@ const CONFIG_SNIPPET = (key) => `{
 
 export default function MCP() {
   const { isAuthenticated } = useAuth();
+  const t = useTranslate();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -55,11 +57,9 @@ export default function MCP() {
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
       <div style={{ marginBottom: '36px' }}>
-        <SplitText tag="h1" text="MCP Gateway" className="frenix-page-title-spaced" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
+        <SplitText tag="h1" text={t('MCP Gateway')} className="frenix-page-title-spaced" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '640px' }}>
-          Every API key doubles as credentials for a personal MCP (Model Context Protocol) server, so an MCP
-          client — Claude Code, Claude Desktop, or anything else that speaks MCP — can do almost everything
-          this Dashboard can: route completions, manage key limits, check usage, and more.
+          {t('Every API key doubles as credentials for a personal MCP (Model Context Protocol) server, so an MCP client — Claude Code, Claude Desktop, or anything else that speaks MCP — can do almost everything this Dashboard can: route completions, manage key limits, check usage, and more.')}
         </p>
       </div>
 
@@ -70,24 +70,23 @@ export default function MCP() {
           <span style={{ fontSize: '15px', fontWeight: 500 }}>POST /v1/mcp</span>
         </div>
         <p style={{ fontSize: '13px', color: 'var(--muted)', lineHeight: 1.7, margin: 0 }}>
-          Authenticated the same way as the rest of the account API — an <code className="code-font">Authorization: Bearer &lt;api key&gt;</code>{' '}
-          header. Stateless: each request is a fresh MCP session, so there's no session setup beyond the bearer token.
-          Tools are scoped to that key's own account — a caller can only ever see or spend its own data.
+          {t('Authenticated the same way as the rest of the account API — an')} <code className="code-font">Authorization: Bearer &lt;api key&gt;</code>{' '}
+          {t("header. Stateless: each request is a fresh MCP session, so there's no session setup beyond the bearer token. Tools are scoped to that key's own account — a caller can only ever see or spend its own data.")}
         </p>
       </div>
 
       {/* Tools table */}
       <div style={{ marginBottom: '28px' }}>
-        <h2 style={{ fontSize: '20px', fontWeight: 400, margin: '0 0 16px 0' }}>Tools</h2>
+        <h2 style={{ fontSize: '20px', fontWeight: 400, margin: '0 0 16px 0' }}>{t('Tools')}</h2>
         <div style={{ border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.6fr 2fr', padding: '10px 18px', borderBottom: '1px solid var(--border)', fontSize: '12px', fontWeight: 500, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            <div>Tool</div>
-            <div>Mirrors</div>
-            <div>Notes</div>
+            <div>{t('Tool')}</div>
+            <div>{t('Mirrors')}</div>
+            <div>{t('Notes')}</div>
           </div>
-          {TOOLS.map((t, idx) => (
+          {TOOLS.map((tool, idx) => (
             <div
-              key={t.name}
+              key={tool.name}
               style={{
                 display: 'grid',
                 gridTemplateColumns: '1.2fr 1.6fr 2fr',
@@ -97,22 +96,20 @@ export default function MCP() {
                 alignItems: 'center',
               }}
             >
-              <div className="code-font" style={{ fontWeight: 500 }}>{t.name}</div>
-              <div className="code-font" style={{ color: 'var(--muted)', fontSize: '12px' }}>{t.mirrors}</div>
-              <div style={{ color: 'var(--muted)', fontSize: '12px' }}>{t.notes}</div>
+              <div className="code-font" style={{ fontWeight: 500 }}>{tool.name}</div>
+              <div className="code-font" style={{ color: 'var(--muted)', fontSize: '12px' }}>{tool.mirrors}</div>
+              <div style={{ color: 'var(--muted)', fontSize: '12px' }}>{t(tool.notes)}</div>
             </div>
           ))}
         </div>
         <p style={{ fontSize: '12px', color: 'var(--muted)', margin: '10px 0 0 0' }}>
-          Not exposed: minting a new key. That requires a session specifically, not an API key — a leaked key
-          must never be able to mint further standing credentials that outlive it getting revoked. Create keys
-          from this Dashboard.
+          {t("Not exposed: minting a new key. That requires a session specifically, not an API key — a leaked key must never be able to mint further standing credentials that outlive it getting revoked. Create keys from this Dashboard.")}
         </p>
       </div>
 
       {/* Config snippet */}
       <div style={{ marginBottom: '28px' }}>
-        <h2 style={{ fontSize: '20px', fontWeight: 400, margin: '0 0 16px 0' }}>Claude Desktop / Claude Code config</h2>
+        <h2 style={{ fontSize: '20px', fontWeight: 400, margin: '0 0 16px 0' }}>{t('Claude Desktop / Claude Code config')}</h2>
         <div style={{ border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--card)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', borderBottom: '1px solid var(--border)', fontSize: '12px', color: 'var(--muted)' }}>
             <span>claude_desktop_config.json</span>
@@ -121,7 +118,7 @@ export default function MCP() {
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '4px' }}
             >
               {copied ? <Check size={13} color="#16a34a" /> : <Copy size={13} />}
-              <span>{copied ? 'Copied' : 'Copy'}</span>
+              <span>{copied ? t('Copied') : t('Copy')}</span>
             </button>
           </div>
           <pre
@@ -132,8 +129,7 @@ export default function MCP() {
           </pre>
         </div>
         <p style={{ fontSize: '12px', color: 'var(--muted)', margin: '10px 0 0 0' }}>
-          Replace <code className="code-font">sk-frx-your-api-key</code> with a real key from your Dashboard —
-          new keys show this same config pre-filled with the real value at creation time.
+          {t('Replace')} <code className="code-font">sk-frx-your-api-key</code> {t('with a real key from your Dashboard — new keys show this same config pre-filled with the real value at creation time.')}
         </p>
       </div>
 
@@ -141,12 +137,12 @@ export default function MCP() {
       <div className="hover-lift" style={{ border: '1px solid var(--border)', borderRadius: '16px', padding: '20px 24px', backgroundColor: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>
-            {isAuthenticated ? 'Ready to connect' : 'Sign in to create a key'}
+            {isAuthenticated ? t('Ready to connect') : t('Sign in to create a key')}
           </div>
           <div style={{ fontSize: '13px', color: 'var(--muted)' }}>
             {isAuthenticated
-              ? 'Create an API key in your Dashboard to get a ready-to-paste config with the real key inlined.'
-              : 'Sign in with Telegram, then create an API key from your Dashboard.'}
+              ? t('Create an API key in your Dashboard to get a ready-to-paste config with the real key inlined.')
+              : t('Sign in with Telegram, then create an API key from your Dashboard.')}
           </div>
         </div>
         <Link
@@ -164,7 +160,7 @@ export default function MCP() {
             flexShrink: 0,
           }}
         >
-          <span>Go to Dashboard</span>
+          <span>{t('Go to Dashboard')}</span>
           <ArrowRight size={14} />
         </Link>
       </div>

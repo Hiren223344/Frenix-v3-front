@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslate } from '../context/LanguageContext';
 import { Copy, Check, Code, ExternalLink } from 'lucide-react';
 import SplitText from '../components/ui/split-text';
 
 export default function Docs() {
   const { accentDisplay } = useTheme();
+  const t = useTranslate();
   const [activeTab, setActiveTab] = useState('quickstart');
   const [copiedKey, setCopiedKey] = useState(null);
 
@@ -18,25 +20,25 @@ export default function Docs() {
   };
 
   const navItems = [
-    { id: 'quickstart', label: 'Quickstart' },
-    { id: 'frontend-integration', label: 'Frontend Integration Guide' },
-    { id: 'authentication', label: 'Authentication & Keys' },
-    { id: 'client-configs', label: 'Claude Code & Codex Setup' },
-    { id: 'sdk-examples', label: 'Python & Node.js SDKs' },
-    { id: 'streaming', label: 'Streaming & Tool Calling' },
-    { id: 'model-routing', label: 'Model Routing & Fallbacks' },
-    { id: 'errors', label: 'Error Codes & Failover' },
-    { id: 'rate-limits', label: 'Rate Limits & Concurrency' },
-    { id: 'plugins', label: 'Plugins' },
-    { id: 'referrals', label: 'Referral Program' },
+    { id: 'quickstart', label: t('Quickstart') },
+    { id: 'frontend-integration', label: t('Frontend Integration Guide') },
+    { id: 'authentication', label: t('Authentication & Keys') },
+    { id: 'client-configs', label: t('Claude Code & Codex Setup') },
+    { id: 'sdk-examples', label: t('Python & Node.js SDKs') },
+    { id: 'streaming', label: t('Streaming & Tool Calling') },
+    { id: 'model-routing', label: t('Model Routing & Fallbacks') },
+    { id: 'errors', label: t('Error Codes & Failover') },
+    { id: 'rate-limits', label: t('Rate Limits & Concurrency') },
+    { id: 'plugins', label: t('Plugins') },
+    { id: 'referrals', label: t('Referral Program') },
   ];
 
   return (
     <div className="animate-fadeInUp" style={{ padding: '64px 0 96px 0' }}>
       <div style={{ marginBottom: '36px' }}>
-        <SplitText tag="h1" text="Documentation" className="frenix-page-title-spaced" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
+        <SplitText tag="h1" text={t('Documentation')} className="frenix-page-title-spaced" textAlign="left" splitType="chars" delay={18} duration={0.6} from={{ opacity: 0, y: 18 }} to={{ opacity: 1, y: 0 }} />
         <p style={{ fontSize: '15px', lineHeight: 1.6, color: 'var(--muted)', margin: 0, maxWidth: '640px' }}>
-          Complete developer reference for integrating Frenix into CLI coding assistants, custom applications, and autonomous agents.
+          {t('Complete developer reference for integrating Frenix into CLI coding assistants, custom applications, and autonomous agents.')}
         </p>
       </div>
 
@@ -82,7 +84,7 @@ export default function Docs() {
               color: 'var(--muted)',
             }}
           >
-            <span>Ask Support</span>
+            <span>{t('Ask Support')}</span>
             <ExternalLink size={13} />
           </a>
         </aside>
@@ -93,21 +95,21 @@ export default function Docs() {
           {/* TAB: Quickstart */}
           {activeTab === 'quickstart' && (
             <div>
-              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>Quickstart Guide</h2>
+              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>{t('Quickstart Guide')}</h2>
               <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 20px 0' }}>
-                Frenix acts as a single, ultra-fast reverse proxy that handles 150+ models from OpenAI, Anthropic, Google, Meta, and xAI. Point existing clients at Frenix without installing any new packages.
+                {t('Frenix acts as a single, ultra-fast reverse proxy that handles 150+ models from OpenAI, Anthropic, Google, Meta, and xAI. Point existing clients at Frenix without installing any new packages.')}
               </p>
 
-              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 10px 0' }}>1. Set Environment Variables</h3>
+              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 10px 0' }}>1. {t('Set Environment Variables')}</h3>
               <div style={{ border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--card)', marginBottom: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', borderBottom: '1px solid var(--border)', fontSize: '12px', color: 'var(--muted)' }}>
-                  <span>Bash Profile (.bashrc / .zshrc)</span>
+                  <span>{t('Bash Profile (.bashrc / .zshrc)')}</span>
                   <button
                     onClick={() => copyCode('quick-env', 'export FRENIX_BASE_URL=https://api.frenix.sh/v1\nexport FRENIX_API_KEY=sk-frx-your-api-key')}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
                     {copiedKey === 'quick-env' ? <Check size={13} color="#16a34a" /> : <Copy size={13} />}
-                    <span>{copiedKey === 'quick-env' ? 'Copied' : 'Copy'}</span>
+                    <span>{copiedKey === 'quick-env' ? t('Copied') : t('Copy')}</span>
                   </button>
                 </div>
                 <div className="code-font" style={{ padding: '16px', fontSize: '13px', lineHeight: 1.9 }}>
@@ -116,16 +118,16 @@ export default function Docs() {
                 </div>
               </div>
 
-              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 10px 0' }}>2. Dispatch Your First Request</h3>
+              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 10px 0' }}>2. {t('Dispatch Your First Request')}</h3>
               <div style={{ border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--card)', marginBottom: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', borderBottom: '1px solid var(--border)', fontSize: '12px', color: 'var(--muted)' }}>
-                  <span>cURL Command</span>
+                  <span>{t('cURL Command')}</span>
                   <button
                     onClick={() => copyCode('quick-curl', 'curl https://api.frenix.sh/v1/chat/completions \\\n  -H "Authorization: Bearer $FRENIX_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d \'{\n    "model": "claude-opus-4.5",\n    "messages": [{"role": "user", "content": "Explain raft consensus in simple words"}],\n    "temperature": 0.2\n  }\'')}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
                     {copiedKey === 'quick-curl' ? <Check size={13} color="#16a34a" /> : <Copy size={13} />}
-                    <span>{copiedKey === 'quick-curl' ? 'Copied' : 'Copy'}</span>
+                    <span>{copiedKey === 'quick-curl' ? t('Copied') : t('Copy')}</span>
                   </button>
                 </div>
                 <div className="code-font" style={{ padding: '16px', fontSize: '13px', lineHeight: 1.9, overflowX: 'auto' }}>
@@ -141,9 +143,9 @@ export default function Docs() {
               </div>
 
               <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', backgroundColor: 'var(--card)' }}>
-                <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '4px' }}>Unified Spec Guarantee</div>
+                <div style={{ fontWeight: 500, fontSize: '14px', marginBottom: '4px' }}>{t('Unified Spec Guarantee')}</div>
                 <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted)', lineHeight: 1.6 }}>
-                  Whether target model is Anthropic Claude, OpenAI GPT, Google Gemini, or Meta Llama, Frenix translates schemas automatically. You can always use the OpenAI-style <code className="code-font">/chat/completions</code> endpoint.
+                  {t('Whether target model is Anthropic Claude, OpenAI GPT, Google Gemini, or Meta Llama, Frenix translates schemas automatically. You can always use the OpenAI-style')} <code className="code-font">/chat/completions</code> {t('endpoint.')}
                 </p>
               </div>
             </div>
@@ -152,9 +154,9 @@ export default function Docs() {
           {/* TAB: Authentication */}
           {activeTab === 'authentication' && (
             <div>
-              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>Authentication & Key Scoping</h2>
+              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>{t('Authentication & Key Scoping')}</h2>
               <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 20px 0' }}>
-                All HTTP requests must carry your API key in standard HTTP Bearer authentication format.
+                {t('All HTTP requests must carry your API key in standard HTTP Bearer authentication format.')}
               </p>
 
               <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', backgroundColor: 'var(--card)', marginBottom: '24px' }}>
@@ -163,11 +165,11 @@ export default function Docs() {
                 </code>
               </div>
 
-              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 10px 0' }}>Key Security & Cryptography</h3>
+              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 10px 0' }}>{t('Key Security & Cryptography')}</h3>
               <ul style={{ margin: 0, paddingLeft: '20px', lineHeight: 1.9, fontSize: '14px', color: 'var(--muted)' }}>
-                <li><strong>No Plaintext Storage:</strong> Keys are hashed with Argon2id upon creation.</li>
-                <li><strong>Instant Revocation:</strong> Invalidate compromised keys instantly from your Dashboard.</li>
-                <li><strong>Per-Key Attribution:</strong> Track separate keys for Production, Staging, CLI, and team members.</li>
+                <li><strong>{t('No Plaintext Storage:')}</strong> {t('Keys are hashed with Argon2id upon creation.')}</li>
+                <li><strong>{t('Instant Revocation:')}</strong> {t('Invalidate compromised keys instantly from your Dashboard.')}</li>
+                <li><strong>{t('Per-Key Attribution:')}</strong> {t('Track separate keys for Production, Staging, CLI, and team members.')}</li>
               </ul>
             </div>
           )}
@@ -175,9 +177,9 @@ export default function Docs() {
           {/* TAB: Client Configurations */}
           {activeTab === 'client-configs' && (
             <div>
-              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>Claude Code, Codex & Cline Setup</h2>
+              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>{t('Claude Code, Codex & Cline Setup')}</h2>
               <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 20px 0' }}>
-                Configure popular AI developer tools and autonomous coding agents to point to Frenix in 30 seconds.
+                {t('Configure popular AI developer tools and autonomous coding agents to point to Frenix in 30 seconds.')}
               </p>
 
               <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 8px 0' }}>Claude Code CLI</h3>
@@ -185,14 +187,14 @@ export default function Docs() {
                 <div className="code-font" style={{ fontSize: '13px', lineHeight: 1.8 }}>
                   <div>export ANTHROPIC_BASE_URL=https://api.frenix.sh/v1</div>
                   <div>export ANTHROPIC_API_KEY=sk-frx-your-key</div>
-                  <div style={{ color: 'var(--muted)', marginTop: '8px' }}># Launch Claude Code</div>
+                  <div style={{ color: 'var(--muted)', marginTop: '8px' }}># {t('Launch Claude Code')}</div>
                   <div>claude</div>
                 </div>
               </div>
 
-              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 8px 0' }}>Cline / Roo Code (VS Code Extension)</h3>
+              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 8px 0' }}>Cline / Roo Code ({t('VS Code Extension')})</h3>
               <p style={{ fontSize: '14px', color: 'var(--muted)', margin: '0 0 10px 0' }}>
-                Open Settings &rarr; Select Provider: <strong>OpenAI Compatible</strong>
+                {t('Open Settings')} &rarr; {t('Select Provider:')} <strong>{t('OpenAI Compatible')}</strong>
               </p>
               <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', backgroundColor: 'var(--card)', marginBottom: '20px' }}>
                 <div className="code-font" style={{ fontSize: '13px', lineHeight: 1.8 }}>
@@ -211,9 +213,9 @@ export default function Docs() {
                 </div>
               </div>
 
-              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 8px 0' }}>MCP Server (Claude Code, Claude Desktop)</h3>
+              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '24px 0 8px 0' }}>{t('MCP Server (Claude Code, Claude Desktop)')}</h3>
               <p style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6, margin: '0 0 10px 0' }}>
-                Every API key also works as an MCP server at <code className="code-font">POST /v1/mcp</code>, exposing ten tools scoped to that key's own account — almost everything the Dashboard can do: model listing, account/usage/key management, and chat completions, embeddings, and Anthropic-native messages. See the <Link to="/mcp" style={{ color: 'inherit', textDecoration: 'underline' }}>MCP page</Link> for the full tool list.
+                {t('Every API key also works as an MCP server at')} <code className="code-font">POST /v1/mcp</code>{t(", exposing ten tools scoped to that key's own account — almost everything the Dashboard can do: model listing, account/usage/key management, and chat completions, embeddings, and Anthropic-native messages. See the")} <Link to="/mcp" style={{ color: 'inherit', textDecoration: 'underline' }}>{t('MCP page')}</Link> {t('for the full tool list.')}
               </p>
               <div style={{ border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--card)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', borderBottom: '1px solid var(--border)', fontSize: '12px', color: 'var(--muted)' }}>
@@ -223,7 +225,7 @@ export default function Docs() {
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
                     {copiedKey === 'mcp-config' ? <Check size={13} color="#16a34a" /> : <Copy size={13} />}
-                    <span>{copiedKey === 'mcp-config' ? 'Copied' : 'Copy'}</span>
+                    <span>{copiedKey === 'mcp-config' ? t('Copied') : t('Copy')}</span>
                   </button>
                 </div>
                 <div className="code-font" style={{ padding: '16px', fontSize: '13px', lineHeight: 1.8 }}>
@@ -243,9 +245,9 @@ export default function Docs() {
           {/* TAB: SDK Examples */}
           {activeTab === 'sdk-examples' && (
             <div>
-              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>Python & Node.js SDK Examples</h2>
+              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>{t('Python & Node.js SDK Examples')}</h2>
               <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 20px 0' }}>
-                Zero custom client libraries required. Use official <code className="code-font">openai</code> or <code className="code-font">anthropic</code> SDKs directly.
+                {t('Zero custom client libraries required. Use official')} <code className="code-font">openai</code> {t('or')} <code className="code-font">anthropic</code> {t('SDKs directly.')}
               </p>
 
               <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '20px 0 8px 0' }}>Python (openai-python)</h3>
@@ -257,7 +259,7 @@ export default function Docs() {
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
                     {copiedKey === 'py-code' ? <Check size={13} color="#16a34a" /> : <Copy size={13} />}
-                    <span>{copiedKey === 'py-code' ? 'Copied' : 'Copy'}</span>
+                    <span>{copiedKey === 'py-code' ? t('Copied') : t('Copy')}</span>
                   </button>
                 </div>
                 <div className="code-font" style={{ padding: '16px', fontSize: '13px', lineHeight: 1.9, overflowX: 'auto' }}>
@@ -298,12 +300,12 @@ export default function Docs() {
           {/* TAB: Streaming */}
           {activeTab === 'streaming' && (
             <div>
-              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>Streaming & Tool Calling</h2>
+              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>{t('Streaming & Tool Calling')}</h2>
               <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 20px 0' }}>
-                Frenix supports real-time Server-Sent Events (SSE) token streaming and complex multi-turn function calling without latency buffering.
+                {t('Frenix supports real-time Server-Sent Events (SSE) token streaming and complex multi-turn function calling without latency buffering.')}
               </p>
 
-              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '20px 0 8px 0' }}>Streaming Request Flag</h3>
+              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '20px 0 8px 0' }}>{t('Streaming Request Flag')}</h3>
               <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', backgroundColor: 'var(--card)', marginBottom: '24px' }}>
                 <div className="code-font" style={{ fontSize: '13px', lineHeight: 1.8 }}>
                   <div>curl https://api.frenix.sh/v1/chat/completions \</div>
@@ -317,9 +319,9 @@ export default function Docs() {
                 </div>
               </div>
 
-              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '20px 0 8px 0' }}>Function Calling / Tools</h3>
+              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '20px 0 8px 0' }}>{t('Function Calling / Tools')}</h3>
               <p style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.6, margin: 0 }}>
-                Pass tools in standard JSON schema under <code className="code-font">"tools"</code>. Frenix handles native function invocation schemas across all providers automatically.
+                {t('Pass tools in standard JSON schema under')} <code className="code-font">"tools"</code>. {t('Frenix handles native function invocation schemas across all providers automatically.')}
               </p>
             </div>
           )}
@@ -327,14 +329,14 @@ export default function Docs() {
           {/* TAB: Model Routing */}
           {activeTab === 'model-routing' && (
             <div>
-              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>Model Routing & Aliases</h2>
+              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>{t('Model Routing & Aliases')}</h2>
               <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 20px 0' }}>
-                Instead of hardcoding provider credentials, Frenix accepts standard model IDs or smart generic aliases.
+                {t('Instead of hardcoding provider credentials, Frenix accepts standard model IDs or smart generic aliases.')}
               </p>
 
               <div style={{ border: '1px solid var(--border)', borderRadius: '14px', overflow: 'hidden', backgroundColor: 'var(--card)', marginBottom: '24px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1fr', padding: '10px 16px', borderBottom: '1px solid var(--border)', fontSize: '12px', fontWeight: 500, color: 'var(--muted)' }}>
-                  <div>Model Slug</div><div>Target Provider</div><div>Tier</div>
+                  <div>{t('Model Slug')}</div><div>{t('Target Provider')}</div><div>{t('Tier')}</div>
                 </div>
                 {[
                   { slug: 'claude-opus-4.5', target: 'Anthropic Opus 4.5 (200k context)', tier: 'Pro' },
@@ -345,19 +347,19 @@ export default function Docs() {
                 ].map((row, i) => (
                   <div key={i} style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr 1fr', padding: '12px 16px', borderBottom: i === 4 ? 'none' : '1px solid var(--border)', fontSize: '13px' }}>
                     <div className="code-font">{row.slug}</div>
-                    <div style={{ color: 'var(--muted)' }}>{row.target}</div>
-                    <div><span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '8px', border: '1px solid var(--border)', color: 'var(--muted)' }}>{row.tier}</span></div>
+                    <div style={{ color: 'var(--muted)' }}>{t(row.target)}</div>
+                    <div><span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '8px', border: '1px solid var(--border)', color: 'var(--muted)' }}>{t(row.tier)}</span></div>
                   </div>
                 ))}
               </div>
 
               <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '20px 22px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 8px 0' }}>Free vs. paid-tier model access</h3>
+                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 8px 0' }}>{t('Free vs. paid-tier model access')}</h3>
                 <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 10px 0' }}>
-                  <code className="code-font">GET /v1/models</code> lists every model on the platform, including paid-tier ones — each entry carries an <code className="code-font">accessible</code> field. Only free-tier models (<code className="code-font">accessible: true</code>) are actually callable through <code className="code-font">/v1/chat/completions</code> and <code className="code-font">/v1/embeddings</code>. A request naming a paid-tier model gets <code className="code-font">403 permission_error</code> from these endpoints regardless of your account's own tier — paid-tier models are served through a separate endpoint, not this one.
+                  <code className="code-font">GET /v1/models</code> {t('lists every model on the platform, including paid-tier ones — each entry carries an')} <code className="code-font">accessible</code> {t('field. Only free-tier models (')}<code className="code-font">accessible: true</code>{t(') are actually callable through')} <code className="code-font">/v1/chat/completions</code> {t('and')} <code className="code-font">/v1/embeddings</code>. {t("A request naming a paid-tier model gets")} <code className="code-font">403 permission_error</code> {t("from these endpoints regardless of your account's own tier — paid-tier models are served through a separate endpoint, not this one.")}
                 </p>
                 <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: 0 }}>
-                  In short: use the models directory to see what's coming, but build against free-tier models for now.
+                  {t("In short: use the models directory to see what's coming, but build against free-tier models for now.")}
                 </p>
               </div>
             </div>
@@ -366,38 +368,38 @@ export default function Docs() {
           {/* TAB: Errors & Failover */}
           {activeTab === 'errors' && (
             <div>
-              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>Error Codes & Automatic Failover</h2>
+              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>{t('Error Codes & Automatic Failover')}</h2>
               <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 20px 0' }}>
-                Frenix continuously monitors health telemetry across regions. If an upstream data center returns 502/503/504 errors, your request fails over to backup cluster instances seamlessly.
+                {t('Frenix continuously monitors health telemetry across regions. If an upstream data center returns 502/503/504 errors, your request fails over to backup cluster instances seamlessly.')}
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '14px 18px', backgroundColor: 'var(--card)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                    <span className="code-font" style={{ fontWeight: 600, fontSize: '14px' }}>401 Unauthorized</span>
+                    <span className="code-font" style={{ fontWeight: 600, fontSize: '14px' }}>401 {t('Unauthorized')}</span>
                   </div>
-                  <div style={{ fontSize: '13px', color: 'var(--muted)' }}>Missing or revoked API key. Verify your key in Dashboard.</div>
+                  <div style={{ fontSize: '13px', color: 'var(--muted)' }}>{t('Missing or revoked API key. Verify your key in Dashboard.')}</div>
                 </div>
 
                 <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '14px 18px', backgroundColor: 'var(--card)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                    <span className="code-font" style={{ fontWeight: 600, fontSize: '14px' }}>403 Forbidden</span>
+                    <span className="code-font" style={{ fontWeight: 600, fontSize: '14px' }}>403 {t('Forbidden')}</span>
                   </div>
-                  <div style={{ fontSize: '13px', color: 'var(--muted)' }}>You named a paid-tier model. It's listed in the models directory for visibility, but not callable here — paid-tier access is served through a separate endpoint.</div>
+                  <div style={{ fontSize: '13px', color: 'var(--muted)' }}>{t("You named a paid-tier model. It's listed in the models directory for visibility, but not callable here — paid-tier access is served through a separate endpoint.")}</div>
                 </div>
 
                 <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '14px 18px', backgroundColor: 'var(--card)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                    <span className="code-font" style={{ fontWeight: 600, fontSize: '14px' }}>429 Too Many Requests</span>
+                    <span className="code-font" style={{ fontWeight: 600, fontSize: '14px' }}>429 {t('Too Many Requests')}</span>
                   </div>
-                  <div style={{ fontSize: '13px', color: 'var(--muted)' }}>Rate limit exceeded — 20 requests/minute flat, every tier.</div>
+                  <div style={{ fontSize: '13px', color: 'var(--muted)' }}>{t('Rate limit exceeded — 20 requests/minute flat, every tier.')}</div>
                 </div>
 
                 <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '14px 18px', backgroundColor: 'var(--card)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                    <span className="code-font" style={{ fontWeight: 600, fontSize: '14px' }}>503 Service Unavailable</span>
+                    <span className="code-font" style={{ fontWeight: 600, fontSize: '14px' }}>503 {t('Service Unavailable')}</span>
                   </div>
-                  <div style={{ fontSize: '13px', color: 'var(--muted)' }}>All upstream model clusters exhausted during catastrophic provider outage.</div>
+                  <div style={{ fontSize: '13px', color: 'var(--muted)' }}>{t('All upstream model clusters exhausted during catastrophic provider outage.')}</div>
                 </div>
               </div>
             </div>
@@ -406,37 +408,37 @@ export default function Docs() {
           {/* TAB: Rate limits */}
           {activeTab === 'rate-limits' && (
             <div>
-              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>Rate Limits & Concurrency</h2>
+              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>{t('Rate Limits & Concurrency')}</h2>
               <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 20px 0' }}>
-                One flat rate limit applies to every account, regardless of tier — credit balance, not request count, is what actually bounds how much you can use the gateway.
+                {t('One flat rate limit applies to every account, regardless of tier — credit balance, not request count, is what actually bounds how much you can use the gateway.')}
               </p>
 
               <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', backgroundColor: 'var(--card)', marginBottom: '20px', overflowX: 'auto' }}>
                 <table style={{ width: '100%', minWidth: '420px', borderCollapse: 'collapse', fontSize: '13px' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left', color: 'var(--muted)' }}>
-                      <th style={{ paddingBottom: '10px' }}>Limit</th>
-                      <th style={{ paddingBottom: '10px' }}>Value</th>
-                      <th style={{ paddingBottom: '10px' }}>Applies to</th>
+                      <th style={{ paddingBottom: '10px' }}>{t('Limit')}</th>
+                      <th style={{ paddingBottom: '10px' }}>{t('Value')}</th>
+                      <th style={{ paddingBottom: '10px' }}>{t('Applies to')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '12px 0', fontWeight: 500 }}>Requests per minute</td>
+                      <td style={{ padding: '12px 0', fontWeight: 500 }}>{t('Requests per minute')}</td>
                       <td style={{ padding: '12px 0', fontWeight: 600 }}>20 RPM</td>
-                      <td style={{ padding: '12px 0', color: 'var(--muted)' }}>Every account, every tier</td>
+                      <td style={{ padding: '12px 0', color: 'var(--muted)' }}>{t('Every account, every tier')}</td>
                     </tr>
                     <tr>
-                      <td style={{ padding: '12px 0', fontWeight: 500 }}>Daily request cap</td>
-                      <td style={{ padding: '12px 0', fontWeight: 600 }}>None</td>
-                      <td style={{ padding: '12px 0', color: 'var(--muted)' }}>Your credit balance is the real ceiling</td>
+                      <td style={{ padding: '12px 0', fontWeight: 500 }}>{t('Daily request cap')}</td>
+                      <td style={{ padding: '12px 0', fontWeight: 600 }}>{t('None')}</td>
+                      <td style={{ padding: '12px 0', color: 'var(--muted)' }}>{t('Your credit balance is the real ceiling')}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               <p style={{ fontSize: '14px', color: 'var(--muted)', margin: 0 }}>
-                Response headers <code className="code-font">x-ratelimit-remaining-minute</code> and <code className="code-font">x-ratelimit-reset</code> indicate your current per-minute bucket status; a <code className="code-font">Retry-After</code> header is set on a 429.
+                {t('Response headers')} <code className="code-font">x-ratelimit-remaining-minute</code> {t('and')} <code className="code-font">x-ratelimit-reset</code> {t('indicate your current per-minute bucket status; a')} <code className="code-font">Retry-After</code> {t('header is set on a 429.')}
               </p>
             </div>
           )}
@@ -444,32 +446,32 @@ export default function Docs() {
           {/* TAB: Referral Program */}
           {activeTab === 'plugins' && (
             <div>
-              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>Plugins</h2>
+              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>{t('Plugins')}</h2>
               <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 20px 0' }}>
-                A plugin gives the model a tool it can call during a chat completion — opt-in per request, not automatic. Name it in the <code className="code-font">plugins</code> array and, if the model calls it, Frenix executes it server-side and feeds the result back — you get the model's final answer, not a tool call for you to resolve yourself.
+                {t('A plugin gives the model a tool it can call during a chat completion — opt-in per request, not automatic. Name it in the')} <code className="code-font">plugins</code> {t("array and, if the model calls it, Frenix executes it server-side and feeds the result back — you get the model's final answer, not a tool call for you to resolve yourself.")}
               </p>
 
               <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', backgroundColor: 'var(--card)', marginBottom: '20px' }}>
-                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 10px 0' }}>Available plugins</h3>
+                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 10px 0' }}>{t('Available plugins')}</h3>
                 <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', lineHeight: 1.9, color: 'var(--muted)' }}>
-                  <li><code className="code-font">frenix_search</code> — Frenix's own built-in web search. No account or API key needed; shares at most the top 7 results with the model.</li>
-                  <li><code className="code-font">exa_search</code> — web search via Exa (exa.ai), using your own Exa API key. Configure it first at <Link to="/plugins" style={{ color: accentDisplay }}>Plugins</Link>.</li>
-                  <li><code className="code-font">weather</code> — current conditions for a named place, via Open-Meteo. No account or API key needed.</li>
-                  <li><code className="code-font">calculator</code> — evaluates an arithmetic expression locally. No account, API key, or network call.</li>
-                  <li><code className="code-font">code_interpreter</code> — runs a short code snippet on Piston, a free public sandboxed execution service — the code runs on Piston's own infrastructure, not Frenix's. No account or API key needed.</li>
+                  <li><code className="code-font">frenix_search</code> — {t("Frenix's own built-in web search. No account or API key needed; shares at most the top 7 results with the model.")}</li>
+                  <li><code className="code-font">exa_search</code> — {t('web search via Exa (exa.ai), using your own Exa API key. Configure it first at')} <Link to="/plugins" style={{ color: accentDisplay }}>{t('Plugins')}</Link>.</li>
+                  <li><code className="code-font">weather</code> — {t('current conditions for a named place, via Open-Meteo. No account or API key needed.')}</li>
+                  <li><code className="code-font">calculator</code> — {t('evaluates an arithmetic expression locally. No account, API key, or network call.')}</li>
+                  <li><code className="code-font">code_interpreter</code> — {t("runs a short code snippet on Piston, a free public sandboxed execution service — the code runs on Piston's own infrastructure, not Frenix's. No account or API key needed.")}</li>
                 </ul>
               </div>
 
-              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '0 0 10px 0' }}>Using a plugin</h3>
+              <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '0 0 10px 0' }}>{t('Using a plugin')}</h3>
               <div style={{ border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--card)', marginBottom: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', borderBottom: '1px solid var(--border)', fontSize: '12px', color: 'var(--muted)' }}>
-                  <span>cURL Command</span>
+                  <span>{t('cURL Command')}</span>
                   <button
                     onClick={() => copyCode('plugins-curl', 'curl https://api.frenix.sh/v1/chat/completions \\\n  -H "Authorization: Bearer $FRENIX_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d \'{\n    "model": "frx-gpt-4o",\n    "messages": [{"role": "user", "content": "What\'s the latest on the Raft consensus paper?"}],\n    "plugins": ["frenix_search"]\n  }\'')}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
                     {copiedKey === 'plugins-curl' ? <Check size={13} color="#16a34a" /> : <Copy size={13} />}
-                    <span>{copiedKey === 'plugins-curl' ? 'Copied' : 'Copy'}</span>
+                    <span>{copiedKey === 'plugins-curl' ? t('Copied') : t('Copy')}</span>
                   </button>
                 </div>
                 <div className="code-font" style={{ padding: '16px', fontSize: '13px', lineHeight: 1.9, overflowX: 'auto' }}>
@@ -485,15 +487,15 @@ export default function Docs() {
               </div>
 
               <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '20px 22px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 8px 0' }}>Managing your plugins</h3>
+                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 8px 0' }}>{t('Managing your plugins')}</h3>
                 <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 10px 0' }}>
-                  <code className="code-font">GET /v1/plugins</code> lists every plugin Frenix knows, whether it's enabled on your account, and <code className="code-font">requires_api_key</code> — <code className="code-font">false</code> means it's always on with nothing to configure. For a third-party plugin like <code className="code-font">exa_search</code>, <code className="code-font">PUT /v1/plugins/&#123;id&#125;</code> stores (encrypted) your own API key and enables it; <code className="code-font">DELETE /v1/plugins/&#123;id&#125;</code> removes it.
+                  <code className="code-font">GET /v1/plugins</code> {t("lists every plugin Frenix knows, whether it's enabled on your account, and")} <code className="code-font">requires_api_key</code> — <code className="code-font">false</code> {t("means it's always on with nothing to configure. For a third-party plugin like")} <code className="code-font">exa_search</code>, <code className="code-font">PUT /v1/plugins/&#123;id&#125;</code> {t('stores (encrypted) your own API key and enables it;')} <code className="code-font">DELETE /v1/plugins/&#123;id&#125;</code> {t('removes it.')}
                 </p>
                 <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 10px 0' }}>
-                  <code className="code-font">stream: true</code> works together with <code className="code-font">plugins</code> too — the tool-call loop always runs internally as buffered requests, but once it resolves you get the final answer back as a real SSE stream in the same shape as any other streamed completion.
+                  <code className="code-font">stream: true</code> {t('works together with')} <code className="code-font">plugins</code> {t('too — the tool-call loop always runs internally as buffered requests, but once it resolves you get the final answer back as a real SSE stream in the same shape as any other streamed completion.')}
                 </p>
                 <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: 0 }}>
-                  Whenever <code className="code-font">plugins</code> is set, Frenix prepends its own system message giving the model the current date/time and, when it can resolve one from the caller's IP, their approximate location and local time — useful for "today", "the weather right now", or "near me" without you supplying any of it yourself. A failed lookup just omits location; it's never invented, and never touches a system message you supply yourself.
+                  {t('Whenever')} <code className="code-font">plugins</code> {t('is set, Frenix prepends its own system message giving the model the current date/time and, when it can resolve one from the caller\'s IP, their approximate location and local time — useful for "today", "the weather right now", or "near me" without you supplying any of it yourself. A failed lookup just omits location; it\'s never invented, and never touches a system message you supply yourself.')}
                 </p>
               </div>
             </div>
@@ -501,27 +503,27 @@ export default function Docs() {
 
           {activeTab === 'referrals' && (
             <div>
-              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>Referral Program</h2>
+              <h2 style={{ fontSize: '24px', fontWeight: 400, margin: '0 0 12px 0' }}>{t('Referral Program')}</h2>
               <p style={{ fontSize: '15px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 20px 0' }}>
-                Every account gets its own referral link. Share it — each time someone signs up through it, you're credited $100, with no cap on how many times.
+                {t("Every account gets its own referral link. Share it — each time someone signs up through it, you're credited $100, with no cap on how many times.")}
               </p>
 
               <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '24px', backgroundColor: 'var(--card)', marginBottom: '20px' }}>
-                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 10px 0' }}>How it works</h3>
+                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 10px 0' }}>{t('How it works')}</h3>
                 <ol style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', lineHeight: 1.9, color: 'var(--muted)' }}>
-                  <li>Grab your link from the <strong style={{ color: 'var(--text)' }}>Dashboard</strong> — it looks like <code className="code-font">https://frenix.sh/?ref=&lt;your code&gt;</code>.</li>
-                  <li>Anyone who opens it and signs up via Telegram is now attributed to you.</li>
-                  <li>The instant their account is created, you're credited <strong style={{ color: 'var(--text)' }}>$100</strong> — they still get the normal $500 signup bonus too, unaffected.</li>
+                  <li>{t('Grab your link from the')} <strong style={{ color: 'var(--text)' }}>{t('Dashboard')}</strong> — {t('it looks like')} <code className="code-font">https://frenix.sh/?ref=&lt;your code&gt;</code>.</li>
+                  <li>{t('Anyone who opens it and signs up via Telegram is now attributed to you.')}</li>
+                  <li>{t("The instant their account is created, you're credited")} <strong style={{ color: 'var(--text)' }}>$100</strong> — {t('they still get the normal $500 signup bonus too, unaffected.')}</li>
                 </ol>
               </div>
 
               <div style={{ border: '1px solid var(--border)', borderRadius: '14px', padding: '20px 22px', backgroundColor: 'var(--card)' }}>
-                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 8px 0' }}>API details</h3>
+                <h3 style={{ fontSize: '15px', fontWeight: 500, margin: '0 0 8px 0' }}>{t('API details')}</h3>
                 <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: '0 0 10px 0' }}>
-                  <code className="code-font">GET /v1/me</code> returns your own <code className="code-font">referral_code</code> and a running <code className="code-font">referral_count</code>. To attribute a signup, pass <code className="code-font">referral_code</code> in the JSON body of <code className="code-font">POST /v1/auth/telegram/start</code> — it's optional, and an invalid or unknown code never blocks the signup, it just means no bonus is granted.
+                  <code className="code-font">GET /v1/me</code> {t('returns your own')} <code className="code-font">referral_code</code> {t('and a running')} <code className="code-font">referral_count</code>. {t('To attribute a signup, pass')} <code className="code-font">referral_code</code> {t('in the JSON body of')} <code className="code-font">POST /v1/auth/telegram/start</code> — {t("it's optional, and an invalid or unknown code never blocks the signup, it just means no bonus is granted.")}
                 </p>
                 <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)', margin: 0 }}>
-                  A referral is attributed once, the moment an account is first created — logging in again later never re-triggers it, and you can't refer yourself.
+                  {t("A referral is attributed once, the moment an account is first created — logging in again later never re-triggers it, and you can't refer yourself.")}
                 </p>
               </div>
             </div>
