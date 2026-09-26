@@ -21,7 +21,7 @@ export default function Pricing() {
   const [proError, setProError] = useState('');
 
   // Mirrors internal/billing.TokenPackSKUs exactly — GMPayCreate rejects
-  // any `tokens` value that isn't one of these five, and always prices it
+  // any `tokens` value that isn't one of these six, and always prices it
   // server-side from this same catalog, never from what we send.
   const TOKEN_PACK_SKUS = [
     { tokens: 10_000_000, priceUSD: 2.5, label: '10M' },
@@ -29,6 +29,7 @@ export default function Pricing() {
     { tokens: 50_000_000, priceUSD: 15, label: '50M' },
     { tokens: 75_000_000, priceUSD: 21.75, label: '75M' },
     { tokens: 100_000_000, priceUSD: 30, label: '100M' },
+    { tokens: 400_000_000, priceUSD: 100, label: '400M' },
   ];
   const [selectedSkuIndex, setSelectedSkuIndex] = useState(2); // 50M — the "Most Popular" default
   const selectedSku = TOKEN_PACK_SKUS[selectedSkuIndex];
@@ -220,7 +221,7 @@ export default function Pricing() {
           <div style={{ borderTop: '1px solid var(--border)', marginBottom: '18px' }} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px' }}>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('Access to all 150+ models')}</div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> <strong>{t('Pick your pack: 10M to 100M tokens')}</strong></div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> <strong>{t('Pick your pack: 10M to 400M tokens')}</strong></div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('10 requests per minute (10 RPM)')}</div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('Claude Code, Codex, Cline support')}</div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><Check size={16} color={accentDisplay} /> {t('Automatic provider failover')}</div>
